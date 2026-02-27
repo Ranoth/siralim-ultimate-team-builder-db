@@ -1,0 +1,6 @@
+services:
+  sutbdb:
+    build: .
+    container_name: sutbdb
+    ports:
+      - "8000:8000"
