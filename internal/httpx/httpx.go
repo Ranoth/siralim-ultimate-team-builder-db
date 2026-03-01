@@ -129,3 +129,20 @@ func HandleDelete[T any](serviceFunc func(context.Context, int32) error, resourc
 		WriteJSON(w, http.StatusOK, map[string]string{"message": fmt.Sprintf("%s deleted successfully", resourceName)})
 	}
 }
+
+func HandleUpdate[Req any](serviceFunc func(context.Context, Req) error, resourceName string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		req, err := ReadJSON[Req](r)
+		if err != nil {
+			WriteError(w, http.StatusBadRequest, err)
+			return
+		}
+
+		err = serviceFunc(r.Context(), req)
+		if err != nil {
+			WriteErrorMessage(w, http.StatusInternalServerError, fmt.Sprintf("Error updating %s: %v", resourceName, err))
+			return
+		}
+		WriteJSON(w, http.StatusOK, map[string]string{"message": fmt.Sprintf("%s updated successfully", resourceName)})
+	}
+}

@@ -14,7 +14,8 @@ type Querier interface {
 	CreateArtifact(ctx context.Context, arg CreateArtifactParams) (int32, error)
 	CreateClass(ctx context.Context, arg CreateClassParams) (int32, error)
 	CreateCreature(ctx context.Context, arg CreateCreatureParams) (int32, error)
-	CreateMaterial(ctx context.Context, arg CreateMaterialParams) (int32, error)
+	CreateMaterial(ctx context.Context, arg CreateMaterialParams) (Material, error)
+	CreateMaterialStat(ctx context.Context, arg CreateMaterialStatParams) (int32, error)
 	CreatePerk(ctx context.Context, arg CreatePerkParams) (int32, error)
 	CreateRace(ctx context.Context, arg CreateRaceParams) (int32, error)
 	CreateSpecialization(ctx context.Context, arg CreateSpecializationParams) (int32, error)
@@ -26,6 +27,7 @@ type Querier interface {
 	DeleteClass(ctx context.Context, id int32) error
 	DeleteCreature(ctx context.Context, id int32) error
 	DeleteMaterial(ctx context.Context, id int32) error
+	DeleteMaterialStat(ctx context.Context, id int32) error
 	DeletePerk(ctx context.Context, id int32) error
 	DeleteRace(ctx context.Context, id int32) error
 	DeleteSpecialization(ctx context.Context, id int32) error
@@ -45,9 +47,10 @@ type Querier interface {
 	GetCreaturesByName(ctx context.Context, dollar_1 pgtype.Text) ([]Creature, error)
 	GetCreaturesByRaceName(ctx context.Context, dollar_1 pgtype.Text) ([]Creature, error)
 	GetCreaturesByTraitName(ctx context.Context, dollar_1 pgtype.Text) ([]Creature, error)
-	GetMaterial(ctx context.Context, id int32) (Material, error)
-	GetMaterials(ctx context.Context) ([]Material, error)
-	GetMaterialsByName(ctx context.Context, dollar_1 pgtype.Text) ([]Material, error)
+	GetMaterial(ctx context.Context, id int32) (GetMaterialRow, error)
+	GetMaterialStats(ctx context.Context, materialID int32) ([]MaterialStat, error)
+	GetMaterials(ctx context.Context) ([]GetMaterialsRow, error)
+	GetMaterialsByName(ctx context.Context, dollar_1 pgtype.Text) ([]GetMaterialsByNameRow, error)
 	GetPerk(ctx context.Context, id int32) (Perk, error)
 	GetPerks(ctx context.Context) ([]Perk, error)
 	GetPerksByName(ctx context.Context, dollar_1 pgtype.Text) ([]Perk, error)
@@ -73,6 +76,7 @@ type Querier interface {
 	GetTraits(ctx context.Context) ([]Trait, error)
 	GetTraitsByCreatureName(ctx context.Context, dollar_1 pgtype.Text) ([]Trait, error)
 	GetTraitsByName(ctx context.Context, dollar_1 pgtype.Text) ([]Trait, error)
+	UpdateMaterialStat(ctx context.Context, arg UpdateMaterialStatParams) error
 }
 
 var _ Querier = (*Queries)(nil)

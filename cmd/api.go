@@ -11,11 +11,12 @@ import (
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/artifacts"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/classes"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/creatures"
+	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/dbseeder"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/materials"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/perks"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/races"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/specializations"
-	spellproperties "github.com/Ranoth/siralim-ultimate-team-builder-db/internal/spellproperties"
+	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/spellproperties"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/spells"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/stats"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/traits"
@@ -129,6 +130,8 @@ func (app *application) run(h http.Handler) error {
 	}
 
 	log.Printf("Starting server on %s", app.config.addr)
+
+	dbseeder.Run()
 
 	return app.srv.ListenAndServe()
 }

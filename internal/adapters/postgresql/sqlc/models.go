@@ -131,7 +131,6 @@ type MaterialStat struct {
 	ID         int32 `json:"id"`
 	MaterialID int32 `json:"material_id"`
 	StatID     int32 `json:"stat_id"`
-	Value      int32 `json:"value"`
 }
 
 type Perk struct {

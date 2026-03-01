@@ -22,7 +22,6 @@ CREATE TABLE IF NOT EXISTS material_stats (
     id SERIAL PRIMARY KEY,
     material_id INTEGER NOT NULL,
     stat_id INTEGER NOT NULL,
-    value INTEGER NOT NULL,
     FOREIGN KEY (material_id) REFERENCES materials(id),
     FOREIGN KEY (stat_id) REFERENCES stats(id)
 );

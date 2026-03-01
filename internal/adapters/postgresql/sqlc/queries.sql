@@ -20,8 +20,15 @@ FROM perks;
 SELECT *
 FROM spells;
 -- name: GetMaterials :many
-SELECT *
-FROM materials;
+SELECT m.id,
+    m.name,
+    m.description,
+    m.icon,
+    m.type,
+    ms.id as stat_id,
+    ms.stat_id
+FROM materials m
+    LEFT JOIN material_stats ms ON m.id = ms.material_id;
 -- name: GetSpellProperties :many
 SELECT *
 FROM spell_properties;
@@ -60,9 +67,16 @@ SELECT *
 FROM spells
 WHERE id = $1;
 -- name: GetMaterial :one
-SELECT *
-FROM materials
-WHERE id = $1;
+SELECT m.id,
+    m.name,
+    m.description,
+    m.icon,
+    m.type,
+    ms.id as stat_id,
+    ms.stat_id
+FROM materials m
+    LEFT JOIN material_stats ms ON m.id = ms.material_id
+WHERE m.id = $1;
 -- name: GetSpellProperty :one
 SELECT *
 FROM spell_properties
@@ -106,7 +120,7 @@ RETURNING id;
 -- name: CreateMaterial :one
 INSERT INTO materials (name, description, icon, type)
 VALUES ($1, $2, $3, $4)
-RETURNING id;
+RETURNING id, name, description, icon, type;
 -- name: CreateSpellProperty :one
 INSERT INTO spell_properties (name, description, material_id)
 VALUES ($1, $2, $3)
@@ -142,6 +156,24 @@ DELETE FROM spells
 WHERE id = $1;
 -- name: DeleteMaterial :exec
 DELETE FROM materials
+WHERE id = $1;
+-- name: GetMaterialStats :many
+SELECT id,
+    material_id,
+    stat_id
+FROM material_stats
+WHERE material_id = $1;
+-- name: CreateMaterialStat :one
+INSERT INTO material_stats (material_id, stat_id, id)
+VALUES ($1, $2, $3)
+RETURNING id;
+-- name: UpdateMaterialStat :exec
+UPDATE material_stats
+SET id = $3
+WHERE material_id = $1
+    AND stat_id = $2;
+-- name: DeleteMaterialStat :exec
+DELETE FROM material_stats
 WHERE id = $1;
 -- name: DeleteSpellProperty :exec
 DELETE FROM spell_properties
@@ -182,9 +214,16 @@ SELECT *
 FROM spells
 WHERE name ILIKE '%' || $1 || '%';
 -- name: GetMaterialsByName :many
-SELECT *
-FROM materials
-WHERE name ILIKE '%' || $1 || '%';
+SELECT m.id,
+    m.name,
+    m.description,
+    m.icon,
+    m.type,
+    ms.id as stat_id,
+    ms.stat_id
+FROM materials m
+    LEFT JOIN material_stats ms ON m.id = ms.material_id
+WHERE m.name ILIKE '%' || $1 || '%';
 -- name: GetSpellPropertiesByName :many
 SELECT *
 FROM spell_properties

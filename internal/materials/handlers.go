@@ -16,15 +16,15 @@ func NewHandler(service Service) *handler {
 }
 
 func (h *handler) GetMaterials(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleList[repo.Material](h.service.GetMaterials)(w, r)
+	httpx.HandleList[repo.GetMaterialsRow](h.service.GetMaterials)(w, r)
 }
 
 func (h *handler) GetMaterial(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleGetByID[repo.Material](h.service.GetMaterial, "material")(w, r)
+	httpx.HandleGetByID[repo.GetMaterialRow](h.service.GetMaterial, "material")(w, r)
 }
 
 func (h *handler) GetMaterialsByName(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleGetByName[repo.Material](h.service.GetMaterialsByName, "materials")(w, r)
+	httpx.HandleGetByName[repo.GetMaterialsRow](h.service.GetMaterialsByName, "materials")(w, r)
 }
 
 func (h *handler) CreateMaterial(w http.ResponseWriter, r *http.Request) {
@@ -32,5 +32,13 @@ func (h *handler) CreateMaterial(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) DeleteMaterial(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleDelete[repo.Material](h.service.DeleteMaterial, "material")(w, r)
+	httpx.HandleDelete[repo.GetMaterialRow](h.service.DeleteMaterial, "material")(w, r)
+}
+
+func (h *handler) CreateMaterialStat(w http.ResponseWriter, r *http.Request) {
+	httpx.HandleCreate[repo.CreateMaterialStatParams, int32](h.service.CreateMaterialStat, "material stat")(w, r)
+}
+
+func (h *handler) DeleteMaterialStat(w http.ResponseWriter, r *http.Request) {
+	httpx.HandleDelete[int32](h.service.DeleteMaterialStat, "material stat")(w, r)
 }
