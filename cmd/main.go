@@ -47,8 +47,6 @@ func main() {
 		}
 	}()
 
-	logger.Info("Server started", "address", cfg.addr)
-
 	<-quit
 	logger.Info("Shutting down server...")
 
