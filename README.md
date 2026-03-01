@@ -1,11 +1,11 @@
 # Siralim Ultimate Team Builder Database (Work in Progress)
 > [Docker Image](https://hub.docker.com/r/ranoth/siralim-ultimate-team-builder-db)
 
-This repository contains the database for the Siralim Ultimate Team Builder, a tool designed to help players of the game Siralim Ultimate create and manage their teams effectively. The database includes information on monsters, skills, items, and other relevant data that players can use to optimize their team compositions.
+This repository contains the API for the Siralim Ultimate Team Builder (WIP), a tool designed to help players of the game Siralim Ultimate create and manage their teams effectively. The database includes information on monsters, skills, items, and other relevant data that players can use to optimize their team compositions.
 
 ## How to Use
-1. Install [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/install) on your machine if you haven't already.
-2. Write a docker-compose.yaml as such:
+1. Install [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/install) if you haven't already.
+2. Write a docker-compose.yaml file as such:
     ```yaml
     volumes:
         sutbdb_postgres_data:
