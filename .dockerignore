@@ -6,3 +6,4 @@ sqlc.yaml
 docker-compose.yaml
 postgresData/
 gameData/
+*.session.sql

@@ -3,3 +3,4 @@ docker-compose.yaml
 postgresData/
 gameData/
 .vscode/
+*.session.sql
