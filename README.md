@@ -5,7 +5,7 @@ This repository contains the API for the Siralim Ultimate Team Builder (WIP), a 
 
 ## How to Use
 1. Install [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/install) if you haven't already.
-2. Write a docker-compose.yaml file as such:
+2. Write a `docker-compose.yaml` file as such:
     ```yaml
     volumes:
         sutbdb_postgres_data:
