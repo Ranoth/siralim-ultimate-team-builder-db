@@ -1,4 +1,4 @@
-module github.com/Ranoth/SUTBDB
+module github.com/Ranoth/siralim-ultimate-team-builder-db
 
 go 1.24.0
 

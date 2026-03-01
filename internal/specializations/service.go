@@ -3,7 +3,7 @@ package specializations
 import (
 	"context"
 
-	repo "github.com/Ranoth/SUTBDB/internal/adapters/postgresql/sqlc"
+	repo "github.com/Ranoth/siralim-ultimate-team-builder-db/internal/adapters/postgresql/sqlc"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
