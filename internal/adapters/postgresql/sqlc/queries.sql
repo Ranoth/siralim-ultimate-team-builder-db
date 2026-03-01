@@ -155,7 +155,7 @@ WHERE id = $1;
 -- name: GetTraitsByCreatureName :many
 SELECT t.*
 FROM traits t
-JOIN creatures c ON t.id = c.trait_id
+    JOIN creatures c ON t.id = c.trait_id
 WHERE c.name ILIKE '%' || $1 || '%';
 -- name: GetTraitsByName :many
 SELECT *
@@ -200,17 +200,17 @@ WHERE type::text ILIKE '%' || $1 || '%';
 -- name: GetCreaturesByTraitName :many
 SELECT c.*
 FROM creatures c
-JOIN traits t ON c.trait_id = t.id
+    JOIN traits t ON c.trait_id = t.id
 WHERE t.name ILIKE '%' || $1 || '%';
 -- name: GetCreaturesByClassName :many
 SELECT c.*
 FROM creatures c
-JOIN classes cl ON c.class_id = cl.id
+    JOIN classes cl ON c.class_id = cl.id
 WHERE cl.name ILIKE '%' || $1 || '%';
 -- name: GetCreaturesByRaceName :many
 SELECT c.*
 FROM creatures c
-JOIN races r ON c.race_id = r.id
+    JOIN races r ON c.race_id = r.id
 WHERE r.name ILIKE '%' || $1 || '%';
 -- name: GetCreaturesByName :many
 SELECT *
@@ -219,17 +219,17 @@ WHERE name ILIKE '%' || $1 || '%';
 -- name: GetRacesByTraitName :many
 SELECT r.*
 FROM races r
-JOIN creatures c ON r.id = c.race_id
-JOIN traits t ON c.trait_id = t.id
+    JOIN creatures c ON r.id = c.race_id
+    JOIN traits t ON c.trait_id = t.id
 WHERE t.name ILIKE '%' || $1 || '%';
 -- name: GetRacesByClassName :many
 SELECT r.*
 FROM races r
-JOIN creatures c ON r.id = c.race
-JOIN classes cl ON c.class_id = cl.id
+    JOIN creatures c ON r.id = c.race
+    JOIN classes cl ON c.class_id = cl.id
 WHERE cl.name ILIKE '%' || $1 || '%';
 -- name: GetRacesByCreatureName :many
 SELECT r.*
 FROM races r
-JOIN creatures c ON r.id = c.race_id
+    JOIN creatures c ON r.id = c.race_id
 WHERE c.name ILIKE '%' || $1 || '%';
