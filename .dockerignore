@@ -1,3 +1,6 @@
 .env
+.gitignore
+sqlc.yaml
 docker-compose.yaml
 postgresData/
+gameData/

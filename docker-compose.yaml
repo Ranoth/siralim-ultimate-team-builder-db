@@ -4,8 +4,6 @@ services:
     container_name: sutbdb
     environment:
       GOOSE_DBSTRING: host=postgres user=sutbdb password=sutbdb dbname=sutbdb sslmode=disable
-      GOOSE_DRIVER: postgres
-      GOOSE_MIGRATION_DIR: ./internal/adapters/postgresql/migrations
     ports:
       - "8080:8080"
     depends_on:
