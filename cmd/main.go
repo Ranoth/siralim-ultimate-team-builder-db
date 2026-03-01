@@ -16,7 +16,7 @@ func main() {
 	ctx := context.Background()
 
 	cfg := config{
-		addr: ":8080",
+		addr: env.GetString("ADDRESS", ":8080"),
 		db: dbConfig{
 			dsn: env.GetString("GOOSE_DBSTRING", "host=postgres user=postgres password=postgres dbname=sutbdb sslmode=disable"),
 		},
