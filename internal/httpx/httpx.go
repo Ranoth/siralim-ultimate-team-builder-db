@@ -33,6 +33,12 @@ func ReadJSON[T any](r *http.Request) (T, error) {
 	return data, err
 }
 
+func ReadJSONUnsafe[T any](r *http.Request) (T, error) {
+	var data T
+	err := json.NewDecoder(r.Body).Decode(&data)
+	return data, err
+}
+
 func HandleList[T any](serviceFunc func(context.Context) ([]T, error)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		results, err := serviceFunc(r.Context())
