@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/Ranoth/siralim-ultimate-team-builder-db/compare/v1.0.0...v1.0.1) (2026-03-01)
+
+
+### Bug Fixes
+
+* fix autorelease branch ([caaae6d](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/caaae6dfc183d5b258b62692439c321150821813))
+
 ## 1.0.0 (2026-03-01)
 
 
