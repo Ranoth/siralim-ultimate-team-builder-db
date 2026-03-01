@@ -1,0 +1,48 @@
+package stats
+
+import (
+	"context"
+
+	repo "github.com/Ranoth/SUTBDB/internal/adapters/postgresql/sqlc"
+	"github.com/jackc/pgx/v5/pgtype"
+)
+
+type Service interface {
+	GetStats(ctx context.Context) ([]repo.Stat, error)
+	GetStat(ctx context.Context, id int32) (repo.Stat, error)
+	GetStatsByType(ctx context.Context, statType string) ([]repo.Stat, error)
+	CreateStat(ctx context.Context, statType repo.StatType) (repo.Stat, error)
+	DeleteStat(ctx context.Context, id int32) error
+}
+
+type service struct {
+	repo repo.Querier
+}
+
+func NewService(repo repo.Querier) *service {
+	return &service{repo: repo}
+}
+
+func (s *service) GetStats(ctx context.Context) ([]repo.Stat, error) {
+	return s.repo.GetStats(ctx)
+}
+
+func (s *service) GetStat(ctx context.Context, id int32) (repo.Stat, error) {
+	return s.repo.GetStat(ctx, id)
+}
+
+func (s *service) GetStatsByType(ctx context.Context, statType string) ([]repo.Stat, error) {
+	return s.repo.GetStatsByType(ctx, pgtype.Text{String: statType, Valid: true})
+}
+
+func (s *service) CreateStat(ctx context.Context, statType repo.StatType) (repo.Stat, error) {
+	id, err := s.repo.CreateStat(ctx, statType)
+	if err != nil {
+		return repo.Stat{}, err
+	}
+	return s.repo.GetStat(ctx, id)
+}
+
+func (s *service) DeleteStat(ctx context.Context, id int32) error {
+	return s.repo.DeleteStat(ctx, id)
+}

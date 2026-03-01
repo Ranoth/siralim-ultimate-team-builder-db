@@ -2,5 +2,32 @@ services:
   sutbdb:
     build: .
     container_name: sutbdb
+    environment:
+      GOOSE_DBSTRING: host=postgres user=sutbdb password=sutbdb dbname=sutbdb sslmode=disable
+      GOOSE_DRIVER: postgres
+      GOOSE_MIGRATION_DIR: ./internal/adapters/postgresql/migrations
     ports:
-      - "8000:8000"
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+  
+  postgres:
+    image: postgres:16-alpine
+    container_name: sutbdb-postgres
+    environment:
+      POSTGRES_USER: sutbdb
+      POSTGRES_PASSWORD: sutbdb
+      POSTGRES_DB: sutbdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - sutbdb_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sutbdb -d sutbdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  sutbdb_postgres_data:
