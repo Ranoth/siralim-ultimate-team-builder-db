@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.2](https://github.com/Ranoth/siralim-ultimate-team-builder-db/compare/v1.1.1...v1.1.2) (2026-03-01)
+
+
+### Bug Fixes
+
+* remove dbseeder from release for now ([ab55004](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/ab55004d80df752ade2b90bc6759f84e71e0e4bf))
+* remove docker-compose ([948b531](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/948b531017539c1a1b01fe744b8af021142fc7af))
+
 ## [1.1.1](https://github.com/Ranoth/siralim-ultimate-team-builder-db/compare/v1.1.0...v1.1.1) (2026-03-01)
 
 
