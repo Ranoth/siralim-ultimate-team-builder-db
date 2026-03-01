@@ -76,30 +76,26 @@ func (q *Queries) CreateCreature(ctx context.Context, arg CreateCreatureParams) 
 }
 
 const createMaterial = `-- name: CreateMaterial :one
-INSERT INTO materials (name, description, icon, type)
-VALUES ($1, $2, $3, $4)
-RETURNING id, name, description, icon, type
+INSERT INTO materials (name, icon, type)
+VALUES ($1, $2, $3)
+RETURNING id,
+    name,
+    icon,
+    type
 `
 
 type CreateMaterialParams struct {
-	Name        string           `json:"name"`
-	Description string           `json:"description"`
-	Icon        []byte           `json:"icon"`
-	Type        NullMaterialType `json:"type"`
+	Name string           `json:"name"`
+	Icon []byte           `json:"icon"`
+	Type NullMaterialType `json:"type"`
 }
 
 func (q *Queries) CreateMaterial(ctx context.Context, arg CreateMaterialParams) (Material, error) {
-	row := q.db.QueryRow(ctx, createMaterial,
-		arg.Name,
-		arg.Description,
-		arg.Icon,
-		arg.Type,
-	)
+	row := q.db.QueryRow(ctx, createMaterial, arg.Name, arg.Icon, arg.Type)
 	var i Material
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		&i.Description,
 		&i.Icon,
 		&i.Type,
 	)
@@ -214,19 +210,18 @@ func (q *Queries) CreateSpell(ctx context.Context, arg CreateSpellParams) (int32
 }
 
 const createSpellProperty = `-- name: CreateSpellProperty :one
-INSERT INTO spell_properties (name, description, material_id)
-VALUES ($1, $2, $3)
+INSERT INTO spell_properties (name, material_id)
+VALUES ($1, $2)
 RETURNING id
 `
 
 type CreateSpellPropertyParams struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	MaterialID  int32  `json:"material_id"`
+	Name       string `json:"name"`
+	MaterialID int32  `json:"material_id"`
 }
 
 func (q *Queries) CreateSpellProperty(ctx context.Context, arg CreateSpellPropertyParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createSpellProperty, arg.Name, arg.Description, arg.MaterialID)
+	row := q.db.QueryRow(ctx, createSpellProperty, arg.Name, arg.MaterialID)
 	var id int32
 	err := row.Scan(&id)
 	return id, err
@@ -385,7 +380,7 @@ func (q *Queries) DeleteTrait(ctx context.Context, id int32) error {
 }
 
 const getArtifact = `-- name: GetArtifact :one
-SELECT id, name, description, icon
+SELECT id, name, description, icon, type
 FROM artifacts
 WHERE id = $1
 `
@@ -398,12 +393,13 @@ func (q *Queries) GetArtifact(ctx context.Context, id int32) (Artifact, error) {
 		&i.Name,
 		&i.Description,
 		&i.Icon,
+		&i.Type,
 	)
 	return i, err
 }
 
 const getArtifacts = `-- name: GetArtifacts :many
-SELECT id, name, description, icon
+SELECT id, name, description, icon, type
 FROM artifacts
 `
 
@@ -421,6 +417,7 @@ func (q *Queries) GetArtifacts(ctx context.Context) ([]Artifact, error) {
 			&i.Name,
 			&i.Description,
 			&i.Icon,
+			&i.Type,
 		); err != nil {
 			return nil, err
 		}
@@ -433,7 +430,7 @@ func (q *Queries) GetArtifacts(ctx context.Context) ([]Artifact, error) {
 }
 
 const getArtifactsByName = `-- name: GetArtifactsByName :many
-SELECT id, name, description, icon
+SELECT id, name, description, icon, type
 FROM artifacts
 WHERE name ILIKE '%' || $1 || '%'
 `
@@ -452,6 +449,7 @@ func (q *Queries) GetArtifactsByName(ctx context.Context, dollar_1 pgtype.Text) 
 			&i.Name,
 			&i.Description,
 			&i.Icon,
+			&i.Type,
 		); err != nil {
 			return nil, err
 		}
@@ -717,7 +715,6 @@ func (q *Queries) GetCreaturesByTraitName(ctx context.Context, dollar_1 pgtype.T
 const getMaterial = `-- name: GetMaterial :one
 SELECT m.id,
     m.name,
-    m.description,
     m.icon,
     m.type,
     ms.id as stat_id,
@@ -728,13 +725,12 @@ WHERE m.id = $1
 `
 
 type GetMaterialRow struct {
-	ID          int32            `json:"id"`
-	Name        string           `json:"name"`
-	Description string           `json:"description"`
-	Icon        []byte           `json:"icon"`
-	Type        NullMaterialType `json:"type"`
-	StatID      pgtype.Int4      `json:"stat_id"`
-	StatID_2    pgtype.Int4      `json:"stat_id_2"`
+	ID       int32            `json:"id"`
+	Name     string           `json:"name"`
+	Icon     []byte           `json:"icon"`
+	Type     NullMaterialType `json:"type"`
+	StatID   pgtype.Int4      `json:"stat_id"`
+	StatID_2 pgtype.Int4      `json:"stat_id_2"`
 }
 
 func (q *Queries) GetMaterial(ctx context.Context, id int32) (GetMaterialRow, error) {
@@ -743,7 +739,6 @@ func (q *Queries) GetMaterial(ctx context.Context, id int32) (GetMaterialRow, er
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		&i.Description,
 		&i.Icon,
 		&i.Type,
 		&i.StatID,
@@ -760,15 +755,21 @@ FROM material_stats
 WHERE material_id = $1
 `
 
-func (q *Queries) GetMaterialStats(ctx context.Context, materialID int32) ([]MaterialStat, error) {
+type GetMaterialStatsRow struct {
+	ID         int32 `json:"id"`
+	MaterialID int32 `json:"material_id"`
+	StatID     int32 `json:"stat_id"`
+}
+
+func (q *Queries) GetMaterialStats(ctx context.Context, materialID int32) ([]GetMaterialStatsRow, error) {
 	rows, err := q.db.Query(ctx, getMaterialStats, materialID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []MaterialStat
+	var items []GetMaterialStatsRow
 	for rows.Next() {
-		var i MaterialStat
+		var i GetMaterialStatsRow
 		if err := rows.Scan(&i.ID, &i.MaterialID, &i.StatID); err != nil {
 			return nil, err
 		}
@@ -783,7 +784,6 @@ func (q *Queries) GetMaterialStats(ctx context.Context, materialID int32) ([]Mat
 const getMaterials = `-- name: GetMaterials :many
 SELECT m.id,
     m.name,
-    m.description,
     m.icon,
     m.type,
     ms.id as stat_id,
@@ -793,13 +793,12 @@ FROM materials m
 `
 
 type GetMaterialsRow struct {
-	ID          int32            `json:"id"`
-	Name        string           `json:"name"`
-	Description string           `json:"description"`
-	Icon        []byte           `json:"icon"`
-	Type        NullMaterialType `json:"type"`
-	StatID      pgtype.Int4      `json:"stat_id"`
-	StatID_2    pgtype.Int4      `json:"stat_id_2"`
+	ID       int32            `json:"id"`
+	Name     string           `json:"name"`
+	Icon     []byte           `json:"icon"`
+	Type     NullMaterialType `json:"type"`
+	StatID   pgtype.Int4      `json:"stat_id"`
+	StatID_2 pgtype.Int4      `json:"stat_id_2"`
 }
 
 func (q *Queries) GetMaterials(ctx context.Context) ([]GetMaterialsRow, error) {
@@ -814,7 +813,6 @@ func (q *Queries) GetMaterials(ctx context.Context) ([]GetMaterialsRow, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.Description,
 			&i.Icon,
 			&i.Type,
 			&i.StatID,
@@ -833,7 +831,6 @@ func (q *Queries) GetMaterials(ctx context.Context) ([]GetMaterialsRow, error) {
 const getMaterialsByName = `-- name: GetMaterialsByName :many
 SELECT m.id,
     m.name,
-    m.description,
     m.icon,
     m.type,
     ms.id as stat_id,
@@ -844,13 +841,12 @@ WHERE m.name ILIKE '%' || $1 || '%'
 `
 
 type GetMaterialsByNameRow struct {
-	ID          int32            `json:"id"`
-	Name        string           `json:"name"`
-	Description string           `json:"description"`
-	Icon        []byte           `json:"icon"`
-	Type        NullMaterialType `json:"type"`
-	StatID      pgtype.Int4      `json:"stat_id"`
-	StatID_2    pgtype.Int4      `json:"stat_id_2"`
+	ID       int32            `json:"id"`
+	Name     string           `json:"name"`
+	Icon     []byte           `json:"icon"`
+	Type     NullMaterialType `json:"type"`
+	StatID   pgtype.Int4      `json:"stat_id"`
+	StatID_2 pgtype.Int4      `json:"stat_id_2"`
 }
 
 func (q *Queries) GetMaterialsByName(ctx context.Context, dollar_1 pgtype.Text) ([]GetMaterialsByNameRow, error) {
@@ -865,7 +861,6 @@ func (q *Queries) GetMaterialsByName(ctx context.Context, dollar_1 pgtype.Text) 
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.Description,
 			&i.Icon,
 			&i.Type,
 			&i.StatID,
@@ -1111,7 +1106,7 @@ func (q *Queries) GetRacesByTraitName(ctx context.Context, dollar_1 pgtype.Text)
 }
 
 const getSpecialization = `-- name: GetSpecialization :one
-SELECT id, name, description
+SELECT id, name, description, icon
 FROM specializations
 WHERE id = $1
 `
@@ -1119,12 +1114,17 @@ WHERE id = $1
 func (q *Queries) GetSpecialization(ctx context.Context, id int32) (Specialization, error) {
 	row := q.db.QueryRow(ctx, getSpecialization, id)
 	var i Specialization
-	err := row.Scan(&i.ID, &i.Name, &i.Description)
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.Icon,
+	)
 	return i, err
 }
 
 const getSpecializations = `-- name: GetSpecializations :many
-SELECT id, name, description
+SELECT id, name, description, icon
 FROM specializations
 `
 
@@ -1137,7 +1137,12 @@ func (q *Queries) GetSpecializations(ctx context.Context) ([]Specialization, err
 	var items []Specialization
 	for rows.Next() {
 		var i Specialization
-		if err := rows.Scan(&i.ID, &i.Name, &i.Description); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -1149,7 +1154,7 @@ func (q *Queries) GetSpecializations(ctx context.Context) ([]Specialization, err
 }
 
 const getSpecializationsByName = `-- name: GetSpecializationsByName :many
-SELECT id, name, description
+SELECT id, name, description, icon
 FROM specializations
 WHERE name ILIKE '%' || $1 || '%'
 `
@@ -1163,7 +1168,12 @@ func (q *Queries) GetSpecializationsByName(ctx context.Context, dollar_1 pgtype.
 	var items []Specialization
 	for rows.Next() {
 		var i Specialization
-		if err := rows.Scan(&i.ID, &i.Name, &i.Description); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -1195,7 +1205,7 @@ func (q *Queries) GetSpell(ctx context.Context, id int32) (Spell, error) {
 }
 
 const getSpellProperties = `-- name: GetSpellProperties :many
-SELECT id, name, description, material_id
+SELECT id, name, material_id
 FROM spell_properties
 `
 
@@ -1208,12 +1218,7 @@ func (q *Queries) GetSpellProperties(ctx context.Context) ([]SpellProperty, erro
 	var items []SpellProperty
 	for rows.Next() {
 		var i SpellProperty
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Description,
-			&i.MaterialID,
-		); err != nil {
+		if err := rows.Scan(&i.ID, &i.Name, &i.MaterialID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -1225,7 +1230,7 @@ func (q *Queries) GetSpellProperties(ctx context.Context) ([]SpellProperty, erro
 }
 
 const getSpellPropertiesByName = `-- name: GetSpellPropertiesByName :many
-SELECT id, name, description, material_id
+SELECT id, name, material_id
 FROM spell_properties
 WHERE name ILIKE '%' || $1 || '%'
 `
@@ -1239,12 +1244,7 @@ func (q *Queries) GetSpellPropertiesByName(ctx context.Context, dollar_1 pgtype.
 	var items []SpellProperty
 	for rows.Next() {
 		var i SpellProperty
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Description,
-			&i.MaterialID,
-		); err != nil {
+		if err := rows.Scan(&i.ID, &i.Name, &i.MaterialID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -1256,7 +1256,7 @@ func (q *Queries) GetSpellPropertiesByName(ctx context.Context, dollar_1 pgtype.
 }
 
 const getSpellProperty = `-- name: GetSpellProperty :one
-SELECT id, name, description, material_id
+SELECT id, name, material_id
 FROM spell_properties
 WHERE id = $1
 `
@@ -1264,12 +1264,7 @@ WHERE id = $1
 func (q *Queries) GetSpellProperty(ctx context.Context, id int32) (SpellProperty, error) {
 	row := q.db.QueryRow(ctx, getSpellProperty, id)
 	var i SpellProperty
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Description,
-		&i.MaterialID,
-	)
+	err := row.Scan(&i.ID, &i.Name, &i.MaterialID)
 	return i, err
 }
 

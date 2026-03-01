@@ -56,11 +56,10 @@ func (s *service) CreateMaterial(ctx context.Context, params repo.CreateMaterial
 		return repo.Material{}, err
 	}
 	return repo.Material{
-		ID:          materialRows.ID,
-		Name:        materialRows.Name,
-		Description: materialRows.Description,
-		Icon:        materialRows.Icon,
-		Type:        materialRows.Type,
+		ID:   materialRows.ID,
+		Name: materialRows.Name,
+		Icon: materialRows.Icon,
+		Type: materialRows.Type,
 	}, nil
 }
 

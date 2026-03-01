@@ -48,7 +48,7 @@ type Querier interface {
 	GetCreaturesByRaceName(ctx context.Context, dollar_1 pgtype.Text) ([]Creature, error)
 	GetCreaturesByTraitName(ctx context.Context, dollar_1 pgtype.Text) ([]Creature, error)
 	GetMaterial(ctx context.Context, id int32) (GetMaterialRow, error)
-	GetMaterialStats(ctx context.Context, materialID int32) ([]MaterialStat, error)
+	GetMaterialStats(ctx context.Context, materialID int32) ([]GetMaterialStatsRow, error)
 	GetMaterials(ctx context.Context) ([]GetMaterialsRow, error)
 	GetMaterialsByName(ctx context.Context, dollar_1 pgtype.Text) ([]GetMaterialsByNameRow, error)
 	GetPerk(ctx context.Context, id int32) (Perk, error)

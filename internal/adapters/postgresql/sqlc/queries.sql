@@ -22,7 +22,6 @@ FROM spells;
 -- name: GetMaterials :many
 SELECT m.id,
     m.name,
-    m.description,
     m.icon,
     m.type,
     ms.id as stat_id,
@@ -69,7 +68,6 @@ WHERE id = $1;
 -- name: GetMaterial :one
 SELECT m.id,
     m.name,
-    m.description,
     m.icon,
     m.type,
     ms.id as stat_id,
@@ -118,12 +116,15 @@ INSERT INTO spells (name, description, icon, charges, class_id)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id;
 -- name: CreateMaterial :one
-INSERT INTO materials (name, description, icon, type)
-VALUES ($1, $2, $3, $4)
-RETURNING id, name, description, icon, type;
--- name: CreateSpellProperty :one
-INSERT INTO spell_properties (name, description, material_id)
+INSERT INTO materials (name, icon, type)
 VALUES ($1, $2, $3)
+RETURNING id,
+    name,
+    icon,
+    type;
+-- name: CreateSpellProperty :one
+INSERT INTO spell_properties (name, material_id)
+VALUES ($1, $2)
 RETURNING id;
 -- name: CreateArtifact :one
 INSERT INTO artifacts (name, description, icon)
@@ -216,7 +217,6 @@ WHERE name ILIKE '%' || $1 || '%';
 -- name: GetMaterialsByName :many
 SELECT m.id,
     m.name,
-    m.description,
     m.icon,
     m.type,
     ms.id as stat_id,

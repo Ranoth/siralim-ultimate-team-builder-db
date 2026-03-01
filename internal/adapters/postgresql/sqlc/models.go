@@ -7,6 +7,8 @@ package repo
 import (
 	"database/sql/driver"
 	"fmt"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type MaterialType string
@@ -98,10 +100,11 @@ func (ns NullStatType) Value() (driver.Value, error) {
 }
 
 type Artifact struct {
-	ID          int32  `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Icon        []byte `json:"icon"`
+	ID          int32    `json:"id"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Icon        []byte   `json:"icon"`
+	Type        StatType `json:"type"`
 }
 
 type Class struct {
@@ -120,17 +123,17 @@ type Creature struct {
 }
 
 type Material struct {
-	ID          int32            `json:"id"`
-	Name        string           `json:"name"`
-	Description string           `json:"description"`
-	Icon        []byte           `json:"icon"`
-	Type        NullMaterialType `json:"type"`
+	ID   int32            `json:"id"`
+	Name string           `json:"name"`
+	Icon []byte           `json:"icon"`
+	Type NullMaterialType `json:"type"`
 }
 
 type MaterialStat struct {
-	ID         int32 `json:"id"`
-	MaterialID int32 `json:"material_id"`
-	StatID     int32 `json:"stat_id"`
+	ID         int32       `json:"id"`
+	MaterialID int32       `json:"material_id"`
+	StatID     int32       `json:"stat_id"`
+	StatId2    pgtype.Int4 `json:"stat_id2"`
 }
 
 type Perk struct {
@@ -151,6 +154,7 @@ type Specialization struct {
 	ID          int32  `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Icon        []byte `json:"icon"`
 }
 
 type Spell struct {
@@ -163,10 +167,9 @@ type Spell struct {
 }
 
 type SpellProperty struct {
-	ID          int32  `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	MaterialID  int32  `json:"material_id"`
+	ID         int32  `json:"id"`
+	Name       string `json:"name"`
+	MaterialID int32  `json:"material_id"`
 }
 
 type Stat struct {

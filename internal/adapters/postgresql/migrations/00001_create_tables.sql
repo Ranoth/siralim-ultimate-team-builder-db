@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS stats (
 CREATE TABLE IF NOT EXISTS materials (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    description TEXT NOT NULL,
     icon BYTEA NOT NULL,
     type material_type DEFAULT 'trait'
 );
@@ -22,19 +21,21 @@ CREATE TABLE IF NOT EXISTS material_stats (
     id SERIAL PRIMARY KEY,
     material_id INTEGER NOT NULL,
     stat_id INTEGER NOT NULL,
+    stat_id2 INTEGER,
     FOREIGN KEY (material_id) REFERENCES materials(id),
-    FOREIGN KEY (stat_id) REFERENCES stats(id)
+    FOREIGN KEY (stat_id) REFERENCES stats(id),
+    FOREIGN KEY (stat_id2) REFERENCES stats(id)
 );
 CREATE TABLE IF NOT EXISTS artifacts (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
-    icon BYTEA NOT NULL
+    icon BYTEA NOT NULL,
+    type stat_type NOT NULL
 );
 CREATE TABLE IF NOT EXISTS spell_properties (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    description TEXT NOT NULL,
     material_id INTEGER NOT NULL,
     FOREIGN KEY (material_id) REFERENCES materials(id)
 );
@@ -69,7 +70,8 @@ CREATE TABLE IF NOT EXISTS creatures (
 CREATE TABLE IF NOT EXISTS specializations (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    description TEXT NOT NULL
+    description TEXT NOT NULL,
+    icon BYTEA NOT NULL
 );
 CREATE TABLE IF NOT EXISTS perks (
     id SERIAL PRIMARY KEY,
