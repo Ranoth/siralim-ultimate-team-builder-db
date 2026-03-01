@@ -15,9 +15,7 @@ This repository contains the database for the Siralim Ultimate Team Builder, a t
             build: .
             container_name: sutbdb
             environment:
-            GOOSE_DBSTRING: host=postgres user=sutbdb password=sutbdb dbname=sutbdb sslmode=disable
-            ports:
-            - "8080:8080"
+                GOOSE_DBSTRING: host=postgres user=sutbdb password=sutbdb dbname=sutbdb sslmode=disable
             depends_on:
             postgres:
                 condition: service_healthy
@@ -26,16 +24,16 @@ This repository contains the database for the Siralim Ultimate Team Builder, a t
             image: postgres:16-alpine
             container_name: sutbdb-postgres
             environment:
-            POSTGRES_USER: sutbdb
-            POSTGRES_PASSWORD: sutbdb
-            POSTGRES_DB: sutbdb
-            ports:
-            - "5432:5432"
+                POSTGRES_USER: sutbdb
+                POSTGRES_PASSWORD: sutbdb
+                POSTGRES_DB: sutbdb
             volumes:
-            - sutbdb_postgres_data:/var/lib/postgresql/data
+                - sutbdb_postgres_data:/var/lib/postgresql/data
             healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U sutbdb -d sutbdb"]
-            interval: 5s
-            timeout: 5s
-            retries: 5
+                test: ["CMD-SHELL", "pg_isready -U sutbdb -d sutbdb"]
+                interval: 5s
+                timeout: 5s
+                retries: 5
     ```
+4. 
+5. Run the the app with `docker compose up -d --build` and the database will be seeded with the latest data from the game.
