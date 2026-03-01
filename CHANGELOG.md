@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/Ranoth/siralim-ultimate-team-builder-db/compare/v1.0.1...v1.1.0) (2026-03-01)
+
+
+### Features
+
+* Add build and push image ([2becfa6](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/2becfa6ef40fdd236faf6830ad4b07e9ebb5a26e))
+
 ## [1.0.1](https://github.com/Ranoth/siralim-ultimate-team-builder-db/compare/v1.0.0...v1.0.1) (2026-03-01)
 
 
