@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/Ranoth/siralim-ultimate-team-builder-db/compare/v1.1.0...v1.1.1) (2026-03-01)
+
+
+### Bug Fixes
+
+* Correct docker repo ([19f5ec7](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/19f5ec79561c727b64ee85e07e51e2c00b1014cb))
+
 ## [1.1.0](https://github.com/Ranoth/siralim-ultimate-team-builder-db/compare/v1.0.1...v1.1.0) (2026-03-01)
 
 
