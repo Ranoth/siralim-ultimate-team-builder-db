@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -42,7 +43,7 @@ func main() {
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 
 	go func() {
-		if err := api.run(api.mount()); err != nil {
+		if err := api.run(api.mount()); err != nil && err != http.ErrServerClosed {
 			logger.Error("Server error", "error", err)
 		}
 	}()
