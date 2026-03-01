@@ -48,7 +48,6 @@ func main() {
 	}()
 
 	<-quit
-	logger.Info("Shutting down server...")
 
 	shutdownCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
@@ -58,5 +57,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger.Info("Server stopped gracefully")
+	logger.Info("Server shut down gracefully")
 }

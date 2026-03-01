@@ -16,6 +16,8 @@ This repository contains the API for the Siralim Ultimate Team Builder (WIP), a 
             container_name: sutbdb
             environment:
                 GOOSE_DBSTRING: ${GOOSE_DBSTRING}
+            ports:
+                - 8080
             depends_on:
             postgres:
                 condition: service_healthy
@@ -38,4 +40,4 @@ This repository contains the API for the Siralim Ultimate Team Builder (WIP), a 
                 retries: 5
     ```
 3. Download game data files from the releases of the [SiralimJSON](https://github.com/iconmaster5326/SiralimJSON) repository, you should download `aggregate.zip` from the latest release and extract the JSON files and `images` folder into the `gameData` folder.
-4. Run the the app with `docker compose up -d --build` and the database will be seeded with the latest data from the game. Make sure to set the environment variables in a .env file or in your shell before running the app.
+4. Run the the app with `docker compose up -d --build` and the database will be seeded with the latest data from the game. Make sure to set the environment variables in a .env file or in your shell before running the app; the host for the database connection string should be the same as the service name of the postgres container in the docker compose file (in this case, `postgres`).
