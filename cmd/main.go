@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Ranoth/SUTBDB/internal/env"
+	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/env"
 	"github.com/jackc/pgx/v5"
 )
 

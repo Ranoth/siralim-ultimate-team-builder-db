@@ -1,5 +1,6 @@
 .env
 .gitignore
+.github/
 .vscode/
 sqlc.yaml
 docker-compose.yaml

@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	repo "github.com/Ranoth/SUTBDB/internal/adapters/postgresql/sqlc"
-	"github.com/Ranoth/SUTBDB/internal/httpx"
+	repo "github.com/Ranoth/siralim-ultimate-team-builder-db/internal/adapters/postgresql/sqlc"
+	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/httpx"
 )
 
 type handler struct {
