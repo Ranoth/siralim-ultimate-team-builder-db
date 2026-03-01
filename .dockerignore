@@ -1,5 +1,6 @@
 .env
 .gitignore
+.vscode/
 sqlc.yaml
 docker-compose.yaml
 postgresData/
