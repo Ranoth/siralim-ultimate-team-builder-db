@@ -103,3 +103,8 @@ func Run() {
 
 	correlatedTables = table
 }
+
+// GetCorrelatedTables returns the transformed data ready for database insertion
+func GetCorrelatedTables() *TransformedData {
+	return correlatedTables
+}

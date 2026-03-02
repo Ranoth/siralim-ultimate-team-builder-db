@@ -8,17 +8,17 @@ CREATE TYPE stat_type AS ENUM (
     'speed'
 );
 CREATE TABLE IF NOT EXISTS stats (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     type stat_type NOT NULL
 );
 CREATE TABLE IF NOT EXISTS materials (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     icon BYTEA NOT NULL,
     type material_type DEFAULT 'trait'
 );
 CREATE TABLE IF NOT EXISTS material_stats (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     material_id INTEGER NOT NULL,
     stat_id INTEGER NOT NULL,
     stat_id2 INTEGER,
@@ -27,40 +27,39 @@ CREATE TABLE IF NOT EXISTS material_stats (
     FOREIGN KEY (stat_id2) REFERENCES stats(id)
 );
 CREATE TABLE IF NOT EXISTS artifacts (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
-    description TEXT NOT NULL,
     icon BYTEA NOT NULL,
     type stat_type NOT NULL
 );
 CREATE TABLE IF NOT EXISTS spell_properties (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     material_id INTEGER NOT NULL,
     FOREIGN KEY (material_id) REFERENCES materials(id)
 );
 CREATE TABLE IF NOT EXISTS traits (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
-    material_id INTEGER NOT NULL,
+    material_id INTEGER,
     FOREIGN KEY (material_id) REFERENCES materials(id)
 );
 CREATE TABLE IF NOT EXISTS classes (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     icon BYTEA NOT NULL
 );
 CREATE TABLE IF NOT EXISTS races (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
-    icon BYTEA NOT NULL
+    icon BYTEA
 );
 CREATE TABLE IF NOT EXISTS creatures (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
-    image BYTEA NOT NULL,
-    trait_id INTEGER NOT NULL,
+    image BYTEA,
+    trait_id INTEGER,
     class_id INTEGER NOT NULL,
     race_id INTEGER NOT NULL,
     FOREIGN KEY (trait_id) REFERENCES traits(id),
@@ -68,13 +67,13 @@ CREATE TABLE IF NOT EXISTS creatures (
     FOREIGN KEY (race_id) REFERENCES races(id)
 );
 CREATE TABLE IF NOT EXISTS specializations (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
-    icon BYTEA NOT NULL
+    icon BYTEA
 );
 CREATE TABLE IF NOT EXISTS perks (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
     icon BYTEA NOT NULL,
@@ -82,10 +81,10 @@ CREATE TABLE IF NOT EXISTS perks (
     FOREIGN KEY (specialization_id) REFERENCES specializations(id)
 );
 CREATE TABLE IF NOT EXISTS spells (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
-    icon BYTEA NOT NULL,
+    icon BYTEA,
     charges INTEGER NOT NULL,
     class_id INTEGER NOT NULL,
     FOREIGN KEY (class_id) REFERENCES classes(id)

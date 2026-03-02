@@ -12,58 +12,67 @@ import (
 )
 
 const createArtifact = `-- name: CreateArtifact :one
-INSERT INTO artifacts (name, description, icon)
-VALUES ($1, $2, $3)
+INSERT INTO artifacts (id, name, icon, type)
+VALUES ($1, $2, $3, $4)
 RETURNING id
 `
 
 type CreateArtifactParams struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Icon        []byte `json:"icon"`
+	ID   int32    `json:"id"`
+	Name string   `json:"name"`
+	Icon []byte   `json:"icon"`
+	Type StatType `json:"type"`
 }
 
 func (q *Queries) CreateArtifact(ctx context.Context, arg CreateArtifactParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createArtifact, arg.Name, arg.Description, arg.Icon)
+	row := q.db.QueryRow(ctx, createArtifact,
+		arg.ID,
+		arg.Name,
+		arg.Icon,
+		arg.Type,
+	)
 	var id int32
 	err := row.Scan(&id)
 	return id, err
 }
 
 const createClass = `-- name: CreateClass :one
-INSERT INTO classes (name, icon)
-VALUES ($1, $2)
+INSERT INTO classes (id, name, icon)
+VALUES ($1, $2, $3)
 RETURNING id
 `
 
 type CreateClassParams struct {
+	ID   int32  `json:"id"`
 	Name string `json:"name"`
 	Icon []byte `json:"icon"`
 }
 
 func (q *Queries) CreateClass(ctx context.Context, arg CreateClassParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createClass, arg.Name, arg.Icon)
+	row := q.db.QueryRow(ctx, createClass, arg.ID, arg.Name, arg.Icon)
 	var id int32
 	err := row.Scan(&id)
 	return id, err
 }
 
 const createCreature = `-- name: CreateCreature :one
-INSERT INTO creatures (name, image, trait_id, class_id, race_id)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO creatures (id, name, image, trait_id, class_id, race_id)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
 `
 
 type CreateCreatureParams struct {
-	Name    string `json:"name"`
-	Image   []byte `json:"image"`
-	TraitID int32  `json:"trait_id"`
-	ClassID int32  `json:"class_id"`
-	RaceID  int32  `json:"race_id"`
+	ID      int32       `json:"id"`
+	Name    string      `json:"name"`
+	Image   []byte      `json:"image"`
+	TraitID pgtype.Int4 `json:"trait_id"`
+	ClassID int32       `json:"class_id"`
+	RaceID  int32       `json:"race_id"`
 }
 
 func (q *Queries) CreateCreature(ctx context.Context, arg CreateCreatureParams) (int32, error) {
 	row := q.db.QueryRow(ctx, createCreature,
+		arg.ID,
 		arg.Name,
 		arg.Image,
 		arg.TraitID,
@@ -76,8 +85,8 @@ func (q *Queries) CreateCreature(ctx context.Context, arg CreateCreatureParams) 
 }
 
 const createMaterial = `-- name: CreateMaterial :one
-INSERT INTO materials (name, icon, type)
-VALUES ($1, $2, $3)
+INSERT INTO materials (id, name, icon, type)
+VALUES ($1, $2, $3, $4)
 RETURNING id,
     name,
     icon,
@@ -85,13 +94,19 @@ RETURNING id,
 `
 
 type CreateMaterialParams struct {
+	ID   int32            `json:"id"`
 	Name string           `json:"name"`
 	Icon []byte           `json:"icon"`
 	Type NullMaterialType `json:"type"`
 }
 
 func (q *Queries) CreateMaterial(ctx context.Context, arg CreateMaterialParams) (Material, error) {
-	row := q.db.QueryRow(ctx, createMaterial, arg.Name, arg.Icon, arg.Type)
+	row := q.db.QueryRow(ctx, createMaterial,
+		arg.ID,
+		arg.Name,
+		arg.Icon,
+		arg.Type,
+	)
 	var i Material
 	err := row.Scan(
 		&i.ID,
@@ -122,12 +137,13 @@ func (q *Queries) CreateMaterialStat(ctx context.Context, arg CreateMaterialStat
 }
 
 const createPerk = `-- name: CreatePerk :one
-INSERT INTO perks (name, description, icon, specialization_id)
-VALUES ($1, $2, $3, $4)
+INSERT INTO perks (id, name, description, icon, specialization_id)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id
 `
 
 type CreatePerkParams struct {
+	ID               int32  `json:"id"`
 	Name             string `json:"name"`
 	Description      string `json:"description"`
 	Icon             []byte `json:"icon"`
@@ -136,6 +152,7 @@ type CreatePerkParams struct {
 
 func (q *Queries) CreatePerk(ctx context.Context, arg CreatePerkParams) (int32, error) {
 	row := q.db.QueryRow(ctx, createPerk,
+		arg.ID,
 		arg.Name,
 		arg.Description,
 		arg.Icon,
@@ -147,48 +164,51 @@ func (q *Queries) CreatePerk(ctx context.Context, arg CreatePerkParams) (int32, 
 }
 
 const createRace = `-- name: CreateRace :one
-INSERT INTO races (name, icon)
-VALUES ($1, $2)
+INSERT INTO races (id, name, icon)
+VALUES ($1, $2, $3)
 RETURNING id
 `
 
 type CreateRaceParams struct {
+	ID   int32  `json:"id"`
 	Name string `json:"name"`
 	Icon []byte `json:"icon"`
 }
 
 func (q *Queries) CreateRace(ctx context.Context, arg CreateRaceParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createRace, arg.Name, arg.Icon)
+	row := q.db.QueryRow(ctx, createRace, arg.ID, arg.Name, arg.Icon)
 	var id int32
 	err := row.Scan(&id)
 	return id, err
 }
 
 const createSpecialization = `-- name: CreateSpecialization :one
-INSERT INTO specializations (name, description)
-VALUES ($1, $2)
+INSERT INTO specializations (id, name, description)
+VALUES ($1, $2, $3)
 RETURNING id
 `
 
 type CreateSpecializationParams struct {
+	ID          int32  `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
 func (q *Queries) CreateSpecialization(ctx context.Context, arg CreateSpecializationParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createSpecialization, arg.Name, arg.Description)
+	row := q.db.QueryRow(ctx, createSpecialization, arg.ID, arg.Name, arg.Description)
 	var id int32
 	err := row.Scan(&id)
 	return id, err
 }
 
 const createSpell = `-- name: CreateSpell :one
-INSERT INTO spells (name, description, icon, charges, class_id)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO spells (id, name, description, icon, charges, class_id)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
 `
 
 type CreateSpellParams struct {
+	ID          int32  `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Icon        []byte `json:"icon"`
@@ -198,6 +218,7 @@ type CreateSpellParams struct {
 
 func (q *Queries) CreateSpell(ctx context.Context, arg CreateSpellParams) (int32, error) {
 	row := q.db.QueryRow(ctx, createSpell,
+		arg.ID,
 		arg.Name,
 		arg.Description,
 		arg.Icon,
@@ -210,50 +231,62 @@ func (q *Queries) CreateSpell(ctx context.Context, arg CreateSpellParams) (int32
 }
 
 const createSpellProperty = `-- name: CreateSpellProperty :one
-INSERT INTO spell_properties (name, material_id)
-VALUES ($1, $2)
+INSERT INTO spell_properties (id, name, material_id)
+VALUES ($1, $2, $3)
 RETURNING id
 `
 
 type CreateSpellPropertyParams struct {
+	ID         int32  `json:"id"`
 	Name       string `json:"name"`
 	MaterialID int32  `json:"material_id"`
 }
 
 func (q *Queries) CreateSpellProperty(ctx context.Context, arg CreateSpellPropertyParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createSpellProperty, arg.Name, arg.MaterialID)
+	row := q.db.QueryRow(ctx, createSpellProperty, arg.ID, arg.Name, arg.MaterialID)
 	var id int32
 	err := row.Scan(&id)
 	return id, err
 }
 
 const createStat = `-- name: CreateStat :one
-INSERT INTO stats (type)
-VALUES ($1)
+INSERT INTO stats (id, type)
+VALUES ($1, $2)
 RETURNING id
 `
 
-func (q *Queries) CreateStat(ctx context.Context, type_ StatType) (int32, error) {
-	row := q.db.QueryRow(ctx, createStat, type_)
+type CreateStatParams struct {
+	ID   int32    `json:"id"`
+	Type StatType `json:"type"`
+}
+
+func (q *Queries) CreateStat(ctx context.Context, arg CreateStatParams) (int32, error) {
+	row := q.db.QueryRow(ctx, createStat, arg.ID, arg.Type)
 	var id int32
 	err := row.Scan(&id)
 	return id, err
 }
 
 const createTrait = `-- name: CreateTrait :one
-INSERT INTO traits (name, description, material_id)
-VALUES ($1, $2, $3)
+INSERT INTO traits (id, name, description, material_id)
+VALUES ($1, $2, $3, $4)
 RETURNING id
 `
 
 type CreateTraitParams struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	MaterialID  int32  `json:"material_id"`
+	ID          int32       `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	MaterialID  pgtype.Int4 `json:"material_id"`
 }
 
 func (q *Queries) CreateTrait(ctx context.Context, arg CreateTraitParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createTrait, arg.Name, arg.Description, arg.MaterialID)
+	row := q.db.QueryRow(ctx, createTrait,
+		arg.ID,
+		arg.Name,
+		arg.Description,
+		arg.MaterialID,
+	)
 	var id int32
 	err := row.Scan(&id)
 	return id, err
@@ -380,7 +413,7 @@ func (q *Queries) DeleteTrait(ctx context.Context, id int32) error {
 }
 
 const getArtifact = `-- name: GetArtifact :one
-SELECT id, name, description, icon, type
+SELECT id, name, icon, type
 FROM artifacts
 WHERE id = $1
 `
@@ -391,7 +424,6 @@ func (q *Queries) GetArtifact(ctx context.Context, id int32) (Artifact, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		&i.Description,
 		&i.Icon,
 		&i.Type,
 	)
@@ -399,7 +431,7 @@ func (q *Queries) GetArtifact(ctx context.Context, id int32) (Artifact, error) {
 }
 
 const getArtifacts = `-- name: GetArtifacts :many
-SELECT id, name, description, icon, type
+SELECT id, name, icon, type
 FROM artifacts
 `
 
@@ -415,7 +447,6 @@ func (q *Queries) GetArtifacts(ctx context.Context) ([]Artifact, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.Description,
 			&i.Icon,
 			&i.Type,
 		); err != nil {
@@ -430,7 +461,7 @@ func (q *Queries) GetArtifacts(ctx context.Context) ([]Artifact, error) {
 }
 
 const getArtifactsByName = `-- name: GetArtifactsByName :many
-SELECT id, name, description, icon, type
+SELECT id, name, icon, type
 FROM artifacts
 WHERE name ILIKE '%' || $1 || '%'
 `
@@ -447,7 +478,6 @@ func (q *Queries) GetArtifactsByName(ctx context.Context, dollar_1 pgtype.Text) 
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.Description,
 			&i.Icon,
 			&i.Type,
 		); err != nil {
@@ -1397,6 +1427,17 @@ func (q *Queries) GetStatsByType(ctx context.Context, dollar_1 pgtype.Text) ([]S
 	return items, nil
 }
 
+const getStatsCount = `-- name: GetStatsCount :one
+SELECT COUNT(*) FROM stats
+`
+
+func (q *Queries) GetStatsCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getStatsCount)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getTrait = `-- name: GetTrait :one
 SELECT id, name, description, material_id
 FROM traits
@@ -1506,6 +1547,28 @@ func (q *Queries) GetTraitsByName(ctx context.Context, dollar_1 pgtype.Text) ([]
 		return nil, err
 	}
 	return items, nil
+}
+
+const materialExists = `-- name: MaterialExists :one
+SELECT EXISTS(SELECT 1 FROM materials WHERE id = $1) as exists
+`
+
+func (q *Queries) MaterialExists(ctx context.Context, id int32) (bool, error) {
+	row := q.db.QueryRow(ctx, materialExists, id)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const traitExists = `-- name: TraitExists :one
+SELECT EXISTS(SELECT 1 FROM traits WHERE id = $1) as exists
+`
+
+func (q *Queries) TraitExists(ctx context.Context, id int32) (bool, error) {
+	row := q.db.QueryRow(ctx, traitExists, id)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
 
 const updateMaterialStat = `-- name: UpdateMaterialStat :exec

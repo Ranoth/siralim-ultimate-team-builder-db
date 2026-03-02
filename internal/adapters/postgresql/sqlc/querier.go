@@ -21,7 +21,7 @@ type Querier interface {
 	CreateSpecialization(ctx context.Context, arg CreateSpecializationParams) (int32, error)
 	CreateSpell(ctx context.Context, arg CreateSpellParams) (int32, error)
 	CreateSpellProperty(ctx context.Context, arg CreateSpellPropertyParams) (int32, error)
-	CreateStat(ctx context.Context, type_ StatType) (int32, error)
+	CreateStat(ctx context.Context, arg CreateStatParams) (int32, error)
 	CreateTrait(ctx context.Context, arg CreateTraitParams) (int32, error)
 	DeleteArtifact(ctx context.Context, id int32) error
 	DeleteClass(ctx context.Context, id int32) error
@@ -72,10 +72,13 @@ type Querier interface {
 	GetStat(ctx context.Context, id int32) (Stat, error)
 	GetStats(ctx context.Context) ([]Stat, error)
 	GetStatsByType(ctx context.Context, dollar_1 pgtype.Text) ([]Stat, error)
+	GetStatsCount(ctx context.Context) (int64, error)
 	GetTrait(ctx context.Context, id int32) (Trait, error)
 	GetTraits(ctx context.Context) ([]Trait, error)
 	GetTraitsByCreatureName(ctx context.Context, dollar_1 pgtype.Text) ([]Trait, error)
 	GetTraitsByName(ctx context.Context, dollar_1 pgtype.Text) ([]Trait, error)
+	MaterialExists(ctx context.Context, id int32) (bool, error)
+	TraitExists(ctx context.Context, id int32) (bool, error)
 	UpdateMaterialStat(ctx context.Context, arg UpdateMaterialStatParams) error
 }
 

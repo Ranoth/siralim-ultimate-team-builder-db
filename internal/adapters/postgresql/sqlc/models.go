@@ -100,11 +100,10 @@ func (ns NullStatType) Value() (driver.Value, error) {
 }
 
 type Artifact struct {
-	ID          int32    `json:"id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Icon        []byte   `json:"icon"`
-	Type        StatType `json:"type"`
+	ID   int32    `json:"id"`
+	Name string   `json:"name"`
+	Icon []byte   `json:"icon"`
+	Type StatType `json:"type"`
 }
 
 type Class struct {
@@ -114,12 +113,12 @@ type Class struct {
 }
 
 type Creature struct {
-	ID      int32  `json:"id"`
-	Name    string `json:"name"`
-	Image   []byte `json:"image"`
-	TraitID int32  `json:"trait_id"`
-	ClassID int32  `json:"class_id"`
-	RaceID  int32  `json:"race_id"`
+	ID      int32       `json:"id"`
+	Name    string      `json:"name"`
+	Image   []byte      `json:"image"`
+	TraitID pgtype.Int4 `json:"trait_id"`
+	ClassID int32       `json:"class_id"`
+	RaceID  int32       `json:"race_id"`
 }
 
 type Material struct {
@@ -178,8 +177,8 @@ type Stat struct {
 }
 
 type Trait struct {
-	ID          int32  `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	MaterialID  int32  `json:"material_id"`
+	ID          int32       `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	MaterialID  pgtype.Int4 `json:"material_id"`
 }

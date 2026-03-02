@@ -224,7 +224,13 @@ func PopulateStaticTable(tableName string, sourceData map[string]staticTableEntr
 
 		row := make(TableRow)
 		row["id"] = id
-		row["name"] = itemName
+
+		// Use field name based on table type
+		if tableName == "stats" {
+			row["stat_type"] = itemName
+		} else {
+			row["name"] = itemName
+		}
 
 		if iconBytes, ok := IconToBytes(iconPath); ok {
 			row["icon"] = iconBytes

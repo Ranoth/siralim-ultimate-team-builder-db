@@ -75,6 +75,10 @@ SELECT m.id,
 FROM materials m
     LEFT JOIN material_stats ms ON m.id = ms.material_id
 WHERE m.id = $1;
+-- name: MaterialExists :one
+SELECT EXISTS(SELECT 1 FROM materials WHERE id = $1) as exists;
+-- name: TraitExists :one
+SELECT EXISTS(SELECT 1 FROM traits WHERE id = $1) as exists;
 -- name: GetSpellProperty :one
 SELECT *
 FROM spell_properties
@@ -88,52 +92,54 @@ SELECT *
 FROM stats
 WHERE id = $1;
 -- name: CreateCreature :one
-INSERT INTO creatures (name, image, trait_id, class_id, race_id)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO creatures (id, name, image, trait_id, class_id, race_id)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id;
 -- name: CreateTrait :one
-INSERT INTO traits (name, description, material_id)
-VALUES ($1, $2, $3)
-RETURNING id;
--- name: CreateClass :one
-INSERT INTO classes (name, icon)
-VALUES ($1, $2)
-RETURNING id;
--- name: CreateRace :one
-INSERT INTO races (name, icon)
-VALUES ($1, $2)
-RETURNING id;
--- name: CreateSpecialization :one
-INSERT INTO specializations (name, description)
-VALUES ($1, $2)
-RETURNING id;
--- name: CreatePerk :one
-INSERT INTO perks (name, description, icon, specialization_id)
+INSERT INTO traits (id, name, description, material_id)
 VALUES ($1, $2, $3, $4)
 RETURNING id;
--- name: CreateSpell :one
-INSERT INTO spells (name, description, icon, charges, class_id)
+-- name: CreateClass :one
+INSERT INTO classes (id, name, icon)
+VALUES ($1, $2, $3)
+RETURNING id;
+-- name: CreateRace :one
+INSERT INTO races (id, name, icon)
+VALUES ($1, $2, $3)
+RETURNING id;
+-- name: CreateSpecialization :one
+INSERT INTO specializations (id, name, description)
+VALUES ($1, $2, $3)
+RETURNING id;
+-- name: CreatePerk :one
+INSERT INTO perks (id, name, description, icon, specialization_id)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id;
+-- name: CreateSpell :one
+INSERT INTO spells (id, name, description, icon, charges, class_id)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id;
 -- name: CreateMaterial :one
-INSERT INTO materials (name, icon, type)
-VALUES ($1, $2, $3)
+INSERT INTO materials (id, name, icon, type)
+VALUES ($1, $2, $3, $4)
 RETURNING id,
     name,
     icon,
     type;
 -- name: CreateSpellProperty :one
-INSERT INTO spell_properties (name, material_id)
-VALUES ($1, $2)
-RETURNING id;
--- name: CreateArtifact :one
-INSERT INTO artifacts (name, description, icon)
+INSERT INTO spell_properties (id, name, material_id)
 VALUES ($1, $2, $3)
 RETURNING id;
--- name: CreateStat :one
-INSERT INTO stats (type)
-VALUES ($1)
+-- name: CreateArtifact :one
+INSERT INTO artifacts (id, name, icon, type)
+VALUES ($1, $2, $3, $4)
 RETURNING id;
+-- name: CreateStat :one
+INSERT INTO stats (id, type)
+VALUES ($1, $2)
+RETURNING id;
+-- name: GetStatsCount :one
+SELECT COUNT(*) FROM stats;
 -- name: DeleteCreature :exec
 DELETE FROM creatures
 WHERE id = $1;

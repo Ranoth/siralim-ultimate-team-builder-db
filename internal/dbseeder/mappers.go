@@ -1,3 +1,18 @@
+// Package dbseeder - Explicit Mappers
+//
+// This file contains explicit type-safe mappers for tables with complex transformation logic.
+// These mappers provide:
+// - Compile-time type safety with typed input/output structs
+// - Clearer error handling and validation
+// - Easier debugging and testing
+// - Better IDE support (autocomplete, refactoring)
+//
+// Simple tables continue to use config-driven generic mapping (see config.go).
+// Use explicit mappers when:
+// - Complex field transformations are needed
+// - Multiple lookups or cross-table dependencies exist
+// - Type conversions are non-trivial (e.g., arrays to specific indices)
+// - Error handling needs to be more granular
 package dbseeder
 
 import (
@@ -7,9 +22,11 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+// MapCreature transforms a creature from JSON format to DB format using SQLC-generated types
 func MapCreature(raw map[string]interface{}, lookupTables *TransformedData) (repo.Creature, bool) {
 	creature := repo.Creature{}
 
+	// Extract ID
 	idRaw, exists := raw["id"]
 	if !exists {
 		slog.Warn("Creature missing id field", "raw", raw)
@@ -22,6 +39,7 @@ func MapCreature(raw map[string]interface{}, lookupTables *TransformedData) (rep
 	}
 	creature.ID = int32(id)
 
+	// Extract name
 	name, ok := raw["name"].(string)
 	if !ok || name == "" {
 		slog.Warn("Creature has invalid name", "id", id, "name", raw["name"])
@@ -29,18 +47,22 @@ func MapCreature(raw map[string]interface{}, lookupTables *TransformedData) (rep
 	}
 	creature.Name = name
 
+	// Extract and convert battle sprite to image bytes (optional - creature can exist without image)
 	battleSprite, ok := raw["battleSprite"].(string)
-	if !ok || battleSprite == "" {
-		slog.Warn("Creature has invalid battleSprite", "id", id, "battleSprite", raw["battleSprite"])
-		return creature, false
+	if ok && battleSprite != "" {
+		imageBytes, ok := IconToBytes(battleSprite)
+		if ok {
+			creature.Image = imageBytes
+		} else {
+			slog.Debug("Failed to read creature image, continuing without image", "id", id, "battleSprite", battleSprite)
+			creature.Image = nil
+		}
+	} else {
+		slog.Debug("Creature has no battleSprite field, continuing without image", "id", id)
+		creature.Image = nil
 	}
-	imageBytes, ok := IconToBytes(battleSprite)
-	if !ok {
-		slog.Warn("Failed to read creature image", "id", id, "battleSprite", battleSprite)
-		return creature, false
-	}
-	creature.Image = imageBytes
 
+	// Extract trait_id
 	traitRaw, exists := raw["trait"]
 	if !exists {
 		slog.Warn("Creature missing trait field", "id", id)
@@ -51,8 +73,9 @@ func MapCreature(raw map[string]interface{}, lookupTables *TransformedData) (rep
 		slog.Warn("Creature has invalid trait", "id", id, "trait", traitRaw)
 		return creature, false
 	}
-	creature.TraitID = int32(traitID)
+	creature.TraitID = pgtype.Int4{Int32: int32(traitID), Valid: true}
 
+	// Map class string to class_id
 	className, ok := raw["class"].(string)
 	if !ok || className == "" {
 		slog.Warn("Creature has invalid class", "id", id, "class", raw["class"])
@@ -65,6 +88,7 @@ func MapCreature(raw map[string]interface{}, lookupTables *TransformedData) (rep
 	}
 	creature.ClassID = int32(classEntry.ID)
 
+	// Map race string to race_id by looking up in races table
 	raceName, ok := raw["race"].(string)
 	if !ok || raceName == "" {
 		slog.Warn("Creature has invalid race", "id", id, "race", raw["race"])
@@ -94,6 +118,7 @@ func findRaceIDByName(raceName string, racesTable Table) (int, bool) {
 	return 0, false
 }
 
+// ProcessCreaturesExplicit uses explicit mapping instead of generic field mapping
 func ProcessCreaturesExplicit(creaturesJSON []map[string]interface{}, result *TransformedData) {
 	creatureTable := result.EnsureTable("creatures")
 
@@ -104,6 +129,7 @@ func ProcessCreaturesExplicit(creaturesJSON []map[string]interface{}, result *Tr
 			continue
 		}
 
+		// Store in result map format expected by the pipeline
 		creatureTable[int(creature.ID)] = TableRow{
 			"id":       creature.ID,
 			"name":     creature.Name,
@@ -118,9 +144,12 @@ func ProcessCreaturesExplicit(creaturesJSON []map[string]interface{}, result *Tr
 	slog.Info("Processed creatures with explicit mapper", "total", len(creaturesJSON), "success", successCount, "failed", len(creaturesJSON)-successCount)
 }
 
+// MapMaterialToStats transforms material stats from JSON format to DB format using SQLC-generated types
+// Returns a repo.MaterialStat entry with the first stat and optionally second stat
 func MapMaterialToStats(raw map[string]interface{}, lookupTables *TransformedData) (repo.MaterialStat, bool) {
 	entry := repo.MaterialStat{}
 
+	// Extract material ID
 	idRaw, exists := raw["id"]
 	if !exists {
 		slog.Warn("Material missing id field", "raw", raw)
@@ -133,8 +162,10 @@ func MapMaterialToStats(raw map[string]interface{}, lookupTables *TransformedDat
 	}
 	entry.MaterialID = int32(materialID)
 
+	// Extract stats array
 	statsRaw, exists := raw["stats"]
 	if !exists {
+		// Materials without stats are valid (e.g., trait materials)
 		return entry, false
 	}
 
@@ -145,9 +176,11 @@ func MapMaterialToStats(raw map[string]interface{}, lookupTables *TransformedDat
 	}
 
 	if len(statsArray) == 0 {
+		// No stats to process
 		return entry, false
 	}
 
+	// Extract stat names
 	statNames := make([]string, 0, len(statsArray))
 	for _, statRaw := range statsArray {
 		statName, ok := statRaw.(string)
@@ -162,12 +195,14 @@ func MapMaterialToStats(raw map[string]interface{}, lookupTables *TransformedDat
 		return entry, false
 	}
 
+	// Look up stats table
 	statsTable, exists := lookupTables.GetTable("stats")
 	if !exists {
 		slog.Warn("Stats table not found", "materialID", materialID)
 		return entry, false
 	}
 
+	// Resolve first stat name to ID
 	firstStatID, found := findStatIDByName(statNames[0], statsTable)
 	if !found {
 		slog.Warn("Stat name not found", "materialID", materialID, "statName", statNames[0])
@@ -175,6 +210,7 @@ func MapMaterialToStats(raw map[string]interface{}, lookupTables *TransformedDat
 	}
 	entry.StatID = int32(firstStatID)
 
+	// Resolve second stat name to ID if present
 	if len(statNames) >= 2 {
 		secondStatID, found := findStatIDByName(statNames[1], statsTable)
 		if found {
@@ -194,6 +230,7 @@ func findStatIDByName(statName string, statsTable Table) (int, bool) {
 	return 0, false
 }
 
+// ProcessMaterialStatsExplicit uses explicit mapping instead of generic field mapping
 func ProcessMaterialStatsExplicit(materialsJSON []map[string]interface{}, result *TransformedData) {
 	materialStatsTable := result.EnsureTable("material_stats")
 
@@ -205,6 +242,7 @@ func ProcessMaterialStatsExplicit(materialsJSON []map[string]interface{}, result
 			continue
 		}
 
+		// Store in result map format expected by the pipeline
 		materialStatsTable[idCounter] = TableRow{
 			"id":          idCounter,
 			"material_id": materialStat.MaterialID,

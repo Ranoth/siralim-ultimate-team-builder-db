@@ -9,6 +9,8 @@ import (
 	"syscall"
 	"time"
 
+	repo "github.com/Ranoth/siralim-ultimate-team-builder-db/internal/adapters/postgresql/sqlc"
+	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/dbseeder"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/env"
 	"github.com/jackc/pgx/v5"
 )
@@ -33,6 +35,30 @@ func main() {
 	defer conn.Close(ctx)
 
 	logger.Info("Connected to database", "dsn", cfg.db.dsn)
+
+	// Check if database is already seeded before loading JSON
+	queries := repo.New(conn)
+	seeder := dbseeder.NewSeeder(queries)
+
+	isSeeded, err := seeder.IsAlreadySeeded(ctx)
+	if err != nil {
+		logger.Debug("Error checking if database is seeded", "error", err)
+	}
+
+	if !isSeeded {
+		// Load and process JSON data only if database is not seeded
+		dbseeder.Run()
+		transformedData := dbseeder.GetCorrelatedTables()
+
+		if transformedData != nil {
+			if err := seeder.SeedDatabase(ctx, transformedData); err != nil {
+				logger.Error("Failed to seed database", "error", err)
+				return
+			}
+		}
+	} else {
+		logger.Info("Database already seeded, skipping data loading and seeding")
+	}
 
 	api := application{
 		config: cfg,
