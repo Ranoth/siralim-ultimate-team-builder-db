@@ -20,8 +20,14 @@ FROM perks;
 SELECT *
 FROM spells;
 -- name: GetMaterials :many
-SELECT *
-FROM materials;
+SELECT m.id,
+    m.name,
+    m.icon,
+    m.type,
+    ms.id as stat_id,
+    ms.stat_id
+FROM materials m
+    LEFT JOIN material_stats ms ON m.id = ms.material_id;
 -- name: GetSpellProperties :many
 SELECT *
 FROM spell_properties;
@@ -60,9 +66,19 @@ SELECT *
 FROM spells
 WHERE id = $1;
 -- name: GetMaterial :one
-SELECT *
-FROM materials
-WHERE id = $1;
+SELECT m.id,
+    m.name,
+    m.icon,
+    m.type,
+    ms.id as stat_id,
+    ms.stat_id
+FROM materials m
+    LEFT JOIN material_stats ms ON m.id = ms.material_id
+WHERE m.id = $1;
+-- name: MaterialExists :one
+SELECT EXISTS(SELECT 1 FROM materials WHERE id = $1) as exists;
+-- name: TraitExists :one
+SELECT EXISTS(SELECT 1 FROM traits WHERE id = $1) as exists;
 -- name: GetSpellProperty :one
 SELECT *
 FROM spell_properties
@@ -76,49 +92,54 @@ SELECT *
 FROM stats
 WHERE id = $1;
 -- name: CreateCreature :one
-INSERT INTO creatures (name, image, trait_id, class_id, race_id)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO creatures (id, name, image, trait_id, class_id, race_id)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id;
 -- name: CreateTrait :one
-INSERT INTO traits (name, description, material_id)
-VALUES ($1, $2, $3)
+INSERT INTO traits (id, name, description, material_id)
+VALUES ($1, $2, $3, $4)
 RETURNING id;
 -- name: CreateClass :one
-INSERT INTO classes (name, icon)
-VALUES ($1, $2)
+INSERT INTO classes (id, name, icon)
+VALUES ($1, $2, $3)
 RETURNING id;
 -- name: CreateRace :one
-INSERT INTO races (name, icon)
-VALUES ($1, $2)
+INSERT INTO races (id, name, icon)
+VALUES ($1, $2, $3)
 RETURNING id;
 -- name: CreateSpecialization :one
-INSERT INTO specializations (name, description)
-VALUES ($1, $2)
+INSERT INTO specializations (id, name, description)
+VALUES ($1, $2, $3)
 RETURNING id;
 -- name: CreatePerk :one
-INSERT INTO perks (name, description, icon, specialization_id)
-VALUES ($1, $2, $3, $4)
-RETURNING id;
--- name: CreateSpell :one
-INSERT INTO spells (name, description, icon, charges, class_id)
+INSERT INTO perks (id, name, description, icon, specialization_id)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id;
--- name: CreateMaterial :one
-INSERT INTO materials (name, description, icon, type)
-VALUES ($1, $2, $3, $4)
+-- name: CreateSpell :one
+INSERT INTO spells (id, name, description, icon, charges, class_id)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id;
+-- name: CreateMaterial :one
+INSERT INTO materials (id, name, icon, type)
+VALUES ($1, $2, $3, $4)
+RETURNING id,
+    name,
+    icon,
+    type;
 -- name: CreateSpellProperty :one
-INSERT INTO spell_properties (name, description, material_id)
+INSERT INTO spell_properties (id, name, material_id)
 VALUES ($1, $2, $3)
 RETURNING id;
 -- name: CreateArtifact :one
-INSERT INTO artifacts (name, description, icon)
-VALUES ($1, $2, $3)
+INSERT INTO artifacts (id, name, icon, type)
+VALUES ($1, $2, $3, $4)
 RETURNING id;
 -- name: CreateStat :one
-INSERT INTO stats (type)
-VALUES ($1)
+INSERT INTO stats (id, type)
+VALUES ($1, $2)
 RETURNING id;
+-- name: GetStatsCount :one
+SELECT COUNT(*) FROM stats;
 -- name: DeleteCreature :exec
 DELETE FROM creatures
 WHERE id = $1;
@@ -143,6 +164,24 @@ WHERE id = $1;
 -- name: DeleteMaterial :exec
 DELETE FROM materials
 WHERE id = $1;
+-- name: GetMaterialStats :many
+SELECT id,
+    material_id,
+    stat_id
+FROM material_stats
+WHERE material_id = $1;
+-- name: CreateMaterialStat :one
+INSERT INTO material_stats (material_id, stat_id, id)
+VALUES ($1, $2, $3)
+RETURNING id;
+-- name: UpdateMaterialStat :exec
+UPDATE material_stats
+SET id = $3
+WHERE material_id = $1
+    AND stat_id = $2;
+-- name: DeleteMaterialStat :exec
+DELETE FROM material_stats
+WHERE id = $1;
 -- name: DeleteSpellProperty :exec
 DELETE FROM spell_properties
 WHERE id = $1;
@@ -155,7 +194,7 @@ WHERE id = $1;
 -- name: GetTraitsByCreatureName :many
 SELECT t.*
 FROM traits t
-JOIN creatures c ON t.id = c.trait_id
+    JOIN creatures c ON t.id = c.trait_id
 WHERE c.name ILIKE '%' || $1 || '%';
 -- name: GetTraitsByName :many
 SELECT *
@@ -182,9 +221,15 @@ SELECT *
 FROM spells
 WHERE name ILIKE '%' || $1 || '%';
 -- name: GetMaterialsByName :many
-SELECT *
-FROM materials
-WHERE name ILIKE '%' || $1 || '%';
+SELECT m.id,
+    m.name,
+    m.icon,
+    m.type,
+    ms.id as stat_id,
+    ms.stat_id
+FROM materials m
+    LEFT JOIN material_stats ms ON m.id = ms.material_id
+WHERE m.name ILIKE '%' || $1 || '%';
 -- name: GetSpellPropertiesByName :many
 SELECT *
 FROM spell_properties
@@ -200,17 +245,17 @@ WHERE type::text ILIKE '%' || $1 || '%';
 -- name: GetCreaturesByTraitName :many
 SELECT c.*
 FROM creatures c
-JOIN traits t ON c.trait_id = t.id
+    JOIN traits t ON c.trait_id = t.id
 WHERE t.name ILIKE '%' || $1 || '%';
 -- name: GetCreaturesByClassName :many
 SELECT c.*
 FROM creatures c
-JOIN classes cl ON c.class_id = cl.id
+    JOIN classes cl ON c.class_id = cl.id
 WHERE cl.name ILIKE '%' || $1 || '%';
 -- name: GetCreaturesByRaceName :many
 SELECT c.*
 FROM creatures c
-JOIN races r ON c.race_id = r.id
+    JOIN races r ON c.race_id = r.id
 WHERE r.name ILIKE '%' || $1 || '%';
 -- name: GetCreaturesByName :many
 SELECT *
@@ -219,17 +264,17 @@ WHERE name ILIKE '%' || $1 || '%';
 -- name: GetRacesByTraitName :many
 SELECT r.*
 FROM races r
-JOIN creatures c ON r.id = c.race_id
-JOIN traits t ON c.trait_id = t.id
+    JOIN creatures c ON r.id = c.race_id
+    JOIN traits t ON c.trait_id = t.id
 WHERE t.name ILIKE '%' || $1 || '%';
 -- name: GetRacesByClassName :many
 SELECT r.*
 FROM races r
-JOIN creatures c ON r.id = c.race
-JOIN classes cl ON c.class_id = cl.id
+    JOIN creatures c ON r.id = c.race
+    JOIN classes cl ON c.class_id = cl.id
 WHERE cl.name ILIKE '%' || $1 || '%';
 -- name: GetRacesByCreatureName :many
 SELECT r.*
 FROM races r
-JOIN creatures c ON r.id = c.race_id
+    JOIN creatures c ON r.id = c.race_id
 WHERE c.name ILIKE '%' || $1 || '%';

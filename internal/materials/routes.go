@@ -10,4 +10,6 @@ func RegisterRoutes(r chi.Router, service Service) {
 	r.Get("/name", h.GetMaterialsByName)
 	r.Post("/create", h.CreateMaterial)
 	r.Delete("/delete", h.DeleteMaterial)
+	r.Post("/stat/create", h.CreateMaterialStat)
+	r.Delete("/stat/delete", h.DeleteMaterialStat)
 }

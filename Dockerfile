@@ -23,5 +23,4 @@ COPY entrypoint.sh ./scripts/entrypoint.sh
 
 RUN chmod +x ./scripts/entrypoint.sh
 
-EXPOSE 8080
 ENTRYPOINT ["sh", "./scripts/entrypoint.sh"]

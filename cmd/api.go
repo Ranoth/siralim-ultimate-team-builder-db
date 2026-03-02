@@ -15,7 +15,7 @@ import (
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/perks"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/races"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/specializations"
-	spellproperties "github.com/Ranoth/siralim-ultimate-team-builder-db/internal/spellproperties"
+	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/spellproperties"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/spells"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/stats"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/traits"
