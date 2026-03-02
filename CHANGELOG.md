@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.0](https://github.com/Ranoth/siralim-ultimate-team-builder-db/compare/v1.1.2...v1.2.0) (2026-03-02)
+
+
+### Features
+
+* DB Seeder runs when db is empty ([6520792](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/65207925c759784b73888bc1edf957badeb923a0))
+
+
+### Bug Fixes
+
+* Add possibility to supply address through env ([706118f](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/706118f3489eea96f81f0d9c67951939fd1dd270))
+* materials api ([cc3fbb9](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/cc3fbb9a936921c75a21a9b4e7de446c988de077))
+* Remove default port expose ([3bc9bd7](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/3bc9bd78a76171b5b5dd573067da7cb1d159803a))
+* Remove error log when shutting down gracefully ([9dfe585](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/9dfe585921d44a0de48e6adf96a42731ea2f2fff))
+
 ## [1.1.2](https://github.com/Ranoth/siralim-ultimate-team-builder-db/compare/v1.1.1...v1.1.2) (2026-03-01)
 
 
