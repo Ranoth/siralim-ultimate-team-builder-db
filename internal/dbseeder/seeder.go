@@ -97,6 +97,10 @@ func (s *Seeder) SeedDatabase(ctx context.Context, data *TransformedData) error 
 		return err
 	}
 
+	if err := s.seedMaterialStats(ctx, data); err != nil {
+		return err
+	}
+
 	if err := s.seedTraits(ctx, data); err != nil {
 		return err
 	}
@@ -251,7 +255,7 @@ func (s *Seeder) seedMaterials(ctx context.Context, data *TransformedData) error
 
 		icon, ok := row["icon"].([]byte)
 		if !ok {
-			icon = nil
+			icon = []byte{}
 		}
 
 		materialType, ok := row["type"].(string)
@@ -277,6 +281,61 @@ func (s *Seeder) seedMaterials(ctx context.Context, data *TransformedData) error
 	}
 
 	slog.Info("Seeded materials", "count", successCount)
+	return nil
+}
+
+func (s *Seeder) seedMaterialStats(ctx context.Context, data *TransformedData) error {
+	materialStatsTable, exists := data.GetTable("material_stats")
+	if !exists {
+		slog.Debug("Material stats table not found in transformed data")
+		return nil
+	}
+
+	successCount := 0
+	for rowID, row := range materialStatsTable {
+		materialID := int32(0)
+		if mID, ok := row["material_id"]; ok {
+			materialID = extractInt32(mID, 0)
+		}
+
+		if materialID < 0 {
+			slog.Warn("Invalid material_id in row", "row", row)
+			continue
+		}
+
+		statID := int32(0)
+		if sID, ok := row["stat_id"]; ok {
+			statID = extractInt32(sID, 0)
+		}
+
+		if statID < 0 {
+			slog.Warn("Invalid stat_id in row", "row", row)
+			continue
+		}
+
+		statId2 := pgtype.Int4{Valid: false}
+		if sID2, ok := row["stat_id2"]; ok && sID2 != nil {
+			id := extractInt32(sID2, 0)
+			if id > 0 {
+				statId2 = pgtype.Int4{Int32: id, Valid: true}
+			}
+		}
+
+		id := extractID(row, rowID)
+		_, err := s.queries.CreateMaterialStat(ctx, repo.CreateMaterialStatParams{
+			ID:         id,
+			MaterialID: materialID,
+			StatID:     statID,
+			StatId2:    statId2,
+		})
+		if err != nil {
+			slog.Error("Failed to create material stat", "materialID", materialID, "statID", statID, "error", err)
+			return err
+		}
+		successCount++
+	}
+
+	slog.Info("Seeded material stats", "count", successCount)
 	return nil
 }
 

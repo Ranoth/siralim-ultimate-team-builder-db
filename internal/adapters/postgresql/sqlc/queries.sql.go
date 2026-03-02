@@ -118,19 +118,25 @@ func (q *Queries) CreateMaterial(ctx context.Context, arg CreateMaterialParams) 
 }
 
 const createMaterialStat = `-- name: CreateMaterialStat :one
-INSERT INTO material_stats (material_id, stat_id, id)
-VALUES ($1, $2, $3)
+INSERT INTO material_stats (material_id, stat_id, stat_id2, id)
+VALUES ($1, $2, $3, $4)
 RETURNING id
 `
 
 type CreateMaterialStatParams struct {
-	MaterialID int32 `json:"material_id"`
-	StatID     int32 `json:"stat_id"`
-	ID         int32 `json:"id"`
+	MaterialID int32       `json:"material_id"`
+	StatID     int32       `json:"stat_id"`
+	StatId2    pgtype.Int4 `json:"stat_id2"`
+	ID         int32       `json:"id"`
 }
 
 func (q *Queries) CreateMaterialStat(ctx context.Context, arg CreateMaterialStatParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createMaterialStat, arg.MaterialID, arg.StatID, arg.ID)
+	row := q.db.QueryRow(ctx, createMaterialStat,
+		arg.MaterialID,
+		arg.StatID,
+		arg.StatId2,
+		arg.ID,
+	)
 	var id int32
 	err := row.Scan(&id)
 	return id, err

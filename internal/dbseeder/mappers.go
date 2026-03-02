@@ -223,7 +223,7 @@ func MapMaterialToStats(raw map[string]interface{}, lookupTables *TransformedDat
 
 func findStatIDByName(statName string, statsTable Table) (int, bool) {
 	for id, fields := range statsTable {
-		if name, ok := fields["name"].(string); ok && name == statName {
+		if name, ok := fields["stat_type"].(string); ok && name == statName {
 			return id, true
 		}
 	}

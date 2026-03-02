@@ -81,7 +81,6 @@ var correlatedFieldNamesMetaMap = map[string][]fieldMapping{
 		{DBField: "description", JSONField: "description"},
 		{DBField: "material_id", JSONField: "item"},
 	},
-	// creatures and material_stats use explicit mappers in mappers.go - not in this generic map
 	"perks": {
 		{DBField: "id", JSONField: "id"},
 		{DBField: "name", JSONField: "name"},

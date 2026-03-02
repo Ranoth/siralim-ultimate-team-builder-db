@@ -171,8 +171,8 @@ SELECT id,
 FROM material_stats
 WHERE material_id = $1;
 -- name: CreateMaterialStat :one
-INSERT INTO material_stats (material_id, stat_id, id)
-VALUES ($1, $2, $3)
+INSERT INTO material_stats (material_id, stat_id, stat_id2, id)
+VALUES ($1, $2, $3, $4)
 RETURNING id;
 -- name: UpdateMaterialStat :exec
 UPDATE material_stats
