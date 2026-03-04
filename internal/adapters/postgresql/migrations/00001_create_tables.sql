@@ -89,7 +89,16 @@ CREATE TABLE IF NOT EXISTS spells (
     class_id INTEGER NOT NULL,
     FOREIGN KEY (class_id) REFERENCES classes(id)
 );
+CREATE TABLE IF NOT EXISTS relics (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    icon BYTEA,
+    bonuses text[] NOT NULL,
+    stat_id INTEGER NOT NULL,
+    FOREIGN KEY (stat_id) REFERENCES stats(id)
+);
 -- +goose Down
+DROP TABLE IF EXISTS relics CASCADE;
 DROP TABLE IF EXISTS materials CASCADE;
 DROP TABLE IF EXISTS artifacts CASCADE;
 DROP TABLE IF EXISTS spell_properties CASCADE;

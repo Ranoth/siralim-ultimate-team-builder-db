@@ -24,7 +24,7 @@ func (h *handler) GetMaterial(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) GetMaterialsByName(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleGetByName[repo.GetMaterialsRow](h.service.GetMaterialsByName, "materials")(w, r)
+	httpx.HandleGetByName[repo.GetMaterialsByNameRow](h.service.GetMaterialsByName, "materials")(w, r)
 }
 
 func (h *handler) CreateMaterial(w http.ResponseWriter, r *http.Request) {

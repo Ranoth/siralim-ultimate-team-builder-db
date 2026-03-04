@@ -76,9 +76,17 @@ FROM materials m
     LEFT JOIN material_stats ms ON m.id = ms.material_id
 WHERE m.id = $1;
 -- name: MaterialExists :one
-SELECT EXISTS(SELECT 1 FROM materials WHERE id = $1) as exists;
+SELECT EXISTS(
+        SELECT 1
+        FROM materials
+        WHERE id = $1
+    ) as exists;
 -- name: TraitExists :one
-SELECT EXISTS(SELECT 1 FROM traits WHERE id = $1) as exists;
+SELECT EXISTS(
+        SELECT 1
+        FROM traits
+        WHERE id = $1
+    ) as exists;
 -- name: GetSpellProperty :one
 SELECT *
 FROM spell_properties
@@ -139,7 +147,8 @@ INSERT INTO stats (id, type)
 VALUES ($1, $2)
 RETURNING id;
 -- name: GetStatsCount :one
-SELECT COUNT(*) FROM stats;
+SELECT COUNT(*)
+FROM stats;
 -- name: DeleteCreature :exec
 DELETE FROM creatures
 WHERE id = $1;
@@ -278,3 +287,39 @@ SELECT r.*
 FROM races r
     JOIN creatures c ON r.id = c.race_id
 WHERE c.name ILIKE '%' || $1 || '%';
+-- name: GetRelics :many
+SELECT r.id,
+    r.name,
+    r.icon,
+    r.bonuses,
+    s.id as stat_id,
+    s.type as stat_type
+FROM relics r
+    LEFT JOIN stats s ON r.stat_id = s.id;
+-- name: GetRelic :one
+SELECT r.id,
+    r.name,
+    r.icon,
+    r.bonuses,
+    s.id as stat_id,
+    s.type as stat_type
+FROM relics r
+    LEFT JOIN stats s ON r.stat_id = s.id
+WHERE r.id = $1;
+-- name: GetRelicsByName :many
+SELECT r.id,
+    r.name,
+    r.icon,
+    r.bonuses,
+    s.id as stat_id,
+    s.type as stat_type
+FROM relics r
+    LEFT JOIN stats s ON r.stat_id = s.id
+WHERE r.name ILIKE '%' || $1 || '%';
+-- name: CreateRelic :one
+INSERT INTO relics (id, name, icon, bonuses, stat_id)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id;
+-- name: DeleteRelic :exec
+DELETE FROM relics
+WHERE id = $1;

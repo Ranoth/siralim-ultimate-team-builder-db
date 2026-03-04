@@ -10,7 +10,7 @@ import (
 type Service interface {
 	GetMaterials(ctx context.Context) ([]repo.GetMaterialsRow, error)
 	GetMaterial(ctx context.Context, id int32) (repo.GetMaterialRow, error)
-	GetMaterialsByName(ctx context.Context, name string) ([]repo.GetMaterialsRow, error)
+	GetMaterialsByName(ctx context.Context, name string) ([]repo.GetMaterialsByNameRow, error)
 	CreateMaterial(ctx context.Context, params repo.CreateMaterialParams) (repo.Material, error)
 	DeleteMaterial(ctx context.Context, id int32) error
 	CreateMaterialStat(ctx context.Context, params repo.CreateMaterialStatParams) (int32, error)
@@ -34,16 +34,8 @@ func (s *service) GetMaterial(ctx context.Context, id int32) (repo.GetMaterialRo
 	return s.repo.GetMaterial(ctx, id)
 }
 
-func (s *service) GetMaterialsByName(ctx context.Context, name string) ([]repo.GetMaterialsRow, error) {
-	materials, err := s.repo.GetMaterialsByName(ctx, pgtype.Text{String: name, Valid: true})
-	if err != nil {
-		return nil, err
-	}
-	results := make([]repo.GetMaterialsRow, len(materials))
-	for i, _ := range materials {
-		results[i] = repo.GetMaterialsRow{}
-	}
-	return results, nil
+func (s *service) GetMaterialsByName(ctx context.Context, name string) ([]repo.GetMaterialsByNameRow, error) {
+	return s.repo.GetMaterialsByName(ctx, pgtype.Text{String: name, Valid: true})
 }
 
 func (s *service) CreateMaterial(ctx context.Context, params repo.CreateMaterialParams) (repo.Material, error) {

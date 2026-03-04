@@ -149,6 +149,14 @@ type Race struct {
 	Icon []byte `json:"icon"`
 }
 
+type Relic struct {
+	ID      int32    `json:"id"`
+	Name    string   `json:"name"`
+	Icon    []byte   `json:"icon"`
+	Bonuses []string `json:"bonuses"`
+	StatID  int32    `json:"stat_id"`
+}
+
 type Specialization struct {
 	ID          int32  `json:"id"`
 	Name        string `json:"name"`

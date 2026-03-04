@@ -18,6 +18,7 @@ type Querier interface {
 	CreateMaterialStat(ctx context.Context, arg CreateMaterialStatParams) (int32, error)
 	CreatePerk(ctx context.Context, arg CreatePerkParams) (int32, error)
 	CreateRace(ctx context.Context, arg CreateRaceParams) (int32, error)
+	CreateRelic(ctx context.Context, arg CreateRelicParams) (int32, error)
 	CreateSpecialization(ctx context.Context, arg CreateSpecializationParams) (int32, error)
 	CreateSpell(ctx context.Context, arg CreateSpellParams) (int32, error)
 	CreateSpellProperty(ctx context.Context, arg CreateSpellPropertyParams) (int32, error)
@@ -30,6 +31,7 @@ type Querier interface {
 	DeleteMaterialStat(ctx context.Context, id int32) error
 	DeletePerk(ctx context.Context, id int32) error
 	DeleteRace(ctx context.Context, id int32) error
+	DeleteRelic(ctx context.Context, id int32) error
 	DeleteSpecialization(ctx context.Context, id int32) error
 	DeleteSpell(ctx context.Context, id int32) error
 	DeleteSpellProperty(ctx context.Context, id int32) error
@@ -60,6 +62,9 @@ type Querier interface {
 	GetRacesByCreatureName(ctx context.Context, dollar_1 pgtype.Text) ([]Race, error)
 	GetRacesByName(ctx context.Context, dollar_1 pgtype.Text) ([]Race, error)
 	GetRacesByTraitName(ctx context.Context, dollar_1 pgtype.Text) ([]Race, error)
+	GetRelic(ctx context.Context, id int32) (GetRelicRow, error)
+	GetRelics(ctx context.Context) ([]GetRelicsRow, error)
+	GetRelicsByName(ctx context.Context, dollar_1 pgtype.Text) ([]GetRelicsByNameRow, error)
 	GetSpecialization(ctx context.Context, id int32) (Specialization, error)
 	GetSpecializations(ctx context.Context) ([]Specialization, error)
 	GetSpecializationsByName(ctx context.Context, dollar_1 pgtype.Text) ([]Specialization, error)

@@ -188,6 +188,33 @@ func (q *Queries) CreateRace(ctx context.Context, arg CreateRaceParams) (int32, 
 	return id, err
 }
 
+const createRelic = `-- name: CreateRelic :one
+INSERT INTO relics (id, name, icon, bonuses, stat_id)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id
+`
+
+type CreateRelicParams struct {
+	ID      int32    `json:"id"`
+	Name    string   `json:"name"`
+	Icon    []byte   `json:"icon"`
+	Bonuses []string `json:"bonuses"`
+	StatID  int32    `json:"stat_id"`
+}
+
+func (q *Queries) CreateRelic(ctx context.Context, arg CreateRelicParams) (int32, error) {
+	row := q.db.QueryRow(ctx, createRelic,
+		arg.ID,
+		arg.Name,
+		arg.Icon,
+		arg.Bonuses,
+		arg.StatID,
+	)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
 const createSpecialization = `-- name: CreateSpecialization :one
 INSERT INTO specializations (id, name, description)
 VALUES ($1, $2, $3)
@@ -365,6 +392,16 @@ WHERE id = $1
 
 func (q *Queries) DeleteRace(ctx context.Context, id int32) error {
 	_, err := q.db.Exec(ctx, deleteRace, id)
+	return err
+}
+
+const deleteRelic = `-- name: DeleteRelic :exec
+DELETE FROM relics
+WHERE id = $1
+`
+
+func (q *Queries) DeleteRelic(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteRelic, id)
 	return err
 }
 
@@ -1141,6 +1178,136 @@ func (q *Queries) GetRacesByTraitName(ctx context.Context, dollar_1 pgtype.Text)
 	return items, nil
 }
 
+const getRelic = `-- name: GetRelic :one
+SELECT r.id,
+    r.name,
+    r.icon,
+    r.bonuses,
+    s.id as stat_id,
+    s.type as stat_type
+FROM relics r
+    LEFT JOIN stats s ON r.stat_id = s.id
+WHERE r.id = $1
+`
+
+type GetRelicRow struct {
+	ID       int32        `json:"id"`
+	Name     string       `json:"name"`
+	Icon     []byte       `json:"icon"`
+	Bonuses  []string     `json:"bonuses"`
+	StatID   pgtype.Int4  `json:"stat_id"`
+	StatType NullStatType `json:"stat_type"`
+}
+
+func (q *Queries) GetRelic(ctx context.Context, id int32) (GetRelicRow, error) {
+	row := q.db.QueryRow(ctx, getRelic, id)
+	var i GetRelicRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Icon,
+		&i.Bonuses,
+		&i.StatID,
+		&i.StatType,
+	)
+	return i, err
+}
+
+const getRelics = `-- name: GetRelics :many
+SELECT r.id,
+    r.name,
+    r.icon,
+    r.bonuses,
+    s.id as stat_id,
+    s.type as stat_type
+FROM relics r
+    LEFT JOIN stats s ON r.stat_id = s.id
+`
+
+type GetRelicsRow struct {
+	ID       int32        `json:"id"`
+	Name     string       `json:"name"`
+	Icon     []byte       `json:"icon"`
+	Bonuses  []string     `json:"bonuses"`
+	StatID   pgtype.Int4  `json:"stat_id"`
+	StatType NullStatType `json:"stat_type"`
+}
+
+func (q *Queries) GetRelics(ctx context.Context) ([]GetRelicsRow, error) {
+	rows, err := q.db.Query(ctx, getRelics)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetRelicsRow
+	for rows.Next() {
+		var i GetRelicsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Icon,
+			&i.Bonuses,
+			&i.StatID,
+			&i.StatType,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRelicsByName = `-- name: GetRelicsByName :many
+SELECT r.id,
+    r.name,
+    r.icon,
+    r.bonuses,
+    s.id as stat_id,
+    s.type as stat_type
+FROM relics r
+    LEFT JOIN stats s ON r.stat_id = s.id
+WHERE r.name ILIKE '%' || $1 || '%'
+`
+
+type GetRelicsByNameRow struct {
+	ID       int32        `json:"id"`
+	Name     string       `json:"name"`
+	Icon     []byte       `json:"icon"`
+	Bonuses  []string     `json:"bonuses"`
+	StatID   pgtype.Int4  `json:"stat_id"`
+	StatType NullStatType `json:"stat_type"`
+}
+
+func (q *Queries) GetRelicsByName(ctx context.Context, dollar_1 pgtype.Text) ([]GetRelicsByNameRow, error) {
+	rows, err := q.db.Query(ctx, getRelicsByName, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetRelicsByNameRow
+	for rows.Next() {
+		var i GetRelicsByNameRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Icon,
+			&i.Bonuses,
+			&i.StatID,
+			&i.StatType,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSpecialization = `-- name: GetSpecialization :one
 SELECT id, name, description, icon
 FROM specializations
@@ -1434,7 +1601,8 @@ func (q *Queries) GetStatsByType(ctx context.Context, dollar_1 pgtype.Text) ([]S
 }
 
 const getStatsCount = `-- name: GetStatsCount :one
-SELECT COUNT(*) FROM stats
+SELECT COUNT(*)
+FROM stats
 `
 
 func (q *Queries) GetStatsCount(ctx context.Context) (int64, error) {
@@ -1556,7 +1724,11 @@ func (q *Queries) GetTraitsByName(ctx context.Context, dollar_1 pgtype.Text) ([]
 }
 
 const materialExists = `-- name: MaterialExists :one
-SELECT EXISTS(SELECT 1 FROM materials WHERE id = $1) as exists
+SELECT EXISTS(
+        SELECT 1
+        FROM materials
+        WHERE id = $1
+    ) as exists
 `
 
 func (q *Queries) MaterialExists(ctx context.Context, id int32) (bool, error) {
@@ -1567,7 +1739,11 @@ func (q *Queries) MaterialExists(ctx context.Context, id int32) (bool, error) {
 }
 
 const traitExists = `-- name: TraitExists :one
-SELECT EXISTS(SELECT 1 FROM traits WHERE id = $1) as exists
+SELECT EXISTS(
+        SELECT 1
+        FROM traits
+        WHERE id = $1
+    ) as exists
 `
 
 func (q *Queries) TraitExists(ctx context.Context, id int32) (bool, error) {
