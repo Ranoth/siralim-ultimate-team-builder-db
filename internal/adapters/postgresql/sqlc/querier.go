@@ -11,6 +11,20 @@ import (
 )
 
 type Querier interface {
+	BatchInsertArtifacts(ctx context.Context, arg []BatchInsertArtifactsParams) (int64, error)
+	// Batch insert queries using COPY protocol for efficient seeding
+	BatchInsertClasses(ctx context.Context, arg []BatchInsertClassesParams) (int64, error)
+	BatchInsertCreatures(ctx context.Context, arg []BatchInsertCreaturesParams) (int64, error)
+	BatchInsertMaterialStats(ctx context.Context, arg []BatchInsertMaterialStatsParams) (int64, error)
+	BatchInsertMaterials(ctx context.Context, arg []BatchInsertMaterialsParams) (int64, error)
+	BatchInsertPerks(ctx context.Context, arg []BatchInsertPerksParams) (int64, error)
+	BatchInsertRaces(ctx context.Context, arg []BatchInsertRacesParams) (int64, error)
+	BatchInsertRelics(ctx context.Context, arg []BatchInsertRelicsParams) (int64, error)
+	BatchInsertSpecializations(ctx context.Context, arg []BatchInsertSpecializationsParams) (int64, error)
+	BatchInsertSpellProperties(ctx context.Context, arg []BatchInsertSpellPropertiesParams) (int64, error)
+	BatchInsertSpells(ctx context.Context, arg []BatchInsertSpellsParams) (int64, error)
+	BatchInsertStats(ctx context.Context, arg []BatchInsertStatsParams) (int64, error)
+	BatchInsertTraits(ctx context.Context, arg []BatchInsertTraitsParams) (int64, error)
 	CreateArtifact(ctx context.Context, arg CreateArtifactParams) (int32, error)
 	CreateClass(ctx context.Context, arg CreateClassParams) (int32, error)
 	CreateCreature(ctx context.Context, arg CreateCreatureParams) (int32, error)
@@ -18,6 +32,7 @@ type Querier interface {
 	CreateMaterialStat(ctx context.Context, arg CreateMaterialStatParams) (int32, error)
 	CreatePerk(ctx context.Context, arg CreatePerkParams) (int32, error)
 	CreateRace(ctx context.Context, arg CreateRaceParams) (int32, error)
+	CreateRelic(ctx context.Context, arg CreateRelicParams) (int32, error)
 	CreateSpecialization(ctx context.Context, arg CreateSpecializationParams) (int32, error)
 	CreateSpell(ctx context.Context, arg CreateSpellParams) (int32, error)
 	CreateSpellProperty(ctx context.Context, arg CreateSpellPropertyParams) (int32, error)
@@ -30,6 +45,7 @@ type Querier interface {
 	DeleteMaterialStat(ctx context.Context, id int32) error
 	DeletePerk(ctx context.Context, id int32) error
 	DeleteRace(ctx context.Context, id int32) error
+	DeleteRelic(ctx context.Context, id int32) error
 	DeleteSpecialization(ctx context.Context, id int32) error
 	DeleteSpell(ctx context.Context, id int32) error
 	DeleteSpellProperty(ctx context.Context, id int32) error
@@ -60,6 +76,9 @@ type Querier interface {
 	GetRacesByCreatureName(ctx context.Context, dollar_1 pgtype.Text) ([]Race, error)
 	GetRacesByName(ctx context.Context, dollar_1 pgtype.Text) ([]Race, error)
 	GetRacesByTraitName(ctx context.Context, dollar_1 pgtype.Text) ([]Race, error)
+	GetRelic(ctx context.Context, id int32) (GetRelicRow, error)
+	GetRelics(ctx context.Context) ([]GetRelicsRow, error)
+	GetRelicsByName(ctx context.Context, dollar_1 pgtype.Text) ([]GetRelicsByNameRow, error)
 	GetSpecialization(ctx context.Context, id int32) (Specialization, error)
 	GetSpecializations(ctx context.Context) ([]Specialization, error)
 	GetSpecializationsByName(ctx context.Context, dollar_1 pgtype.Text) ([]Specialization, error)

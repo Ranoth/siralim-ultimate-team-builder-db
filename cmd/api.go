@@ -14,6 +14,7 @@ import (
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/materials"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/perks"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/races"
+	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/relics"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/specializations"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/spellproperties"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/spells"
@@ -105,6 +106,12 @@ func (app *application) mount() http.Handler {
 			path: "/materials",
 			register: func(r chi.Router, q repo.Querier) {
 				materials.RegisterRoutes(r, materials.NewService(q))
+			},
+		},
+		{
+			path: "/relics",
+			register: func(r chi.Router, q repo.Querier) {
+				relics.RegisterRoutes(r, relics.NewService(q))
 			},
 		},
 	}

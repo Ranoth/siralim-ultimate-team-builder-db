@@ -1,171 +1,169 @@
 package dbseeder
 
-type jsonMeta struct {
-	FilePath   string
-	Name       string
-	Fields     map[string]map[int]interface{}
-	RawPayload []map[string]interface{}
+import "log/slog"
+
+type config struct {
+	logger                      *slog.Logger
+	gameDataRootPath            string
+	jsonSources                 map[string]jsonMeta
+	staticTables                map[string][]map[string]interface{}
+	correlatedFieldNamesMetaMap map[string][]fieldMapping
+	junctionTableSpecs          map[string]junctionTableSpec
 }
 
-type staticTableEntry struct {
-	ID       int
-	IconPath string
+const gameDataRootPath = "/app/gameData/"
+
+func newSeederConfig() *config {
+	return &config{
+		logger:           slog.Default(),
+		gameDataRootPath: gameDataRootPath,
+		jsonSources: map[string]jsonMeta{
+			"artifacts":       {filePath: gameDataRootPath + "artifacts.json", name: "artifacts"},
+			"races":           {filePath: gameDataRootPath + "races.json", name: "races"},
+			"specializations": {filePath: gameDataRootPath + "specializations.json", name: "specializations"},
+			"materials":       {filePath: gameDataRootPath + "materials.json", name: "materials"},
+			"traits":          {filePath: gameDataRootPath + "traits.json", name: "traits"},
+			"creatures":       {filePath: gameDataRootPath + "creatures.json", name: "creatures"},
+			"perks":           {filePath: gameDataRootPath + "perks.json", name: "perks"},
+			"spells":          {filePath: gameDataRootPath + "spells.json", name: "spells"},
+			"spellProperties": {filePath: gameDataRootPath + "spellProperties.json", name: "spellProperties"},
+			"relics":          {filePath: gameDataRootPath + "gods.json", name: "relics"},
+			"material_stats":  {name: "material_stats"},
+		},
+		staticTables: map[string][]map[string]interface{}{
+			"classes": {
+				{"name": "life", "id": 0, "icon": "images/misc/class/life.png"},
+				{"name": "death", "id": 1, "icon": "images/misc/class/death.png"},
+				{"name": "nature", "id": 2, "icon": "images/misc/class/nature.png"},
+				{"name": "sorcery", "id": 3, "icon": "images/misc/class/sorcery.png"},
+				{"name": "chaos", "id": 4, "icon": "images/misc/class/chaos.png"},
+			},
+			"stats": {
+				{"name": "health", "id": 0, "icon": "images/misc/stat/health.png"},
+				{"name": "attack", "id": 1, "icon": "images/misc/stat/attack.png"},
+				{"name": "intelligence", "id": 2, "icon": "images/misc/stat/intelligence.png"},
+				{"name": "defense", "id": 3, "icon": "images/misc/stat/defense.png"},
+				{"name": "speed", "id": 4, "icon": "images/misc/stat/speed.png"},
+			},
+		},
+		correlatedFieldNamesMetaMap: map[string][]fieldMapping{
+			"classes": {
+				{dBField: "id", jsonField: "id"},
+				{dBField: "name", jsonField: "name"},
+				{dBField: "icon", jsonField: "icon"},
+			},
+			"stats": {
+				{dBField: "id", jsonField: "id"},
+				{dBField: "type", jsonField: "name"},
+				{dBField: "icon", jsonField: "icon"},
+			},
+			"artifacts": {
+				{dBField: "id", jsonField: "id"},
+				{dBField: "name", jsonField: "name"},
+				{dBField: "icon", jsonField: "icons"},
+				{dBField: "stat_id", jsonField: "stat", findIdFromSource: "stats"},
+			},
+			"races": {
+				{dBField: "id", jsonField: "id"},
+				{dBField: "name", jsonField: "name"},
+				{dBField: "icon", jsonField: "icon"},
+			},
+			"specializations": {
+				{dBField: "id", jsonField: "id"},
+				{dBField: "name", jsonField: "name"},
+				{dBField: "description", jsonField: "description"},
+				{dBField: "icon", jsonField: "icon"},
+			},
+			"materials": {
+				{dBField: "id", jsonField: "id"},
+				{dBField: "name", jsonField: "name"},
+				{dBField: "description", jsonField: "description"},
+				{dBField: "icon", jsonField: "icon"},
+				{dBField: "type", jsonField: "slot"},
+				{dBField: "", jsonField: "stats"},
+			},
+			"traits": {
+				{dBField: "id", jsonField: "id"},
+				{dBField: "name", jsonField: "name"},
+				{dBField: "description", jsonField: "description"},
+				{dBField: "material_id", jsonField: "item"},
+			},
+			"perks": {
+				{dBField: "id", jsonField: "id"},
+				{dBField: "name", jsonField: "name"},
+				{dBField: "description", jsonField: "description"},
+				{dBField: "icon", jsonField: "icon"},
+				{dBField: "specialization_id", jsonField: "specialization", findIdFromSource: "specializations"},
+			},
+			"spells": {
+				{dBField: "id", jsonField: "id"},
+				{dBField: "name", jsonField: "name"},
+				{dBField: "description", jsonField: "description"},
+				{dBField: "charges", jsonField: "maxCharges"},
+				{dBField: "class_id", jsonField: "class", findIdFromSource: "classes"},
+			},
+			"spellProperties": {
+				{dBField: "id", jsonField: "id"},
+				{dBField: "name", jsonField: "shortDescription"},
+				{dBField: "material_id", jsonField: "item"},
+			},
+			"creatures": {
+				{dBField: "id", jsonField: "id"},
+				{dBField: "name", jsonField: "name"},
+				{dBField: "description", jsonField: "description"},
+				{dBField: "icon", jsonField: "battleSprite"},
+				{dBField: "race_id", jsonField: "race", findIdFromSource: "races"},
+				{dBField: "class_id", jsonField: "class", findIdFromSource: "classes"},
+				{dBField: "trait_id", jsonField: "trait", findIdFromSource: "traits"},
+			},
+			"relics": {
+				{dBField: "id", jsonField: "id"},
+				{dBField: "name", jsonField: "relicTitle"},
+				{dBField: "bonuses", jsonField: "relicBonuses"},
+				{dBField: "icon", jsonField: "relicBigIcon"},
+				{dBField: "stat_id", jsonField: "relicStat", findIdFromSource: "stats"},
+			},
+		},
+		junctionTableSpecs: map[string]junctionTableSpec{
+			"material_stats": {
+				name:           "material_stats",
+				sourceName:     "materials",
+				dataField:      "stats",
+				parentKeyField: "id",
+				mappings: []junctionFieldMapping{
+					{junctionField: "material_id", sourceField: "id", arrayIndex: -1},
+					{junctionField: "stat_id", sourceField: "stats", arrayIndex: 0, findIdFromSource: "stats"},
+					{junctionField: "stat_id2", sourceField: "stats", arrayIndex: 1, findIdFromSource: "stats"},
+				},
+			},
+		},
+	}
+}
+
+type jsonMeta struct {
+	filePath string
+	name     string
+	items    []map[string]interface{}
 }
 
 type fieldMapping struct {
-	DBField   string
-	JSONField string
+	dBField          string
+	jsonField        string
+	findIdFromSource string
+	isFake           bool
 }
 
-var classes = map[string]staticTableEntry{
-	"life":    {ID: 0, IconPath: "images/misc/class/life.png"},
-	"death":   {ID: 1, IconPath: "images/misc/class/death.png"},
-	"nature":  {ID: 2, IconPath: "images/misc/class/nature.png"},
-	"sorcery": {ID: 3, IconPath: "images/misc/class/sorcery.png"},
-	"chaos":   {ID: 4, IconPath: "images/misc/class/chaos.png"},
+type junctionTableSpec struct {
+	name           string
+	sourceName     string
+	dataField      string
+	parentKeyField string // The field in the source item that contains the parent ID (e.g., "id" for materials)
+	mappings       []junctionFieldMapping
 }
 
-var stats = map[string]staticTableEntry{
-	"health":       {ID: 0, IconPath: "images/misc/stat/health.png"},
-	"attack":       {ID: 1, IconPath: "images/misc/stat/attack.png"},
-	"intelligence": {ID: 2, IconPath: "images/misc/stat/intelligence.png"},
-	"defense":      {ID: 3, IconPath: "images/misc/stat/defense.png"},
-	"speed":        {ID: 4, IconPath: "images/misc/stat/speed.png"},
+type junctionFieldMapping struct {
+	junctionField    string
+	sourceField      string
+	arrayIndex       int // -1 if not an array element, 0 for first, 1 for second, etc.
+	findIdFromSource string
 }
-
-var jsonSources = [9]jsonMeta{
-	{FilePath: "/app/gameData/artifacts.json", Name: "artifacts"},
-	{FilePath: "/app/gameData/races.json", Name: "races"},
-	{FilePath: "/app/gameData/specializations.json", Name: "specializations"},
-	{FilePath: "/app/gameData/materials.json", Name: "materials"},
-	{FilePath: "/app/gameData/traits.json", Name: "traits"},
-	{FilePath: "/app/gameData/creatures.json", Name: "creatures"},
-	{FilePath: "/app/gameData/perks.json", Name: "perks"},
-	{FilePath: "/app/gameData/spells.json", Name: "spells"},
-	{FilePath: "/app/gameData/spellProperties.json", Name: "spellProperties"},
-}
-
-var correlatedFieldNamesMetaMap = map[string][]fieldMapping{
-	"artifacts": {
-		{DBField: "id", JSONField: "id"},
-		{DBField: "name", JSONField: "name"},
-		{DBField: "icon", JSONField: "icons"},
-		{DBField: "stat_type", JSONField: "stat"},
-	},
-	"classes": {
-		{DBField: "id", JSONField: ""},
-		{DBField: "name", JSONField: ""},
-		{DBField: "icon", JSONField: ""},
-	},
-	"races": {
-		{DBField: "id", JSONField: ""},
-		{DBField: "name", JSONField: "name"},
-		{DBField: "icon", JSONField: "icon"},
-	},
-	"specializations": {
-		{DBField: "id", JSONField: "id"},
-		{DBField: "name", JSONField: "name"},
-		{DBField: "description", JSONField: "description"},
-		{DBField: "icon", JSONField: "icon"},
-	},
-	"materials": {
-		{DBField: "id", JSONField: "id"},
-		{DBField: "name", JSONField: "name"},
-		{DBField: "description", JSONField: "description"},
-		{DBField: "icon", JSONField: "icon"},
-		{DBField: "type", JSONField: "slot"},
-	},
-	"traits": {
-		{DBField: "id", JSONField: "id"},
-		{DBField: "name", JSONField: "name"},
-		{DBField: "description", JSONField: "description"},
-		{DBField: "material_id", JSONField: "item"},
-	},
-	// creatures and material_stats use explicit mappers in mappers.go - not in this generic map
-	"perks": {
-		{DBField: "id", JSONField: "id"},
-		{DBField: "name", JSONField: "name"},
-		{DBField: "description", JSONField: "description"},
-		{DBField: "icon", JSONField: "icon"},
-		{DBField: "specialization_id", JSONField: "specialization"},
-	},
-	"spells": {
-		{DBField: "id", JSONField: "id"},
-		{DBField: "name", JSONField: "name"},
-		{DBField: "description", JSONField: "description"},
-		{DBField: "icon", JSONField: ""},
-		{DBField: "charges", JSONField: "maxCharges"},
-		{DBField: "class_id", JSONField: "class"},
-	},
-	"spellProperties": {
-		{DBField: "id", JSONField: "id"},
-		{DBField: "name", JSONField: "longDescription"},
-		{DBField: "material_id", JSONField: "materialId"},
-	},
-	"stats": {
-		{DBField: "id", JSONField: ""},
-		{DBField: "stat_type", JSONField: ""},
-	},
-}
-
-// TableRow represents a single row with column values
-type TableRow map[string]interface{}
-
-// Table represents all rows in a table, indexed by row ID
-type Table map[int]TableRow
-
-// TransformedData holds all transformed tables ready for DB insertion
-type TransformedData struct {
-	tables map[string]Table
-}
-
-// NewTransformedData creates an initialized TransformedData instance
-func NewTransformedData() *TransformedData {
-	return &TransformedData{
-		tables: make(map[string]Table),
-	}
-}
-
-// GetTable retrieves a table by name
-func (td *TransformedData) GetTable(name string) (Table, bool) {
-	table, exists := td.tables[name]
-	return table, exists
-}
-
-// SetTable stores or replaces a table
-func (td *TransformedData) SetTable(name string, table Table) {
-	td.tables[name] = table
-}
-
-// EnsureTable ensures a table exists, creating it if necessary
-func (td *TransformedData) EnsureTable(name string) Table {
-	if td.tables[name] == nil {
-		td.tables[name] = make(Table)
-	}
-	return td.tables[name]
-}
-
-// SetRow sets a row in a table, creating the table if needed
-func (td *TransformedData) SetRow(tableName string, rowID int, row TableRow) {
-	table := td.EnsureTable(tableName)
-	table[rowID] = row
-}
-
-// GetRow retrieves a specific row from a table
-func (td *TransformedData) GetRow(tableName string, rowID int) (TableRow, bool) {
-	table, exists := td.tables[tableName]
-	if !exists {
-		return nil, false
-	}
-	row, exists := table[rowID]
-	return row, exists
-}
-
-// Tables returns all tables (for compatibility with existing code)
-func (td *TransformedData) Tables() map[string]Table {
-	return td.tables
-}
-
-var correlatedTables *TransformedData
-
-const gameDataRootPath = "/app/gameData"
