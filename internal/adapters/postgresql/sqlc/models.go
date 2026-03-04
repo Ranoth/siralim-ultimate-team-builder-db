@@ -100,10 +100,10 @@ func (ns NullStatType) Value() (driver.Value, error) {
 }
 
 type Artifact struct {
-	ID   int32    `json:"id"`
-	Name string   `json:"name"`
-	Icon []byte   `json:"icon"`
-	Type StatType `json:"type"`
+	ID     int32  `json:"id"`
+	Name   string `json:"name"`
+	Icon   []byte `json:"icon"`
+	StatID int32  `json:"stat_id"`
 }
 
 type Class struct {
@@ -115,17 +115,17 @@ type Class struct {
 type Creature struct {
 	ID      int32       `json:"id"`
 	Name    string      `json:"name"`
-	Image   []byte      `json:"image"`
+	Icon    []byte      `json:"icon"`
 	TraitID pgtype.Int4 `json:"trait_id"`
 	ClassID int32       `json:"class_id"`
 	RaceID  int32       `json:"race_id"`
 }
 
 type Material struct {
-	ID   int32            `json:"id"`
-	Name string           `json:"name"`
-	Icon []byte           `json:"icon"`
-	Type NullMaterialType `json:"type"`
+	ID   int32        `json:"id"`
+	Name string       `json:"name"`
+	Icon []byte       `json:"icon"`
+	Type MaterialType `json:"type"`
 }
 
 type MaterialStat struct {
@@ -168,7 +168,6 @@ type Spell struct {
 	ID          int32  `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	Icon        []byte `json:"icon"`
 	Charges     int32  `json:"charges"`
 	ClassID     int32  `json:"class_id"`
 }
@@ -182,6 +181,7 @@ type SpellProperty struct {
 type Stat struct {
 	ID   int32    `json:"id"`
 	Type StatType `json:"type"`
+	Icon []byte   `json:"icon"`
 }
 
 type Trait struct {

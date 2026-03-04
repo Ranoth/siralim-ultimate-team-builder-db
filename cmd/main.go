@@ -38,26 +38,15 @@ func main() {
 
 	// Check if database is already seeded before loading JSON
 	queries := repo.New(conn)
-	seeder := dbseeder.NewSeeder(queries)
 
-	isSeeded, err := seeder.IsAlreadySeeded(ctx)
-	if err != nil {
-		logger.Debug("Error checking if database is seeded", "error", err)
-	}
-
-	if !isSeeded {
-		// Load and process JSON data only if database is not seeded
-		dbseeder.Run()
-		transformedData := dbseeder.GetCorrelatedTables()
-
-		if transformedData != nil {
-			if err := seeder.SeedDatabase(ctx, transformedData); err != nil {
-				logger.Error("Failed to seed database", "error", err)
-				return
-			}
-		}
+	dbseeder := dbseeder.NewSeeder(queries, logger)
+	if seeded, err := dbseeder.CheckIfSeeded(); err != nil {
+		logger.Error("Failed to check if database is seeded", "error", err)
+	} else if seeded {
+		logger.Info("Database is already seeded, skipping seeding process")
 	} else {
-		logger.Info("Database already seeded, skipping data loading and seeding")
+		logger.Info("Database is not seeded, starting seeding process")
+		dbseeder.Seed()
 	}
 
 	api := application{

@@ -9,13 +9,14 @@ CREATE TYPE stat_type AS ENUM (
 );
 CREATE TABLE IF NOT EXISTS stats (
     id INTEGER PRIMARY KEY,
-    type stat_type NOT NULL
+    type stat_type NOT NULL,
+    icon BYTEA NOT NULL
 );
 CREATE TABLE IF NOT EXISTS materials (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     icon BYTEA NOT NULL,
-    type material_type DEFAULT 'trait'
+    type material_type NOT NULL
 );
 CREATE TABLE IF NOT EXISTS material_stats (
     id INTEGER PRIMARY KEY,
@@ -30,7 +31,8 @@ CREATE TABLE IF NOT EXISTS artifacts (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     icon BYTEA NOT NULL,
-    type stat_type NOT NULL
+    stat_id INTEGER NOT NULL,
+    FOREIGN KEY (stat_id) REFERENCES stats(id)
 );
 CREATE TABLE IF NOT EXISTS spell_properties (
     id INTEGER PRIMARY KEY,
@@ -58,7 +60,7 @@ CREATE TABLE IF NOT EXISTS races (
 CREATE TABLE IF NOT EXISTS creatures (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
-    image BYTEA,
+    icon BYTEA,
     trait_id INTEGER,
     class_id INTEGER NOT NULL,
     race_id INTEGER NOT NULL,
@@ -84,7 +86,6 @@ CREATE TABLE IF NOT EXISTS spells (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
-    icon BYTEA,
     charges INTEGER NOT NULL,
     class_id INTEGER NOT NULL,
     FOREIGN KEY (class_id) REFERENCES classes(id)

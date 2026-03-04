@@ -11,6 +11,20 @@ import (
 )
 
 type Querier interface {
+	BatchInsertArtifacts(ctx context.Context, arg []BatchInsertArtifactsParams) (int64, error)
+	// Batch insert queries using COPY protocol for efficient seeding
+	BatchInsertClasses(ctx context.Context, arg []BatchInsertClassesParams) (int64, error)
+	BatchInsertCreatures(ctx context.Context, arg []BatchInsertCreaturesParams) (int64, error)
+	BatchInsertMaterialStats(ctx context.Context, arg []BatchInsertMaterialStatsParams) (int64, error)
+	BatchInsertMaterials(ctx context.Context, arg []BatchInsertMaterialsParams) (int64, error)
+	BatchInsertPerks(ctx context.Context, arg []BatchInsertPerksParams) (int64, error)
+	BatchInsertRaces(ctx context.Context, arg []BatchInsertRacesParams) (int64, error)
+	BatchInsertRelics(ctx context.Context, arg []BatchInsertRelicsParams) (int64, error)
+	BatchInsertSpecializations(ctx context.Context, arg []BatchInsertSpecializationsParams) (int64, error)
+	BatchInsertSpellProperties(ctx context.Context, arg []BatchInsertSpellPropertiesParams) (int64, error)
+	BatchInsertSpells(ctx context.Context, arg []BatchInsertSpellsParams) (int64, error)
+	BatchInsertStats(ctx context.Context, arg []BatchInsertStatsParams) (int64, error)
+	BatchInsertTraits(ctx context.Context, arg []BatchInsertTraitsParams) (int64, error)
 	CreateArtifact(ctx context.Context, arg CreateArtifactParams) (int32, error)
 	CreateClass(ctx context.Context, arg CreateClassParams) (int32, error)
 	CreateCreature(ctx context.Context, arg CreateCreatureParams) (int32, error)
