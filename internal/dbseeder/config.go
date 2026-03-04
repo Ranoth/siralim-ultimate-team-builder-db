@@ -80,6 +80,7 @@ func newSeederConfig() *config {
 				{dBField: "description", jsonField: "description"},
 				{dBField: "icon", jsonField: "icon"},
 				{dBField: "type", jsonField: "slot"},
+				{dBField: "", jsonField: "stats"},
 			},
 			"traits": {
 				{dBField: "id", jsonField: "id"},

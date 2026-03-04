@@ -183,6 +183,10 @@ func (t *normalizer) renameFieldsToDbNames() {
 					continue
 				}
 
+				if fieldMapping.dBField == "" {
+					continue
+				}
+
 				if value, exists := sourceData.items[i][fieldMapping.jsonField]; exists {
 					sourceData.items[i][fieldMapping.dBField] = value
 					delete(sourceData.items[i], fieldMapping.jsonField)
@@ -409,8 +413,8 @@ func (t *normalizer) removeNullAndEmptyFields() {
 
 func (t *normalizer) normalize() {
 	t.replaceLocalValueWithForeignValue("name", "id")
-	t.removeInvalidDirectForeignKeyIDs()
 	t.seedJunctionTables()
+	t.removeInvalidDirectForeignKeyIDs()
 	t.renameFieldsToDbNames()
 	t.convertArrayDescriptionsToStrings()
 	t.convertIconPathsToBytes()
