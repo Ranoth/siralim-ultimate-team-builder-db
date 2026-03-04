@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.2.1](https://github.com/Ranoth/siralim-ultimate-team-builder-db/compare/v1.2.0...v1.2.1) (2026-03-04)
+
+
+### Bug Fixes
+
+* Add relics table ([855ba96](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/855ba9625fa7397f3b276c5cbf3ed311b5c0071a))
+* Forgot to seed material_stats ([071ddca](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/071ddcab96e551844ba113d08cf3a434e64808fb))
+* Massively refactored dbseeder ([573fdb1](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/573fdb1db7d69acfd8312658571fc11330debf2c))
+* material stats ([b613558](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/b613558d656cf9d7d26f01078162247dd21f75c7))
+
 ## [1.2.0](https://github.com/Ranoth/siralim-ultimate-team-builder-db/compare/v1.1.2...v1.2.0) (2026-03-02)
 
 
