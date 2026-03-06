@@ -15,7 +15,7 @@ This repository contains the API for the Siralim Ultimate Team Builder (WIP), a 
             image: siralim-ultimate-team-builder-db:latest
             container_name: sutbdb
             environment:
-                GOOSE_DBSTRING: ${GOOSE_DBSTRING}
+                GOOSE_DBSTRING: host=postgres user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB} sslmode=disable
             ports:
                 - 8080
             depends_on:
