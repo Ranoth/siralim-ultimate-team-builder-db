@@ -16,11 +16,13 @@ WORKDIR /app
 ENV GOOSE_DRIVER=postgres
 ENV GOOSE_MIGRATION_DIR=/app/migrations
 
-COPY --from=build /app/sutbdb ./
-COPY --from=build /app/internal/adapters/postgresql/migrations ./migrations
-COPY --from=setup /usr/local/bin/goose /usr/local/bin/goose
-COPY entrypoint.sh ./scripts/entrypoint.sh
+COPY --from=build --chown=go:go /app/sutbdb ./
+COPY --from=build --chown=go:go /app/internal/adapters/postgresql/migrations ./migrations
+COPY --from=setup --chown=go:go /usr/local/bin/goose /usr/local/bin/goose
+COPY --chown=go:go entrypoint.sh ./scripts/entrypoint.sh
 
 RUN chmod +x ./scripts/entrypoint.sh
+
+USER go
 
 ENTRYPOINT ["sh", "./scripts/entrypoint.sh"]
