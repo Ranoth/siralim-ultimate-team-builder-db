@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.3.0](https://github.com/Ranoth/siralim-ultimate-team-builder-db/compare/v1.2.2...v1.3.0) (2026-07-01)
+
+
+### Features
+
+* Exit if seeding fails ([f9aa66f](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/f9aa66f42022b182b3af03a368a061303a910848))
+* Fail-fast exit with code 1 when error propagates to Seed call ([5f59470](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/5f59470eb6dab390118413c5c7207ff769d3a6cd))
+* Return error when JSON source file cannot be found. ([9319574](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/9319574082f0f3104478522b81a7b659359aad0a))
+* Stop parsing virtual sources as files ([7e7f8fa](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/7e7f8fa513525064958290a937b270404fb56101))
+* Tighten conversion safety for nullable integers ([6a5640c](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/6a5640c6d7f81d004e57bb978a11afb6bd5f6d2a))
+* Wrap insert phase into a single transaction ([611d817](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/611d81770610ee2de7a30bc78bfb06a4819848d3))
+
+
+### Bug Fixes
+
+* Add go user before using it ([e3d53aa](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/e3d53aa12b21c74235ed90653eb1df66884606e0))
+* Rename dBField to dbField to follow linting standards ([8115de2](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/8115de2b47500d9cdccc0d88ea588ee0740c143a))
+* Use root:root ownership for copied artifacts and remove write bits for non-root users ([426af63](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/426af63a1c8f25b534b405d720994ff5e888cfab))
+
 ## [1.2.2](https://github.com/Ranoth/siralim-ultimate-team-builder-db/compare/v1.2.1...v1.2.2) (2026-03-07)
 
 
