@@ -46,7 +46,10 @@ func main() {
 		logger.Info("Database is already seeded, skipping seeding process")
 	} else {
 		logger.Info("Database is not seeded, starting seeding process")
-		dbseeder.Seed()
+		if err := dbseeder.Seed(); err != nil {
+			logger.Error("Failed to seed database", "error", err)
+			return
+		}
 	}
 
 	api := application{
