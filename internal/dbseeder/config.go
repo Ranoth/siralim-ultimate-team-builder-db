@@ -18,17 +18,17 @@ func newSeederConfig() *config {
 		logger:           slog.Default(),
 		gameDataRootPath: gameDataRootPath,
 		jsonSources: map[string]jsonMeta{
-			"artifacts":       {filePath: gameDataRootPath + "artifacts.json", name: "artifacts"},
-			"races":           {filePath: gameDataRootPath + "races.json", name: "races"},
-			"specializations": {filePath: gameDataRootPath + "specializations.json", name: "specializations"},
-			"materials":       {filePath: gameDataRootPath + "materials.json", name: "materials"},
-			"traits":          {filePath: gameDataRootPath + "traits.json", name: "traits"},
-			"creatures":       {filePath: gameDataRootPath + "creatures.json", name: "creatures"},
-			"perks":           {filePath: gameDataRootPath + "perks.json", name: "perks"},
-			"spells":          {filePath: gameDataRootPath + "spells.json", name: "spells"},
-			"spellProperties": {filePath: gameDataRootPath + "spellProperties.json", name: "spellProperties"},
-			"relics":          {filePath: gameDataRootPath + "gods.json", name: "relics"},
-			"material_stats":  {name: "material_stats"},
+			"artifacts":       {filePath: gameDataRootPath + "artifacts.json", name: "artifacts", isDerived: false},
+			"races":           {filePath: gameDataRootPath + "races.json", name: "races", isDerived: false},
+			"specializations": {filePath: gameDataRootPath + "specializations.json", name: "specializations", isDerived: false},
+			"materials":       {filePath: gameDataRootPath + "materials.json", name: "materials", isDerived: false},
+			"traits":          {filePath: gameDataRootPath + "traits.json", name: "traits", isDerived: false},
+			"creatures":       {filePath: gameDataRootPath + "creatures.json", name: "creatures", isDerived: false},
+			"perks":           {filePath: gameDataRootPath + "perks.json", name: "perks", isDerived: false},
+			"spells":          {filePath: gameDataRootPath + "spells.json", name: "spells", isDerived: false},
+			"spellProperties": {filePath: gameDataRootPath + "spellProperties.json", name: "spellProperties", isDerived: false},
+			"relics":          {filePath: gameDataRootPath + "gods.json", name: "relics", isDerived: false},
+			"material_stats":  {name: "material_stats", isDerived: true},
 		},
 		staticTables: map[string][]map[string]interface{}{
 			"classes": {
@@ -48,80 +48,80 @@ func newSeederConfig() *config {
 		},
 		correlatedFieldNamesMetaMap: map[string][]fieldMapping{
 			"classes": {
-				{dBField: "id", jsonField: "id"},
-				{dBField: "name", jsonField: "name"},
-				{dBField: "icon", jsonField: "icon"},
+				{dbField: "id", jsonField: "id"},
+				{dbField: "name", jsonField: "name"},
+				{dbField: "icon", jsonField: "icon"},
 			},
 			"stats": {
-				{dBField: "id", jsonField: "id"},
-				{dBField: "type", jsonField: "name"},
-				{dBField: "icon", jsonField: "icon"},
+				{dbField: "id", jsonField: "id"},
+				{dbField: "type", jsonField: "name"},
+				{dbField: "icon", jsonField: "icon"},
 			},
 			"artifacts": {
-				{dBField: "id", jsonField: "id"},
-				{dBField: "name", jsonField: "name"},
-				{dBField: "icon", jsonField: "icons"},
-				{dBField: "stat_id", jsonField: "stat", findIdFromSource: "stats"},
+				{dbField: "id", jsonField: "id"},
+				{dbField: "name", jsonField: "name"},
+				{dbField: "icon", jsonField: "icons"},
+				{dbField: "stat_id", jsonField: "stat", findIdFromSource: "stats"},
 			},
 			"races": {
-				{dBField: "id", jsonField: "id"},
-				{dBField: "name", jsonField: "name"},
-				{dBField: "icon", jsonField: "icon"},
+				{dbField: "id", jsonField: "id"},
+				{dbField: "name", jsonField: "name"},
+				{dbField: "icon", jsonField: "icon"},
 			},
 			"specializations": {
-				{dBField: "id", jsonField: "id"},
-				{dBField: "name", jsonField: "name"},
-				{dBField: "description", jsonField: "description"},
-				{dBField: "icon", jsonField: "icon"},
+				{dbField: "id", jsonField: "id"},
+				{dbField: "name", jsonField: "name"},
+				{dbField: "description", jsonField: "description"},
+				{dbField: "icon", jsonField: "icon"},
 			},
 			"materials": {
-				{dBField: "id", jsonField: "id"},
-				{dBField: "name", jsonField: "name"},
-				{dBField: "description", jsonField: "description"},
-				{dBField: "icon", jsonField: "icon"},
-				{dBField: "type", jsonField: "slot"},
-				{dBField: "", jsonField: "stats"},
+				{dbField: "id", jsonField: "id"},
+				{dbField: "name", jsonField: "name"},
+				{dbField: "description", jsonField: "description"},
+				{dbField: "icon", jsonField: "icon"},
+				{dbField: "type", jsonField: "slot"},
+				{dbField: "", jsonField: "stats"},
 			},
 			"traits": {
-				{dBField: "id", jsonField: "id"},
-				{dBField: "name", jsonField: "name"},
-				{dBField: "description", jsonField: "description"},
-				{dBField: "material_id", jsonField: "item"},
+				{dbField: "id", jsonField: "id"},
+				{dbField: "name", jsonField: "name"},
+				{dbField: "description", jsonField: "description"},
+				{dbField: "material_id", jsonField: "item"},
 			},
 			"perks": {
-				{dBField: "id", jsonField: "id"},
-				{dBField: "name", jsonField: "name"},
-				{dBField: "description", jsonField: "description"},
-				{dBField: "icon", jsonField: "icon"},
-				{dBField: "specialization_id", jsonField: "specialization", findIdFromSource: "specializations"},
+				{dbField: "id", jsonField: "id"},
+				{dbField: "name", jsonField: "name"},
+				{dbField: "description", jsonField: "description"},
+				{dbField: "icon", jsonField: "icon"},
+				{dbField: "specialization_id", jsonField: "specialization", findIdFromSource: "specializations"},
 			},
 			"spells": {
-				{dBField: "id", jsonField: "id"},
-				{dBField: "name", jsonField: "name"},
-				{dBField: "description", jsonField: "description"},
-				{dBField: "charges", jsonField: "maxCharges"},
-				{dBField: "class_id", jsonField: "class", findIdFromSource: "classes"},
+				{dbField: "id", jsonField: "id"},
+				{dbField: "name", jsonField: "name"},
+				{dbField: "description", jsonField: "description"},
+				{dbField: "charges", jsonField: "maxCharges"},
+				{dbField: "class_id", jsonField: "class", findIdFromSource: "classes"},
 			},
 			"spellProperties": {
-				{dBField: "id", jsonField: "id"},
-				{dBField: "name", jsonField: "shortDescription"},
-				{dBField: "material_id", jsonField: "item"},
+				{dbField: "id", jsonField: "id"},
+				{dbField: "name", jsonField: "shortDescription"},
+				{dbField: "material_id", jsonField: "item"},
 			},
 			"creatures": {
-				{dBField: "id", jsonField: "id"},
-				{dBField: "name", jsonField: "name"},
-				{dBField: "description", jsonField: "description"},
-				{dBField: "icon", jsonField: "battleSprite"},
-				{dBField: "race_id", jsonField: "race", findIdFromSource: "races"},
-				{dBField: "class_id", jsonField: "class", findIdFromSource: "classes"},
-				{dBField: "trait_id", jsonField: "trait", findIdFromSource: "traits"},
+				{dbField: "id", jsonField: "id"},
+				{dbField: "name", jsonField: "name"},
+				{dbField: "description", jsonField: "description"},
+				{dbField: "icon", jsonField: "battleSprite"},
+				{dbField: "race_id", jsonField: "race", findIdFromSource: "races"},
+				{dbField: "class_id", jsonField: "class", findIdFromSource: "classes"},
+				{dbField: "trait_id", jsonField: "trait", findIdFromSource: "traits"},
 			},
 			"relics": {
-				{dBField: "id", jsonField: "id"},
-				{dBField: "name", jsonField: "relicTitle"},
-				{dBField: "bonuses", jsonField: "relicBonuses"},
-				{dBField: "icon", jsonField: "relicBigIcon"},
-				{dBField: "stat_id", jsonField: "relicStat", findIdFromSource: "stats"},
+				{dbField: "id", jsonField: "id"},
+				{dbField: "name", jsonField: "relicTitle"},
+				{dbField: "bonuses", jsonField: "relicBonuses"},
+				{dbField: "icon", jsonField: "relicBigIcon"},
+				{dbField: "stat_id", jsonField: "relicStat", findIdFromSource: "stats"},
 			},
 		},
 		junctionTableSpecs: map[string]junctionTableSpec{
@@ -141,16 +141,16 @@ func newSeederConfig() *config {
 }
 
 type jsonMeta struct {
-	filePath string
-	name     string
-	items    []map[string]interface{}
+	filePath  string
+	name      string
+	isDerived bool
+	items     []map[string]interface{}
 }
 
 type fieldMapping struct {
-	dBField          string
+	dbField          string
 	jsonField        string
 	findIdFromSource string
-	isFake           bool
 }
 
 type junctionTableSpec struct {

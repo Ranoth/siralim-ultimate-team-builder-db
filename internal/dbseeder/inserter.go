@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"math"
 	"reflect"
 	"strconv"
 	"strings"
@@ -39,7 +40,7 @@ func batchInsertTable[T any](
 		param, err := mapToTyped[T](item)
 		if err != nil {
 			i.logger.Error("Failed to convert map to typed struct", "table", tableName, "error", err)
-			continue
+			return err
 		}
 		params = append(params, *param)
 	}
@@ -117,6 +118,26 @@ func normalizeNullableInt4Fields[T any](data map[string]interface{}) error {
 	return nil
 }
 
+func int64ToNullableInt4(value int64) (pgtype.Int4, error) {
+	if value < math.MinInt32 || value > math.MaxInt32 {
+		return pgtype.Int4{}, fmt.Errorf("integer value %d out of int32 range", value)
+	}
+
+	return pgtype.Int4{Int32: int32(value), Valid: true}, nil
+}
+
+func float64ToNullableInt4(value float64) (pgtype.Int4, error) {
+	if value != math.Trunc(value) {
+		return pgtype.Int4{}, fmt.Errorf("non-integer float value %v", value)
+	}
+
+	if value < float64(math.MinInt32) || value > float64(math.MaxInt32) {
+		return pgtype.Int4{}, fmt.Errorf("float value %v out of int32 range", value)
+	}
+
+	return pgtype.Int4{Int32: int32(value), Valid: true}, nil
+}
+
 func toNullableInt4(rawValue interface{}) (pgtype.Int4, error) {
 	if rawValue == nil {
 		return pgtype.Int4{Valid: false}, nil
@@ -126,25 +147,19 @@ func toNullableInt4(rawValue interface{}) (pgtype.Int4, error) {
 	case pgtype.Int4:
 		return value, nil
 	case int:
-		return pgtype.Int4{Int32: int32(value), Valid: true}, nil
+		return int64ToNullableInt4(int64(value))
 	case int8:
-		return pgtype.Int4{Int32: int32(value), Valid: true}, nil
+		return int64ToNullableInt4(int64(value))
 	case int16:
-		return pgtype.Int4{Int32: int32(value), Valid: true}, nil
+		return int64ToNullableInt4(int64(value))
 	case int32:
-		return pgtype.Int4{Int32: value, Valid: true}, nil
+		return int64ToNullableInt4(int64(value))
 	case int64:
-		return pgtype.Int4{Int32: int32(value), Valid: true}, nil
+		return int64ToNullableInt4(value)
 	case float32:
-		if value != float32(int32(value)) {
-			return pgtype.Int4{}, fmt.Errorf("non-integer float value %v", value)
-		}
-		return pgtype.Int4{Int32: int32(value), Valid: true}, nil
+		return float64ToNullableInt4(float64(value))
 	case float64:
-		if value != float64(int32(value)) {
-			return pgtype.Int4{}, fmt.Errorf("non-integer float value %v", value)
-		}
-		return pgtype.Int4{Int32: int32(value), Valid: true}, nil
+		return float64ToNullableInt4(value)
 	case string:
 		if value == "" {
 			return pgtype.Int4{Valid: false}, nil
@@ -196,7 +211,7 @@ func applyNullableInt4Fields[T any](target *T, data map[string]interface{}) erro
 	return nil
 }
 
-func (i *inserter) insert() {
+func (i *inserter) insert() error {
 	ctx := context.Background()
 
 	// Insert in dependency order
@@ -247,7 +262,8 @@ func (i *inserter) insert() {
 
 	for _, insertOp := range insertOrder {
 		if err := insertOp.fn(ctx); err != nil {
-			i.logger.Error("Failed to insert table", "table", insertOp.name, "error", err)
+			return fmt.Errorf("failed to insert table %q: %w", insertOp.name, err)
 		}
 	}
+	return nil
 }
