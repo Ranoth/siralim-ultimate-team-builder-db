@@ -16,6 +16,8 @@ WORKDIR /app
 ENV GOOSE_DRIVER=postgres
 ENV GOOSE_MIGRATION_DIR=/app/migrations
 
+RUN addgroup -S go && adduser -S -G go go
+
 COPY --from=build --chown=go:go /app/sutbdb ./
 COPY --from=build --chown=go:go /app/internal/adapters/postgresql/migrations ./migrations
 COPY --from=setup --chown=go:go /usr/local/bin/goose /usr/local/bin/goose
