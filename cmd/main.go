@@ -39,7 +39,7 @@ func main() {
 	// Check if database is already seeded before loading JSON
 	queries := repo.New(conn)
 
-	dbseeder := dbseeder.NewSeeder(queries, logger)
+	dbseeder := dbseeder.NewSeeder(conn, queries, logger)
 	if seeded, err := dbseeder.CheckIfSeeded(); err != nil {
 		logger.Error("Failed to check if database is seeded", "error", err)
 		os.Exit(1)
