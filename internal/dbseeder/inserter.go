@@ -196,7 +196,7 @@ func applyNullableInt4Fields[T any](target *T, data map[string]interface{}) erro
 	return nil
 }
 
-func (i *inserter) insert() {
+func (i *inserter) insert() error {
 	ctx := context.Background()
 
 	// Insert in dependency order
@@ -250,4 +250,5 @@ func (i *inserter) insert() {
 			i.logger.Error("Failed to insert table", "table", insertOp.name, "error", err)
 		}
 	}
+	return nil
 }

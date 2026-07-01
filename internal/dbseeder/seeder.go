@@ -2,6 +2,7 @@ package dbseeder
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	repo "github.com/Ranoth/siralim-ultimate-team-builder-db/internal/adapters/postgresql/sqlc"
@@ -27,13 +28,20 @@ func (s *Seeder) CheckIfSeeded() (bool, error) {
 	return count > 0, nil
 }
 
-func (s *Seeder) Seed() {
+func (s *Seeder) Seed() error {
 	config := newSeederConfig()
 	jsonParser := newJSONParser(s.logger, config)
 	normalizer := newNormalizer(jsonParser, s.logger, config)
 	inserter := newInserter(s.logger, config, s.queries)
 
-	jsonParser.parseAndStore()
-	normalizer.normalize()
-	inserter.insert()
+	if err := jsonParser.parseAndStore(); err != nil {
+		return fmt.Errorf("error parsing JSON files: %w", err)
+	}
+	if err := normalizer.normalize(); err != nil {
+		return fmt.Errorf("error normalizing data: %w", err)
+	}
+	if err := inserter.insert(); err != nil {
+		return fmt.Errorf("error inserting data into database: %w", err)
+	}
+	return nil
 }

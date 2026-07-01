@@ -411,7 +411,7 @@ func (t *normalizer) removeNullAndEmptyFields() {
 	}
 }
 
-func (t *normalizer) normalize() {
+func (t *normalizer) normalize() error {
 	// ORDER MATTERS HERE
 	// Each step depends on the data being in a certain state
 	t.replaceLocalValueWithForeignValue("name", "id")
@@ -422,13 +422,16 @@ func (t *normalizer) normalize() {
 	t.convertIconPathsToBytes()
 	t.removeNullAndEmptyFields()
 
-	for sourceName, jsonMeta := range t.config.jsonSources {
-		if len(jsonMeta.items) > 0 {
-			if (sourceName == "traits") && len(jsonMeta.items) > 1 {
-				t.logger.Info("Sample after normalization",
-					"source", sourceName,
-					"item", jsonMeta.items[675])
-			}
-		}
-	}
+	return nil
+
+	// Uncomment for debugging purposes to inspect the normalized data
+	// for sourceName, jsonMeta := range t.config.jsonSources {
+	// 	if len(jsonMeta.items) > 0 {
+	// 		if (sourceName == "traits") && len(jsonMeta.items) > 1 {
+	// 			t.logger.Info("Sample after normalization",
+	// 				"source", sourceName,
+	// 				"item", jsonMeta.items[675])
+	// 		}
+	// 	}
+	// }
 }

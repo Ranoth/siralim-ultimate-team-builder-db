@@ -105,12 +105,16 @@ func (p *jsonParser) attributeMissingIDsAndCull(sourceName string, payload []map
 	return transformed
 }
 
-func (p *jsonParser) parseAndStore() {
+func (p *jsonParser) parseAndStore() error {
 	for key, value := range p.config.jsonSources {
+		if value.filePath == "" {
+			p.logger.Info("No file path provided for JSON source, skipping", "source", key)
+			continue
+		}
 		payload, err := p.readJSONFromFileUnStructured(value.filePath)
 		if err != nil {
 			p.logger.Info("Failed to read JSON file", "path", value.filePath, "error", err)
-			continue
+			return err
 		}
 
 		payload = p.attributeMissingIDsAndCull(key, payload)
@@ -123,4 +127,5 @@ func (p *jsonParser) parseAndStore() {
 	}
 
 	p.insertStaticDataToSources()
+	return nil
 }
