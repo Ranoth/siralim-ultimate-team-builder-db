@@ -39,7 +39,7 @@ func batchInsertTable[T any](
 		param, err := mapToTyped[T](item)
 		if err != nil {
 			i.logger.Error("Failed to convert map to typed struct", "table", tableName, "error", err)
-			continue
+			return err
 		}
 		params = append(params, *param)
 	}
@@ -247,7 +247,7 @@ func (i *inserter) insert() error {
 
 	for _, insertOp := range insertOrder {
 		if err := insertOp.fn(ctx); err != nil {
-			i.logger.Error("Failed to insert table", "table", insertOp.name, "error", err)
+			return fmt.Errorf("failed to insert table %q: %w", insertOp.name, err)
 		}
 	}
 	return nil
