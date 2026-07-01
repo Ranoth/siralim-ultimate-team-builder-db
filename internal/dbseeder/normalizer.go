@@ -423,15 +423,4 @@ func (t *normalizer) normalize() error {
 	t.removeNullAndEmptyFields()
 
 	return nil
-
-	// Uncomment for debugging purposes to inspect the normalized data
-	// for sourceName, jsonMeta := range t.config.jsonSources {
-	// 	if len(jsonMeta.items) > 0 {
-	// 		if (sourceName == "traits") && len(jsonMeta.items) > 1 {
-	// 			t.logger.Info("Sample after normalization",
-	// 				"source", sourceName,
-	// 				"item", jsonMeta.items[675])
-	// 		}
-	// 	}
-	// }
 }
