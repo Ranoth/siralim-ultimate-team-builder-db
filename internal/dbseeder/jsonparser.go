@@ -72,7 +72,7 @@ func (p *jsonParser) attributeMissingIDsAndCull(sourceName string, payload []map
 			allowedJsonFields[fieldMapping.jsonField] = struct{}{}
 		}
 
-		if fieldMapping.dBField == "id" {
+		if fieldMapping.dbField == "id" {
 			keepID = true
 		}
 	}

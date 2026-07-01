@@ -179,16 +179,16 @@ func (t *normalizer) renameFieldsToDbNames() {
 
 		for i := range sourceData.items {
 			for _, fieldMapping := range fieldMappings {
-				if fieldMapping.jsonField == "" || fieldMapping.jsonField == fieldMapping.dBField {
+				if fieldMapping.jsonField == "" || fieldMapping.jsonField == fieldMapping.dbField {
 					continue
 				}
 
-				if fieldMapping.dBField == "" {
+				if fieldMapping.dbField == "" {
 					continue
 				}
 
 				if value, exists := sourceData.items[i][fieldMapping.jsonField]; exists {
-					sourceData.items[i][fieldMapping.dBField] = value
+					sourceData.items[i][fieldMapping.dbField] = value
 					delete(sourceData.items[i], fieldMapping.jsonField)
 				}
 			}
@@ -214,8 +214,8 @@ func (t *normalizer) convertIconPathsToBytes() {
 		// Find icon fields for this source
 		iconFields := make([]string, 0)
 		for _, fieldMapping := range fieldMappings {
-			if fieldMapping.dBField == "icon" {
-				iconFields = append(iconFields, fieldMapping.dBField)
+			if fieldMapping.dbField == "icon" {
+				iconFields = append(iconFields, fieldMapping.dbField)
 			}
 		}
 
@@ -253,8 +253,8 @@ func (t *normalizer) convertArrayDescriptionsToStrings() {
 		// Find description fields for this source
 		descFields := make([]string, 0)
 		for _, fieldMapping := range fieldMappings {
-			if fieldMapping.dBField == "description" {
-				descFields = append(descFields, fieldMapping.dBField)
+			if fieldMapping.dbField == "description" {
+				descFields = append(descFields, fieldMapping.dbField)
 			}
 		}
 
@@ -412,6 +412,8 @@ func (t *normalizer) removeNullAndEmptyFields() {
 }
 
 func (t *normalizer) normalize() {
+	// ORDER MATTERS HERE
+	// Each step depends on the data being in a certain state
 	t.replaceLocalValueWithForeignValue("name", "id")
 	t.seedJunctionTables()
 	t.removeInvalidDirectForeignKeyIDs()
