@@ -18,17 +18,17 @@ func newSeederConfig() *config {
 		logger:           slog.Default(),
 		gameDataRootPath: gameDataRootPath,
 		jsonSources: map[string]jsonMeta{
-			"artifacts":       {filePath: gameDataRootPath + "artifacts.json", name: "artifacts"},
-			"races":           {filePath: gameDataRootPath + "races.json", name: "races"},
-			"specializations": {filePath: gameDataRootPath + "specializations.json", name: "specializations"},
-			"materials":       {filePath: gameDataRootPath + "materials.json", name: "materials"},
-			"traits":          {filePath: gameDataRootPath + "traits.json", name: "traits"},
-			"creatures":       {filePath: gameDataRootPath + "creatures.json", name: "creatures"},
-			"perks":           {filePath: gameDataRootPath + "perks.json", name: "perks"},
-			"spells":          {filePath: gameDataRootPath + "spells.json", name: "spells"},
-			"spellProperties": {filePath: gameDataRootPath + "spellProperties.json", name: "spellProperties"},
-			"relics":          {filePath: gameDataRootPath + "gods.json", name: "relics"},
-			"material_stats":  {name: "material_stats"},
+			"artifacts":       {filePath: gameDataRootPath + "artifacts.json", name: "artifacts", isDerived: false},
+			"races":           {filePath: gameDataRootPath + "races.json", name: "races", isDerived: false},
+			"specializations": {filePath: gameDataRootPath + "specializations.json", name: "specializations", isDerived: false},
+			"materials":       {filePath: gameDataRootPath + "materials.json", name: "materials", isDerived: false},
+			"traits":          {filePath: gameDataRootPath + "traits.json", name: "traits", isDerived: false},
+			"creatures":       {filePath: gameDataRootPath + "creatures.json", name: "creatures", isDerived: false},
+			"perks":           {filePath: gameDataRootPath + "perks.json", name: "perks", isDerived: false},
+			"spells":          {filePath: gameDataRootPath + "spells.json", name: "spells", isDerived: false},
+			"spellProperties": {filePath: gameDataRootPath + "spellProperties.json", name: "spellProperties", isDerived: false},
+			"relics":          {filePath: gameDataRootPath + "gods.json", name: "relics", isDerived: false},
+			"material_stats":  {name: "material_stats", isDerived: true},
 		},
 		staticTables: map[string][]map[string]interface{}{
 			"classes": {
@@ -141,16 +141,16 @@ func newSeederConfig() *config {
 }
 
 type jsonMeta struct {
-	filePath string
-	name     string
-	items    []map[string]interface{}
+	filePath  string
+	name      string
+	isDerived bool
+	items     []map[string]interface{}
 }
 
 type fieldMapping struct {
 	dbField          string
 	jsonField        string
 	findIdFromSource string
-	isFake           bool
 }
 
 type junctionTableSpec struct {

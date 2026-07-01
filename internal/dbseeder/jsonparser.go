@@ -107,8 +107,8 @@ func (p *jsonParser) attributeMissingIDsAndCull(sourceName string, payload []map
 
 func (p *jsonParser) parseAndStore() error {
 	for key, value := range p.config.jsonSources {
-		if value.filePath == "" {
-			p.logger.Info("No file path provided for JSON source, skipping", "source", key)
+		if value.isDerived {
+			p.logger.Info("Table is derived, skipping", "source", key)
 			continue
 		}
 		payload, err := p.readJSONFromFileUnStructured(value.filePath)
