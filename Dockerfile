@@ -18,12 +18,13 @@ ENV GOOSE_MIGRATION_DIR=/app/migrations
 
 RUN addgroup -S go && adduser -S -G go go
 
-COPY --from=build --chown=go:go /app/sutbdb ./
-COPY --from=build --chown=go:go /app/internal/adapters/postgresql/migrations ./migrations
-COPY --from=setup --chown=go:go /usr/local/bin/goose /usr/local/bin/goose
-COPY --chown=go:go entrypoint.sh ./scripts/entrypoint.sh
+COPY --from=build --chown=root:root /app/sutbdb ./
+COPY --from=build --chown=root:root /app/internal/adapters/postgresql/migrations ./migrations
+COPY --from=setup --chown=root:root /usr/local/bin/goose /usr/local/bin/goose
+COPY --chown=root:root entrypoint.sh ./scripts/entrypoint.sh
 
-RUN chmod +x ./scripts/entrypoint.sh
+RUN chmod 0555 ./sutbdb ./scripts/entrypoint.sh /usr/local/bin/goose \
+    && chmod -R a-w ./migrations
 
 USER go
 
