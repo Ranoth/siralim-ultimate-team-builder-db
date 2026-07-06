@@ -16,7 +16,7 @@ WORKDIR /app
 ENV GOOSE_DRIVER=postgres
 ENV GOOSE_MIGRATION_DIR=/app/migrations
 
-RUN addgroup -S go && adduser -S -G go go && apk add --no-cache curl
+RUN addgroup -S go && adduser -S -G go go
 
 COPY --from=build --chown=root:root /app/sutbdb ./
 COPY --from=build --chown=root:root /app/internal/adapters/postgresql/migrations ./migrations
@@ -26,8 +26,5 @@ COPY --chown=root:root entrypoint.sh ./scripts/entrypoint.sh
 RUN chmod 0555 ./sutbdb ./scripts/entrypoint.sh /usr/local/bin/goose \
     && chmod -R a-w ./migrations
 USER go
-
-HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
 
 ENTRYPOINT ["sh", "./scripts/entrypoint.sh"]
