@@ -46,20 +46,33 @@ FROM artifacts;
 SELECT *
 FROM stats;
 -- name: GetCreature :one
-SELECT c.id,
+SELECT
+    c.id,
+    c.name,
+    c.icon AS icon,
+    t.name AS trait,
+    cl.name AS class,
+    r.name AS race,
+    jsonb_object_agg(s.type, csg.growth_rate) AS stats
+FROM creatures c
+JOIN classes cl
+    ON c.class_id = cl.id
+JOIN races r
+    ON c.race_id = r.id
+LEFT JOIN traits t
+    ON c.trait_id = t.id
+JOIN creature_stat_growth csg
+    ON c.id = csg.creature_id
+JOIN stats s
+    ON csg.stat_id = s.id
+WHERE c.id = $1
+GROUP BY
+    c.id,
     c.name,
     c.icon,
-    t.name as trait,
-    cl.name as class,
-    r.name as race,
-    csg.stat_id,
-    csg.growth_rate
-FROM creatures c
-    LEFT JOIN traits t ON c.trait_id = t.id
-    LEFT JOIN classes cl ON c.class_id = cl.id
-    LEFT JOIN races r ON c.race_id = r.id
-    RIGHT JOIN creature_stat_growth csg ON c.id = csg.creature_id
-WHERE c.id = $1;
+    t.name,
+    cl.name,
+    r.name;
 -- name: GetTrait :one
 SELECT *
 FROM traits
@@ -128,9 +141,14 @@ SELECT id,
 FROM material_stats
 WHERE material_id = $1;
 -- name: GetStatGrowthsByCreatureId :many
-SELECT *
-FROM creature_stat_growth
-WHERE creature_id = $1;
+SELECT csg.id,
+    c.name as creature_name,
+    s.type as stat_type,
+    csg.growth_rate
+FROM creature_stat_growth csg
+    JOIN stats s ON csg.stat_id = s.id
+    JOIN creatures c ON csg.creature_id = c.id
+WHERE csg.creature_id = $1;
 -- name: GetTraitsByCreatureName :many
 SELECT t.*
 FROM traits t

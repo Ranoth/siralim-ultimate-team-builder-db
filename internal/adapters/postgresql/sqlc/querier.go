@@ -64,7 +64,7 @@ type Querier interface {
 	GetSpells(ctx context.Context) ([]Spell, error)
 	GetSpellsByName(ctx context.Context, dollar_1 pgtype.Text) ([]Spell, error)
 	GetStat(ctx context.Context, id int32) (Stat, error)
-	GetStatGrowthsByCreatureId(ctx context.Context, creatureID int32) ([]CreatureStatGrowth, error)
+	GetStatGrowthsByCreatureId(ctx context.Context, creatureID int32) ([]GetStatGrowthsByCreatureIdRow, error)
 	GetStats(ctx context.Context) ([]Stat, error)
 	GetStatsByType(ctx context.Context, dollar_1 pgtype.Text) ([]Stat, error)
 	GetStatsCount(ctx context.Context) (int64, error)

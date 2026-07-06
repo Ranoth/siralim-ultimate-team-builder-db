@@ -7,6 +7,7 @@ package repo
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -254,31 +255,43 @@ func (q *Queries) GetClassesByName(ctx context.Context, dollar_1 pgtype.Text) ([
 }
 
 const getCreature = `-- name: GetCreature :one
-SELECT c.id,
+SELECT
+    c.id,
+    c.name,
+    c.icon AS icon,
+    t.name AS trait,
+    cl.name AS class,
+    r.name AS race,
+    jsonb_object_agg(s.type, csg.growth_rate) AS stats
+FROM creatures c
+JOIN classes cl
+    ON c.class_id = cl.id
+JOIN races r
+    ON c.race_id = r.id
+LEFT JOIN traits t
+    ON c.trait_id = t.id
+JOIN creature_stat_growth csg
+    ON c.id = csg.creature_id
+JOIN stats s
+    ON csg.stat_id = s.id
+WHERE c.id = $1
+GROUP BY
+    c.id,
     c.name,
     c.icon,
-    t.name as trait,
-    cl.name as class,
-    r.name as race,
-    csg.stat_id,
-    csg.growth_rate
-FROM creatures c
-    LEFT JOIN traits t ON c.trait_id = t.id
-    LEFT JOIN classes cl ON c.class_id = cl.id
-    LEFT JOIN races r ON c.race_id = r.id
-    RIGHT JOIN creature_stat_growth csg ON c.id = csg.creature_id
-WHERE c.id = $1
+    t.name,
+    cl.name,
+    r.name
 `
 
 type GetCreatureRow struct {
-	ID         int32       `json:"id"`
-	Name       string      `json:"name"`
-	Icon       []byte      `json:"icon"`
-	Trait      pgtype.Text `json:"trait"`
-	Class      pgtype.Text `json:"class"`
-	Race       pgtype.Text `json:"race"`
-	StatID     int32       `json:"stat_id"`
-	GrowthRate int32       `json:"growth_rate"`
+	ID    int32           `json:"id"`
+	Name  string          `json:"name"`
+	Icon  []byte          `json:"icon"`
+	Trait pgtype.Text     `json:"trait"`
+	Class string          `json:"class"`
+	Race  string          `json:"race"`
+	Stats json.RawMessage `json:"stats"`
 }
 
 func (q *Queries) GetCreature(ctx context.Context, id int32) (GetCreatureRow, error) {
@@ -291,8 +304,7 @@ func (q *Queries) GetCreature(ctx context.Context, id int32) (GetCreatureRow, er
 		&i.Trait,
 		&i.Class,
 		&i.Race,
-		&i.StatID,
-		&i.GrowthRate,
+		&i.Stats,
 	)
 	return i, err
 }
@@ -1243,24 +1255,36 @@ func (q *Queries) GetStat(ctx context.Context, id int32) (Stat, error) {
 }
 
 const getStatGrowthsByCreatureId = `-- name: GetStatGrowthsByCreatureId :many
-SELECT id, creature_id, stat_id, growth_rate
-FROM creature_stat_growth
-WHERE creature_id = $1
+SELECT csg.id,
+    c.name as creature_name,
+    s.type as stat_type,
+    csg.growth_rate
+FROM creature_stat_growth csg
+    JOIN stats s ON csg.stat_id = s.id
+    JOIN creatures c ON csg.creature_id = c.id
+WHERE csg.creature_id = $1
 `
 
-func (q *Queries) GetStatGrowthsByCreatureId(ctx context.Context, creatureID int32) ([]CreatureStatGrowth, error) {
+type GetStatGrowthsByCreatureIdRow struct {
+	ID           int32    `json:"id"`
+	CreatureName string   `json:"creature_name"`
+	StatType     StatType `json:"stat_type"`
+	GrowthRate   int32    `json:"growth_rate"`
+}
+
+func (q *Queries) GetStatGrowthsByCreatureId(ctx context.Context, creatureID int32) ([]GetStatGrowthsByCreatureIdRow, error) {
 	rows, err := q.db.Query(ctx, getStatGrowthsByCreatureId, creatureID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []CreatureStatGrowth
+	var items []GetStatGrowthsByCreatureIdRow
 	for rows.Next() {
-		var i CreatureStatGrowth
+		var i GetStatGrowthsByCreatureIdRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.CreatureID,
-			&i.StatID,
+			&i.CreatureName,
+			&i.StatType,
 			&i.GrowthRate,
 		); err != nil {
 			return nil, err

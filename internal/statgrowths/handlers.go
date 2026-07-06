@@ -16,5 +16,5 @@ func NewHandler(service Service) *handler {
 }
 
 func (h *handler) GetStatGrowthsByCreatureId(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleGetByID[[]repo.CreatureStatGrowth](h.service.GetStatGrowthsByCreatureId, "stat growths")(w, r)
+	httpx.HandleGetByID[[]repo.GetStatGrowthsByCreatureIdRow](h.service.GetStatGrowthsByCreatureId, "stat growths")(w, r)
 }
