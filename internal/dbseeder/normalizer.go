@@ -1,6 +1,7 @@
 package dbseeder
 
 import (
+	"errors"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -287,10 +288,11 @@ func (t *normalizer) convertArrayDescriptionsToStrings() {
 	}
 }
 
-func (t *normalizer) seedJunctionTables() {
+func (t *normalizer) seedArrayToJunctionTables() error {
+	err := error(nil)
 	sources := t.config.jsonSources
 
-	for junctionName, spec := range t.config.junctionTableSpecs {
+	for junctionName, spec := range t.config.arrayToJunctionTableSpecs {
 		sourceData := sources[spec.sourceName]
 		junctionItems := make([]map[string]interface{}, 0)
 		nextID := 0
@@ -371,8 +373,81 @@ func (t *normalizer) seedJunctionTables() {
 			items: junctionItems,
 		}
 
-		t.logger.Info("Seeded junction table", "name", junctionName, "records", len(junctionItems))
+		if len(junctionItems) == 0 {
+			err = errors.New("no records found for junction table: " + junctionName)
+		} else {
+			t.logger.Info("Seeded junction table", "name", junctionName, "records", len(junctionItems))
+		}
+
 	}
+
+	return err
+}
+
+func (t *normalizer) seedCreatureStatGrowth() error {
+	sources := t.config.jsonSources
+
+	// Build stat name -> stat id index from seeded static stats
+	statNameToID := make(map[string]interface{})
+	for _, stat := range sources["stats"].items {
+		name, okName := stat["name"].(string)
+		id, okID := stat["id"]
+		if okName && okID {
+			statNameToID[name] = id
+		}
+	}
+
+	junctionItems := make([]map[string]interface{}, 0)
+	nextID := 0
+
+	for _, creature := range sources["creatures"].items {
+		creatureID, ok := creature["id"]
+		if !ok {
+			continue
+		}
+
+		rawGrowth, ok := creature["statGrowth"]
+		if !ok || rawGrowth == nil {
+			continue
+		}
+
+		growthMap, ok := rawGrowth.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		for statName, rawGrowthRate := range growthMap {
+			statID, ok := statNameToID[statName]
+			if !ok {
+				continue
+			}
+
+			growthRate, ok := rawGrowthRate.(float64)
+			if !ok {
+				continue
+			}
+
+			junctionItems = append(junctionItems, map[string]interface{}{
+				"id":          nextID,
+				"creature_id": creatureID,
+				"stat_id":     statID,
+				"growth_rate": int(growthRate),
+			})
+			nextID++
+		}
+	}
+
+	sources["creature_stat_growth"] = jsonMeta{
+		name:  "creature_stat_growth",
+		items: junctionItems,
+	}
+
+	if len(junctionItems) == 0 {
+		return errors.New("no records found for junction table: creature_stat_growth")
+	}
+
+	t.logger.Info("Seeded junction table", "name", "creature_stat_growth", "records", len(junctionItems))
+	return nil
 }
 
 func (t *normalizer) removeNullAndEmptyFields() {
@@ -415,7 +490,12 @@ func (t *normalizer) normalize() error {
 	// ORDER MATTERS HERE
 	// Each step depends on the data being in a certain state
 	t.replaceLocalValueWithForeignValue("name", "id")
-	t.seedJunctionTables()
+	if err := t.seedArrayToJunctionTables(); err != nil {
+		return err
+	}
+	if err := t.seedCreatureStatGrowth(); err != nil {
+		return err
+	}
 	t.removeInvalidDirectForeignKeyIDs()
 	t.renameFieldsToDbNames()
 	t.convertArrayDescriptionsToStrings()

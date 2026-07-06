@@ -68,6 +68,14 @@ CREATE TABLE IF NOT EXISTS creatures (
     FOREIGN KEY (class_id) REFERENCES classes(id),
     FOREIGN KEY (race_id) REFERENCES races(id)
 );
+CREATE TABLE IF NOT EXISTS creature_stat_growth (
+    id INTEGER PRIMARY KEY,
+    creature_id INTEGER NOT NULL,
+    stat_id INTEGER NOT NULL,
+    growth_rate INTEGER NOT NULL,
+    FOREIGN KEY (creature_id) REFERENCES creatures(id),
+    FOREIGN KEY (stat_id) REFERENCES stats(id)
+);
 CREATE TABLE IF NOT EXISTS specializations (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
