@@ -110,183 +110,6 @@ type BatchInsertTraitsParams struct {
 	MaterialID  pgtype.Int4 `json:"material_id"`
 }
 
-const createArtifact = `-- name: CreateArtifact :one
-INSERT INTO artifacts (id, name, icon, stat_id)
-VALUES ($1, $2, $3, $4)
-RETURNING id
-`
-
-type CreateArtifactParams struct {
-	ID     int32  `json:"id"`
-	Name   string `json:"name"`
-	Icon   []byte `json:"icon"`
-	StatID int32  `json:"stat_id"`
-}
-
-func (q *Queries) CreateArtifact(ctx context.Context, arg CreateArtifactParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createArtifact,
-		arg.ID,
-		arg.Name,
-		arg.Icon,
-		arg.StatID,
-	)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
-}
-
-const createClass = `-- name: CreateClass :one
-INSERT INTO classes (id, name, icon)
-VALUES ($1, $2, $3)
-RETURNING id
-`
-
-type CreateClassParams struct {
-	ID   int32  `json:"id"`
-	Name string `json:"name"`
-	Icon []byte `json:"icon"`
-}
-
-func (q *Queries) CreateClass(ctx context.Context, arg CreateClassParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createClass, arg.ID, arg.Name, arg.Icon)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
-}
-
-const createCreature = `-- name: CreateCreature :one
-INSERT INTO creatures (id, name, icon, trait_id, class_id, race_id)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id
-`
-
-type CreateCreatureParams struct {
-	ID      int32       `json:"id"`
-	Name    string      `json:"name"`
-	Icon    []byte      `json:"icon"`
-	TraitID pgtype.Int4 `json:"trait_id"`
-	ClassID int32       `json:"class_id"`
-	RaceID  int32       `json:"race_id"`
-}
-
-func (q *Queries) CreateCreature(ctx context.Context, arg CreateCreatureParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createCreature,
-		arg.ID,
-		arg.Name,
-		arg.Icon,
-		arg.TraitID,
-		arg.ClassID,
-		arg.RaceID,
-	)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
-}
-
-const createMaterial = `-- name: CreateMaterial :one
-INSERT INTO materials (id, name, icon, type)
-VALUES ($1, $2, $3, $4)
-RETURNING id,
-    name,
-    icon,
-    type
-`
-
-type CreateMaterialParams struct {
-	ID   int32        `json:"id"`
-	Name string       `json:"name"`
-	Icon []byte       `json:"icon"`
-	Type MaterialType `json:"type"`
-}
-
-func (q *Queries) CreateMaterial(ctx context.Context, arg CreateMaterialParams) (Material, error) {
-	row := q.db.QueryRow(ctx, createMaterial,
-		arg.ID,
-		arg.Name,
-		arg.Icon,
-		arg.Type,
-	)
-	var i Material
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Icon,
-		&i.Type,
-	)
-	return i, err
-}
-
-const createMaterialStat = `-- name: CreateMaterialStat :one
-INSERT INTO material_stats (material_id, stat_id, stat_id2, id)
-VALUES ($1, $2, $3, $4)
-RETURNING id
-`
-
-type CreateMaterialStatParams struct {
-	MaterialID int32       `json:"material_id"`
-	StatID     int32       `json:"stat_id"`
-	StatId2    pgtype.Int4 `json:"stat_id2"`
-	ID         int32       `json:"id"`
-}
-
-func (q *Queries) CreateMaterialStat(ctx context.Context, arg CreateMaterialStatParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createMaterialStat,
-		arg.MaterialID,
-		arg.StatID,
-		arg.StatId2,
-		arg.ID,
-	)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
-}
-
-const createPerk = `-- name: CreatePerk :one
-INSERT INTO perks (id, name, description, icon, specialization_id)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id
-`
-
-type CreatePerkParams struct {
-	ID               int32  `json:"id"`
-	Name             string `json:"name"`
-	Description      string `json:"description"`
-	Icon             []byte `json:"icon"`
-	SpecializationID int32  `json:"specialization_id"`
-}
-
-func (q *Queries) CreatePerk(ctx context.Context, arg CreatePerkParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createPerk,
-		arg.ID,
-		arg.Name,
-		arg.Description,
-		arg.Icon,
-		arg.SpecializationID,
-	)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
-}
-
-const createRace = `-- name: CreateRace :one
-INSERT INTO races (id, name, icon)
-VALUES ($1, $2, $3)
-RETURNING id
-`
-
-type CreateRaceParams struct {
-	ID   int32  `json:"id"`
-	Name string `json:"name"`
-	Icon []byte `json:"icon"`
-}
-
-func (q *Queries) CreateRace(ctx context.Context, arg CreateRaceParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createRace, arg.ID, arg.Name, arg.Icon)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
-}
-
 const createRelic = `-- name: CreateRelic :one
 INSERT INTO relics (id, name, icon, bonuses, stat_id)
 VALUES ($1, $2, $3, $4, $5)
@@ -312,244 +135,6 @@ func (q *Queries) CreateRelic(ctx context.Context, arg CreateRelicParams) (int32
 	var id int32
 	err := row.Scan(&id)
 	return id, err
-}
-
-const createSpecialization = `-- name: CreateSpecialization :one
-INSERT INTO specializations (id, name, description)
-VALUES ($1, $2, $3)
-RETURNING id
-`
-
-type CreateSpecializationParams struct {
-	ID          int32  `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
-
-func (q *Queries) CreateSpecialization(ctx context.Context, arg CreateSpecializationParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createSpecialization, arg.ID, arg.Name, arg.Description)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
-}
-
-const createSpell = `-- name: CreateSpell :one
-INSERT INTO spells (id, name, description, charges, class_id)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id
-`
-
-type CreateSpellParams struct {
-	ID          int32  `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Charges     int32  `json:"charges"`
-	ClassID     int32  `json:"class_id"`
-}
-
-func (q *Queries) CreateSpell(ctx context.Context, arg CreateSpellParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createSpell,
-		arg.ID,
-		arg.Name,
-		arg.Description,
-		arg.Charges,
-		arg.ClassID,
-	)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
-}
-
-const createSpellProperty = `-- name: CreateSpellProperty :one
-INSERT INTO spell_properties (id, name, material_id)
-VALUES ($1, $2, $3)
-RETURNING id
-`
-
-type CreateSpellPropertyParams struct {
-	ID         int32  `json:"id"`
-	Name       string `json:"name"`
-	MaterialID int32  `json:"material_id"`
-}
-
-func (q *Queries) CreateSpellProperty(ctx context.Context, arg CreateSpellPropertyParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createSpellProperty, arg.ID, arg.Name, arg.MaterialID)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
-}
-
-const createStat = `-- name: CreateStat :one
-INSERT INTO stats (id, type)
-VALUES ($1, $2)
-RETURNING id
-`
-
-type CreateStatParams struct {
-	ID   int32    `json:"id"`
-	Type StatType `json:"type"`
-}
-
-func (q *Queries) CreateStat(ctx context.Context, arg CreateStatParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createStat, arg.ID, arg.Type)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
-}
-
-const createTrait = `-- name: CreateTrait :one
-INSERT INTO traits (id, name, description, material_id)
-VALUES ($1, $2, $3, $4)
-RETURNING id
-`
-
-type CreateTraitParams struct {
-	ID          int32       `json:"id"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
-	MaterialID  pgtype.Int4 `json:"material_id"`
-}
-
-func (q *Queries) CreateTrait(ctx context.Context, arg CreateTraitParams) (int32, error) {
-	row := q.db.QueryRow(ctx, createTrait,
-		arg.ID,
-		arg.Name,
-		arg.Description,
-		arg.MaterialID,
-	)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
-}
-
-const deleteArtifact = `-- name: DeleteArtifact :exec
-DELETE FROM artifacts
-WHERE id = $1
-`
-
-func (q *Queries) DeleteArtifact(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteArtifact, id)
-	return err
-}
-
-const deleteClass = `-- name: DeleteClass :exec
-DELETE FROM classes
-WHERE id = $1
-`
-
-func (q *Queries) DeleteClass(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteClass, id)
-	return err
-}
-
-const deleteCreature = `-- name: DeleteCreature :exec
-DELETE FROM creatures
-WHERE id = $1
-`
-
-func (q *Queries) DeleteCreature(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteCreature, id)
-	return err
-}
-
-const deleteMaterial = `-- name: DeleteMaterial :exec
-DELETE FROM materials
-WHERE id = $1
-`
-
-func (q *Queries) DeleteMaterial(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteMaterial, id)
-	return err
-}
-
-const deleteMaterialStat = `-- name: DeleteMaterialStat :exec
-DELETE FROM material_stats
-WHERE id = $1
-`
-
-func (q *Queries) DeleteMaterialStat(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteMaterialStat, id)
-	return err
-}
-
-const deletePerk = `-- name: DeletePerk :exec
-DELETE FROM perks
-WHERE id = $1
-`
-
-func (q *Queries) DeletePerk(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deletePerk, id)
-	return err
-}
-
-const deleteRace = `-- name: DeleteRace :exec
-DELETE FROM races
-WHERE id = $1
-`
-
-func (q *Queries) DeleteRace(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteRace, id)
-	return err
-}
-
-const deleteRelic = `-- name: DeleteRelic :exec
-DELETE FROM relics
-WHERE id = $1
-`
-
-func (q *Queries) DeleteRelic(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteRelic, id)
-	return err
-}
-
-const deleteSpecialization = `-- name: DeleteSpecialization :exec
-DELETE FROM specializations
-WHERE id = $1
-`
-
-func (q *Queries) DeleteSpecialization(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteSpecialization, id)
-	return err
-}
-
-const deleteSpell = `-- name: DeleteSpell :exec
-DELETE FROM spells
-WHERE id = $1
-`
-
-func (q *Queries) DeleteSpell(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteSpell, id)
-	return err
-}
-
-const deleteSpellProperty = `-- name: DeleteSpellProperty :exec
-DELETE FROM spell_properties
-WHERE id = $1
-`
-
-func (q *Queries) DeleteSpellProperty(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteSpellProperty, id)
-	return err
-}
-
-const deleteStat = `-- name: DeleteStat :exec
-DELETE FROM stats
-WHERE id = $1
-`
-
-func (q *Queries) DeleteStat(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteStat, id)
-	return err
-}
-
-const deleteTrait = `-- name: DeleteTrait :exec
-DELETE FROM traits
-WHERE id = $1
-`
-
-func (q *Queries) DeleteTrait(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteTrait, id)
-	return err
 }
 
 const getArtifact = `-- name: GetArtifact :one
@@ -696,46 +281,80 @@ func (q *Queries) GetClassesByName(ctx context.Context, dollar_1 pgtype.Text) ([
 }
 
 const getCreature = `-- name: GetCreature :one
-SELECT id, name, icon, trait_id, class_id, race_id
-FROM creatures
-WHERE id = $1
+SELECT c.id,
+    c.name,
+    c.icon,
+    t.name as trait,
+    cl.name as class,
+    r.name as race
+FROM creatures c
+    LEFT JOIN traits t ON c.trait_id = t.id
+    LEFT JOIN classes cl ON c.class_id = cl.id
+    LEFT JOIN races r ON c.race_id = r.id
+WHERE c.id = $1
 `
 
-func (q *Queries) GetCreature(ctx context.Context, id int32) (Creature, error) {
+type GetCreatureRow struct {
+	ID    int32       `json:"id"`
+	Name  string      `json:"name"`
+	Icon  []byte      `json:"icon"`
+	Trait pgtype.Text `json:"trait"`
+	Class pgtype.Text `json:"class"`
+	Race  pgtype.Text `json:"race"`
+}
+
+func (q *Queries) GetCreature(ctx context.Context, id int32) (GetCreatureRow, error) {
 	row := q.db.QueryRow(ctx, getCreature, id)
-	var i Creature
+	var i GetCreatureRow
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
 		&i.Icon,
-		&i.TraitID,
-		&i.ClassID,
-		&i.RaceID,
+		&i.Trait,
+		&i.Class,
+		&i.Race,
 	)
 	return i, err
 }
 
 const getCreatures = `-- name: GetCreatures :many
-SELECT id, name, icon, trait_id, class_id, race_id
-FROM creatures
+SELECT c.id,
+    c.name,
+    c.icon,
+    t.name as trait,
+    cl.name as class,
+    r.name as race
+FROM creatures c
+    LEFT JOIN traits t ON c.trait_id = t.id
+    LEFT JOIN classes cl ON c.class_id = cl.id
+    LEFT JOIN races r ON c.race_id = r.id
 `
 
-func (q *Queries) GetCreatures(ctx context.Context) ([]Creature, error) {
+type GetCreaturesRow struct {
+	ID    int32       `json:"id"`
+	Name  string      `json:"name"`
+	Icon  []byte      `json:"icon"`
+	Trait pgtype.Text `json:"trait"`
+	Class pgtype.Text `json:"class"`
+	Race  pgtype.Text `json:"race"`
+}
+
+func (q *Queries) GetCreatures(ctx context.Context) ([]GetCreaturesRow, error) {
 	rows, err := q.db.Query(ctx, getCreatures)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Creature
+	var items []GetCreaturesRow
 	for rows.Next() {
-		var i Creature
+		var i GetCreaturesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
 			&i.Icon,
-			&i.TraitID,
-			&i.ClassID,
-			&i.RaceID,
+			&i.Trait,
+			&i.Class,
+			&i.Race,
 		); err != nil {
 			return nil, err
 		}
@@ -1845,22 +1464,4 @@ func (q *Queries) TraitExists(ctx context.Context, id int32) (bool, error) {
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
-}
-
-const updateMaterialStat = `-- name: UpdateMaterialStat :exec
-UPDATE material_stats
-SET id = $3
-WHERE material_id = $1
-    AND stat_id = $2
-`
-
-type UpdateMaterialStatParams struct {
-	MaterialID int32 `json:"material_id"`
-	StatID     int32 `json:"stat_id"`
-	ID         int32 `json:"id"`
-}
-
-func (q *Queries) UpdateMaterialStat(ctx context.Context, arg UpdateMaterialStatParams) error {
-	_, err := q.db.Exec(ctx, updateMaterialStat, arg.MaterialID, arg.StatID, arg.ID)
-	return err
 }

@@ -14,8 +14,6 @@ type Service interface {
 	GetRacesByTraitName(ctx context.Context, traitName string) ([]repo.Race, error)
 	GetRacesByClassName(ctx context.Context, className string) ([]repo.Race, error)
 	GetRacesByCreatureName(ctx context.Context, creatureName string) ([]repo.Race, error)
-	CreateRace(ctx context.Context, params repo.CreateRaceParams) (repo.Race, error)
-	DeleteRace(ctx context.Context, id int32) error
 }
 
 type service struct {
@@ -48,16 +46,4 @@ func (s *service) GetRacesByClassName(ctx context.Context, className string) ([]
 
 func (s *service) GetRacesByCreatureName(ctx context.Context, creatureName string) ([]repo.Race, error) {
 	return s.repo.GetRacesByCreatureName(ctx, pgtype.Text{String: creatureName, Valid: true})
-}
-
-func (s *service) CreateRace(ctx context.Context, params repo.CreateRaceParams) (repo.Race, error) {
-	id, err := s.repo.CreateRace(ctx, params)
-	if err != nil {
-		return repo.Race{}, err
-	}
-	return s.repo.GetRace(ctx, id)
-}
-
-func (s *service) DeleteRace(ctx context.Context, id int32) error {
-	return s.repo.DeleteRace(ctx, id)
 }

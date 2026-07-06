@@ -26,11 +26,3 @@ func (h *handler) GetClass(w http.ResponseWriter, r *http.Request) {
 func (h *handler) GetClassesByName(w http.ResponseWriter, r *http.Request) {
 	httpx.HandleGetByName[repo.Class](h.service.GetClassesByName, "classes")(w, r)
 }
-
-func (h *handler) CreateClass(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleCreate[repo.CreateClassParams, repo.Class](h.service.CreateClass, "class")(w, r)
-}
-
-func (h *handler) DeleteClass(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleDelete[repo.Class](h.service.DeleteClass, "class")(w, r)
-}

@@ -10,6 +10,4 @@ func RegisterRoutes(r chi.Router, service Service) {
 	r.Get("/trait", h.GetRacesByTraitName)
 	r.Get("/class", h.GetRacesByClassName)
 	r.Get("/creature", h.GetRacesByCreatureName)
-	r.Post("/create", h.CreateRace)
-	r.Delete("/delete", h.DeleteRace)
 }

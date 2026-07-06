@@ -26,11 +26,3 @@ func (h *handler) GetRelic(w http.ResponseWriter, r *http.Request) {
 func (h *handler) GetRelicsByName(w http.ResponseWriter, r *http.Request) {
 	httpx.HandleGetByName[repo.GetRelicsByNameRow](h.service.GetRelicsByName, "relics")(w, r)
 }
-
-func (h *handler) CreateRelic(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleCreate[repo.CreateRelicParams, repo.GetRelicRow](h.service.CreateRelic, "relic")(w, r)
-}
-
-func (h *handler) DeleteRelic(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleDelete[repo.GetRelicRow](h.service.DeleteRelic, "relic")(w, r)
-}

@@ -1,6 +1,14 @@
 -- name: GetCreatures :many
-SELECT *
-FROM creatures;
+SELECT c.id,
+    c.name,
+    c.icon,
+    t.name as trait,
+    cl.name as class,
+    r.name as race
+FROM creatures c
+    LEFT JOIN traits t ON c.trait_id = t.id
+    LEFT JOIN classes cl ON c.class_id = cl.id
+    LEFT JOIN races r ON c.race_id = r.id;
 -- name: GetTraits :many
 SELECT *
 FROM traits;
@@ -38,9 +46,17 @@ FROM artifacts;
 SELECT *
 FROM stats;
 -- name: GetCreature :one
-SELECT *
-FROM creatures
-WHERE id = $1;
+SELECT c.id,
+    c.name,
+    c.icon,
+    t.name as trait,
+    cl.name as class,
+    r.name as race
+FROM creatures c
+    LEFT JOIN traits t ON c.trait_id = t.id
+    LEFT JOIN classes cl ON c.class_id = cl.id
+    LEFT JOIN races r ON c.race_id = r.id
+WHERE c.id = $1;
 -- name: GetTrait :one
 SELECT *
 FROM traits
@@ -99,107 +115,15 @@ WHERE id = $1;
 SELECT *
 FROM stats
 WHERE id = $1;
--- name: CreateCreature :one
-INSERT INTO creatures (id, name, icon, trait_id, class_id, race_id)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id;
--- name: CreateTrait :one
-INSERT INTO traits (id, name, description, material_id)
-VALUES ($1, $2, $3, $4)
-RETURNING id;
--- name: CreateClass :one
-INSERT INTO classes (id, name, icon)
-VALUES ($1, $2, $3)
-RETURNING id;
--- name: CreateRace :one
-INSERT INTO races (id, name, icon)
-VALUES ($1, $2, $3)
-RETURNING id;
--- name: CreateSpecialization :one
-INSERT INTO specializations (id, name, description)
-VALUES ($1, $2, $3)
-RETURNING id;
--- name: CreatePerk :one
-INSERT INTO perks (id, name, description, icon, specialization_id)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id;
--- name: CreateSpell :one
-INSERT INTO spells (id, name, description, charges, class_id)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id;
--- name: CreateMaterial :one
-INSERT INTO materials (id, name, icon, type)
-VALUES ($1, $2, $3, $4)
-RETURNING id,
-    name,
-    icon,
-    type;
--- name: CreateSpellProperty :one
-INSERT INTO spell_properties (id, name, material_id)
-VALUES ($1, $2, $3)
-RETURNING id;
--- name: CreateArtifact :one
-INSERT INTO artifacts (id, name, icon, stat_id)
-VALUES ($1, $2, $3, $4)
-RETURNING id;
--- name: CreateStat :one
-INSERT INTO stats (id, type)
-VALUES ($1, $2)
-RETURNING id;
 -- name: GetStatsCount :one
 SELECT COUNT(*)
 FROM stats;
--- name: DeleteCreature :exec
-DELETE FROM creatures
-WHERE id = $1;
--- name: DeleteTrait :exec
-DELETE FROM traits
-WHERE id = $1;
--- name: DeleteClass :exec
-DELETE FROM classes
-WHERE id = $1;
--- name: DeleteRace :exec
-DELETE FROM races
-WHERE id = $1;
--- name: DeleteSpecialization :exec
-DELETE FROM specializations
-WHERE id = $1;
--- name: DeletePerk :exec
-DELETE FROM perks
-WHERE id = $1;
--- name: DeleteSpell :exec
-DELETE FROM spells
-WHERE id = $1;
--- name: DeleteMaterial :exec
-DELETE FROM materials
-WHERE id = $1;
 -- name: GetMaterialStats :many
 SELECT id,
     material_id,
     stat_id
 FROM material_stats
 WHERE material_id = $1;
--- name: CreateMaterialStat :one
-INSERT INTO material_stats (material_id, stat_id, stat_id2, id)
-VALUES ($1, $2, $3, $4)
-RETURNING id;
--- name: UpdateMaterialStat :exec
-UPDATE material_stats
-SET id = $3
-WHERE material_id = $1
-    AND stat_id = $2;
--- name: DeleteMaterialStat :exec
-DELETE FROM material_stats
-WHERE id = $1;
--- name: DeleteSpellProperty :exec
-DELETE FROM spell_properties
-WHERE id = $1;
--- name: DeleteArtifact :exec
-DELETE FROM artifacts
-WHERE id = $1;
--- name: DeleteStat :exec
-DELETE FROM stats
-WHERE id = $1;
 -- name: GetTraitsByCreatureName :many
 SELECT t.*
 FROM traits t
@@ -320,62 +244,46 @@ WHERE r.name ILIKE '%' || $1 || '%';
 INSERT INTO relics (id, name, icon, bonuses, stat_id)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id;
--- name: DeleteRelic :exec
-DELETE FROM relics
-WHERE id = $1;
 -- Batch insert queries using COPY protocol for efficient seeding
 -- name: BatchInsertClasses :copyfrom
 INSERT INTO classes (id, name, icon)
 VALUES ($1, $2, $3);
-
 -- name: BatchInsertStats :copyfrom
 INSERT INTO stats (id, type, icon)
 VALUES ($1, $2, $3);
-
 -- name: BatchInsertRaces :copyfrom
 INSERT INTO races (id, name, icon)
 VALUES ($1, $2, $3);
-
 -- name: BatchInsertSpecializations :copyfrom
 INSERT INTO specializations (id, name, description, icon)
 VALUES ($1, $2, $3, $4);
-
 -- name: BatchInsertMaterials :copyfrom
 INSERT INTO materials (id, name, icon, type)
 VALUES ($1, $2, $3, $4);
-
 -- name: BatchInsertTraits :copyfrom
 INSERT INTO traits (id, name, description, material_id)
 VALUES ($1, $2, $3, $4);
-
 -- name: BatchInsertPerks :copyfrom
 INSERT INTO perks (id, name, description, icon, specialization_id)
 VALUES ($1, $2, $3, $4, $5);
-
 -- name: BatchInsertSpells :copyfrom
 INSERT INTO spells (id, name, description, charges, class_id)
 VALUES ($1, $2, $3, $4, $5);
-
 -- name: BatchInsertSpellProperties :copyfrom
 INSERT INTO spell_properties (id, name, material_id)
 VALUES ($1, $2, $3);
-
 -- name: BatchInsertArtifacts :copyfrom
 INSERT INTO artifacts (id, name, icon, stat_id)
 VALUES ($1, $2, $3, $4);
-
 -- name: BatchInsertCreatures :copyfrom
 INSERT INTO creatures (id, name, icon, trait_id, class_id, race_id)
 VALUES ($1, $2, $3, $4, $5, $6);
-
 -- name: BatchInsertRelics :copyfrom
 INSERT INTO relics (id, name, icon, bonuses, stat_id)
 VALUES ($1, $2, $3, $4, $5);
-
 -- name: BatchInsertMaterialStats :copyfrom
 INSERT INTO material_stats (id, material_id, stat_id, stat_id2)
 VALUES ($1, $2, $3, $4);
-
 -- name: BatchInsertCreatureStatGrowth :copyfrom
 INSERT INTO creature_stat_growth (id, creature_id, stat_id, growth_rate)
 VALUES ($1, $2, $3, $4);

@@ -8,8 +8,6 @@ func RegisterRoutes(r chi.Router, service Service) error {
 	r.Get("/", handler.GetClasses)
 	r.Get("/id", handler.GetClass)
 	r.Get("/name", handler.GetClassesByName)
-	r.Post("/create", handler.CreateClass)
-	r.Delete("/delete", handler.DeleteClass)
 
 	return nil
 }

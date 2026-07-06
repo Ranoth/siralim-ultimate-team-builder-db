@@ -26,11 +26,3 @@ func (h *handler) GetPerk(w http.ResponseWriter, r *http.Request) {
 func (h *handler) GetPerksByName(w http.ResponseWriter, r *http.Request) {
 	httpx.HandleGetByName[repo.Perk](h.service.GetPerksByName, "perks")(w, r)
 }
-
-func (h *handler) CreatePerk(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleCreate[repo.CreatePerkParams, repo.Perk](h.service.CreatePerk, "perk")(w, r)
-}
-
-func (h *handler) DeletePerk(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleDelete[repo.Perk](h.service.DeletePerk, "perk")(w, r)
-}

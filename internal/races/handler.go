@@ -38,11 +38,3 @@ func (h *handler) GetRacesByClassName(w http.ResponseWriter, r *http.Request) {
 func (h *handler) GetRacesByCreatureName(w http.ResponseWriter, r *http.Request) {
 	httpx.HandleGetByName[repo.Race](h.service.GetRacesByCreatureName, "races")(w, r)
 }
-
-func (h *handler) CreateRace(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleCreate[repo.CreateRaceParams, repo.Race](h.service.CreateRace, "race")(w, r)
-}
-
-func (h *handler) DeleteRace(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleDelete[repo.Race](h.service.DeleteRace, "race")(w, r)
-}

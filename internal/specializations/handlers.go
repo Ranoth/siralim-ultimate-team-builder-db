@@ -26,11 +26,3 @@ func (h *handler) GetSpecialization(w http.ResponseWriter, r *http.Request) {
 func (h *handler) GetSpecializationsByName(w http.ResponseWriter, r *http.Request) {
 	httpx.HandleGetByName[repo.Specialization](h.service.GetSpecializationsByName, "specializations")(w, r)
 }
-
-func (h *handler) CreateSpecialization(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleCreate[repo.CreateSpecializationParams, repo.Specialization](h.service.CreateSpecialization, "specialization")(w, r)
-}
-
-func (h *handler) DeleteSpecialization(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleDelete[repo.Specialization](h.service.DeleteSpecialization, "specialization")(w, r)
-}

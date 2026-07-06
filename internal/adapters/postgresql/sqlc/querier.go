@@ -26,40 +26,15 @@ type Querier interface {
 	BatchInsertSpells(ctx context.Context, arg []BatchInsertSpellsParams) (int64, error)
 	BatchInsertStats(ctx context.Context, arg []BatchInsertStatsParams) (int64, error)
 	BatchInsertTraits(ctx context.Context, arg []BatchInsertTraitsParams) (int64, error)
-	CreateArtifact(ctx context.Context, arg CreateArtifactParams) (int32, error)
-	CreateClass(ctx context.Context, arg CreateClassParams) (int32, error)
-	CreateCreature(ctx context.Context, arg CreateCreatureParams) (int32, error)
-	CreateMaterial(ctx context.Context, arg CreateMaterialParams) (Material, error)
-	CreateMaterialStat(ctx context.Context, arg CreateMaterialStatParams) (int32, error)
-	CreatePerk(ctx context.Context, arg CreatePerkParams) (int32, error)
-	CreateRace(ctx context.Context, arg CreateRaceParams) (int32, error)
 	CreateRelic(ctx context.Context, arg CreateRelicParams) (int32, error)
-	CreateSpecialization(ctx context.Context, arg CreateSpecializationParams) (int32, error)
-	CreateSpell(ctx context.Context, arg CreateSpellParams) (int32, error)
-	CreateSpellProperty(ctx context.Context, arg CreateSpellPropertyParams) (int32, error)
-	CreateStat(ctx context.Context, arg CreateStatParams) (int32, error)
-	CreateTrait(ctx context.Context, arg CreateTraitParams) (int32, error)
-	DeleteArtifact(ctx context.Context, id int32) error
-	DeleteClass(ctx context.Context, id int32) error
-	DeleteCreature(ctx context.Context, id int32) error
-	DeleteMaterial(ctx context.Context, id int32) error
-	DeleteMaterialStat(ctx context.Context, id int32) error
-	DeletePerk(ctx context.Context, id int32) error
-	DeleteRace(ctx context.Context, id int32) error
-	DeleteRelic(ctx context.Context, id int32) error
-	DeleteSpecialization(ctx context.Context, id int32) error
-	DeleteSpell(ctx context.Context, id int32) error
-	DeleteSpellProperty(ctx context.Context, id int32) error
-	DeleteStat(ctx context.Context, id int32) error
-	DeleteTrait(ctx context.Context, id int32) error
 	GetArtifact(ctx context.Context, id int32) (Artifact, error)
 	GetArtifacts(ctx context.Context) ([]Artifact, error)
 	GetArtifactsByName(ctx context.Context, dollar_1 pgtype.Text) ([]Artifact, error)
 	GetClass(ctx context.Context, id int32) (Class, error)
 	GetClasses(ctx context.Context) ([]Class, error)
 	GetClassesByName(ctx context.Context, dollar_1 pgtype.Text) ([]Class, error)
-	GetCreature(ctx context.Context, id int32) (Creature, error)
-	GetCreatures(ctx context.Context) ([]Creature, error)
+	GetCreature(ctx context.Context, id int32) (GetCreatureRow, error)
+	GetCreatures(ctx context.Context) ([]GetCreaturesRow, error)
 	GetCreaturesByClassName(ctx context.Context, dollar_1 pgtype.Text) ([]Creature, error)
 	GetCreaturesByName(ctx context.Context, dollar_1 pgtype.Text) ([]Creature, error)
 	GetCreaturesByRaceName(ctx context.Context, dollar_1 pgtype.Text) ([]Creature, error)
@@ -99,7 +74,6 @@ type Querier interface {
 	GetTraitsByName(ctx context.Context, dollar_1 pgtype.Text) ([]Trait, error)
 	MaterialExists(ctx context.Context, id int32) (bool, error)
 	TraitExists(ctx context.Context, id int32) (bool, error)
-	UpdateMaterialStat(ctx context.Context, arg UpdateMaterialStatParams) error
 }
 
 var _ Querier = (*Queries)(nil)

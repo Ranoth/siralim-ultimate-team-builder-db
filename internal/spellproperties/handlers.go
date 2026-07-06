@@ -26,11 +26,3 @@ func (h *handler) GetSpellProperty(w http.ResponseWriter, r *http.Request) {
 func (h *handler) GetSpellPropertiesByName(w http.ResponseWriter, r *http.Request) {
 	httpx.HandleGetByName[repo.SpellProperty](h.service.GetSpellPropertiesByName, "spell properties")(w, r)
 }
-
-func (h *handler) CreateSpellProperty(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleCreate[repo.CreateSpellPropertyParams, repo.SpellProperty](h.service.CreateSpellProperty, "spell property")(w, r)
-}
-
-func (h *handler) DeleteSpellProperty(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleDelete[repo.SpellProperty](h.service.DeleteSpellProperty, "spell property")(w, r)
-}
