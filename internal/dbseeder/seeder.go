@@ -5,18 +5,18 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	repo "github.com/Ranoth/siralim-ultimate-team-builder-db/internal/adapters/postgresql/sqlc"
 )
 
 type Seeder struct {
-	conn    *pgx.Conn
+	conn    *pgxpool.Pool
 	queries *repo.Queries
 	logger  *slog.Logger
 }
 
-func NewSeeder(conn *pgx.Conn, queries *repo.Queries, logger *slog.Logger) *Seeder {
+func NewSeeder(conn *pgxpool.Pool, queries *repo.Queries, logger *slog.Logger) *Seeder {
 	return &Seeder{
 		conn:    conn,
 		queries: queries,

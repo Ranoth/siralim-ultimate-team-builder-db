@@ -12,11 +12,12 @@ import (
 	repo "github.com/Ranoth/siralim-ultimate-team-builder-db/internal/adapters/postgresql/sqlc"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/dbseeder"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/env"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	cfg := config{
 		addr: env.GetString("ADDRESS", ":8080"),
@@ -28,11 +29,11 @@ func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 
-	conn, err := pgx.Connect(ctx, cfg.db.dsn)
+	conn, err := pgxpool.New(ctx, cfg.db.dsn)
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close(ctx)
+	defer conn.Close()
 
 	logger.Info("Connected to database", "dsn", cfg.db.dsn)
 
@@ -62,7 +63,7 @@ func main() {
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 
 	go func() {
-		if err := api.run(api.mount()); err != nil && err != http.ErrServerClosed {
+		if err := api.run(api.mount(ctx)); err != nil && err != http.ErrServerClosed {
 			logger.Error("Server error", "error", err)
 		}
 	}()
