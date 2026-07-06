@@ -8,7 +8,8 @@ type config struct {
 	jsonSources                 map[string]jsonMeta
 	staticTables                map[string][]map[string]interface{}
 	correlatedFieldNamesMetaMap map[string][]fieldMapping
-	arrayToJunctionTableSpecs   map[string]junctionTableSpec
+	arrayJunctionTableSpecs     map[string]arrayJunctionTableSpec
+	objectJunctionTableSpecs    map[string]objectJunctionTableSpec
 }
 
 const gameDataRootPath = "/app/gameData/"
@@ -126,16 +127,29 @@ func newSeederConfig() *config {
 				{dbField: "stat_id", jsonField: "relicStat", findIdFromSource: "stats"},
 			},
 		},
-		arrayToJunctionTableSpecs: map[string]junctionTableSpec{
+		arrayJunctionTableSpecs: map[string]arrayJunctionTableSpec{
 			"material_stats": {
 				name:           "material_stats",
 				sourceName:     "materials",
 				dataField:      "stats",
 				parentKeyField: "id",
-				mappings: []junctionFieldMapping{
+				mappings: []arrayJunctionFieldMapping{
 					{junctionField: "material_id", sourceField: "id", arrayIndex: -1},
 					{junctionField: "stat_id", sourceField: "stats", arrayIndex: 0, findIdFromSource: "stats"},
 					{junctionField: "stat_id2", sourceField: "stats", arrayIndex: 1, findIdFromSource: "stats"},
+				},
+			},
+		},
+		objectJunctionTableSpecs: map[string]objectJunctionTableSpec{
+			"creature_stat_growth": {
+				name:           "creature_stat_growth",
+				sourceName:     "creatures",
+				dataField:      "statGrowth",
+				parentKeyField: "id",
+				mappings: []objectJunctionFieldMapping{
+					{junctionField: "creature_id", sourceKind: "parent", sourceField: "id", findIdFromSource: "creatures"},
+					{junctionField: "stat_id", sourceKind: "objectKey", sourceField: "statGrowth", findIdFromSource: "stats"},
+					{junctionField: "growth_rate", sourceKind: "objectValue", sourceField: "statGrowth", findIdFromSource: ""},
 				},
 			},
 		},
@@ -155,17 +169,31 @@ type fieldMapping struct {
 	findIdFromSource string
 }
 
-type junctionTableSpec struct {
+type arrayJunctionTableSpec struct {
 	name           string
 	sourceName     string
 	dataField      string
 	parentKeyField string // The field in the source item that contains the parent ID (e.g., "id" for materials)
-	mappings       []junctionFieldMapping
+	mappings       []arrayJunctionFieldMapping
+}
+type objectJunctionTableSpec struct {
+	name           string
+	sourceName     string
+	dataField      string
+	parentKeyField string // The field in the source item that contains the parent ID (e.g., "id" for materials)
+	mappings       []objectJunctionFieldMapping
 }
 
-type junctionFieldMapping struct {
+type arrayJunctionFieldMapping struct {
 	junctionField    string
 	sourceField      string
 	arrayIndex       int // -1 if not an array element, 0 for first, 1 for second, etc.
+	findIdFromSource string
+}
+
+type objectJunctionFieldMapping struct {
+	junctionField    string
+	sourceKind       string // (parent / objectKey / objectValue)
+	sourceField      string
 	findIdFromSource string
 }

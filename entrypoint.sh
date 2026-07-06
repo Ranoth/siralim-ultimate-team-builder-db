@@ -24,7 +24,7 @@ export GOOSE_DBSTRING
 
 if [ "$DEV" = "true" ]; then
 	echo "Development mode: Dropping DB to force re-seeding"
-	cd /app && /usr/local/bin/goose -dir "$GOOSE_MIGRATION_DIR" down
+    cd /app && /usr/local/bin/goose -dir "$GOOSE_MIGRATION_DIR" down || echo "Warning: goose down failed, continuing..."
 fi
 
 cd /app && /usr/local/bin/goose -dir "$GOOSE_MIGRATION_DIR" up

@@ -79,6 +79,41 @@ func (q *Queries) BatchInsertClasses(ctx context.Context, arg []BatchInsertClass
 	return q.db.CopyFrom(ctx, []string{"classes"}, []string{"id", "name", "icon"}, &iteratorForBatchInsertClasses{rows: arg})
 }
 
+// iteratorForBatchInsertCreatureStatGrowth implements pgx.CopyFromSource.
+type iteratorForBatchInsertCreatureStatGrowth struct {
+	rows                 []BatchInsertCreatureStatGrowthParams
+	skippedFirstNextCall bool
+}
+
+func (r *iteratorForBatchInsertCreatureStatGrowth) Next() bool {
+	if len(r.rows) == 0 {
+		return false
+	}
+	if !r.skippedFirstNextCall {
+		r.skippedFirstNextCall = true
+		return true
+	}
+	r.rows = r.rows[1:]
+	return len(r.rows) > 0
+}
+
+func (r iteratorForBatchInsertCreatureStatGrowth) Values() ([]interface{}, error) {
+	return []interface{}{
+		r.rows[0].ID,
+		r.rows[0].CreatureID,
+		r.rows[0].StatID,
+		r.rows[0].GrowthRate,
+	}, nil
+}
+
+func (r iteratorForBatchInsertCreatureStatGrowth) Err() error {
+	return nil
+}
+
+func (q *Queries) BatchInsertCreatureStatGrowth(ctx context.Context, arg []BatchInsertCreatureStatGrowthParams) (int64, error) {
+	return q.db.CopyFrom(ctx, []string{"creature_stat_growth"}, []string{"id", "creature_id", "stat_id", "growth_rate"}, &iteratorForBatchInsertCreatureStatGrowth{rows: arg})
+}
+
 // iteratorForBatchInsertCreatures implements pgx.CopyFromSource.
 type iteratorForBatchInsertCreatures struct {
 	rows                 []BatchInsertCreaturesParams

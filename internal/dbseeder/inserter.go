@@ -255,6 +255,9 @@ func (i *inserter) insert() error {
 		{"creatures", func(ctx context.Context) error {
 			return batchInsertTable(i, ctx, "creatures", i.queries.BatchInsertCreatures)
 		}},
+		{"creature_stat_growth", func(ctx context.Context) error {
+			return batchInsertTable(i, ctx, "creature_stat_growth", i.queries.BatchInsertCreatureStatGrowth)
+		}},
 		{"relics", func(ctx context.Context) error {
 			return batchInsertTable(i, ctx, "relics", i.queries.BatchInsertRelics)
 		}},

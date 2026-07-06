@@ -24,6 +24,13 @@ type BatchInsertClassesParams struct {
 	Icon []byte `json:"icon"`
 }
 
+type BatchInsertCreatureStatGrowthParams struct {
+	ID         int32 `json:"id"`
+	CreatureID int32 `json:"creature_id"`
+	StatID     int32 `json:"stat_id"`
+	GrowthRate int32 `json:"growth_rate"`
+}
+
 type BatchInsertCreaturesParams struct {
 	ID      int32       `json:"id"`
 	Name    string      `json:"name"`

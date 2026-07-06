@@ -14,6 +14,7 @@ type Querier interface {
 	BatchInsertArtifacts(ctx context.Context, arg []BatchInsertArtifactsParams) (int64, error)
 	// Batch insert queries using COPY protocol for efficient seeding
 	BatchInsertClasses(ctx context.Context, arg []BatchInsertClassesParams) (int64, error)
+	BatchInsertCreatureStatGrowth(ctx context.Context, arg []BatchInsertCreatureStatGrowthParams) (int64, error)
 	BatchInsertCreatures(ctx context.Context, arg []BatchInsertCreaturesParams) (int64, error)
 	BatchInsertMaterialStats(ctx context.Context, arg []BatchInsertMaterialStatsParams) (int64, error)
 	BatchInsertMaterials(ctx context.Context, arg []BatchInsertMaterialsParams) (int64, error)

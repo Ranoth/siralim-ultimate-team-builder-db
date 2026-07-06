@@ -375,3 +375,7 @@ VALUES ($1, $2, $3, $4, $5);
 -- name: BatchInsertMaterialStats :copyfrom
 INSERT INTO material_stats (id, material_id, stat_id, stat_id2)
 VALUES ($1, $2, $3, $4);
+
+-- name: BatchInsertCreatureStatGrowth :copyfrom
+INSERT INTO creature_stat_growth (id, creature_id, stat_id, growth_rate)
+VALUES ($1, $2, $3, $4);
