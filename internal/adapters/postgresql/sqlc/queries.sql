@@ -51,6 +51,7 @@ SELECT
     c.name,
     c.icon AS icon,
     t.name AS trait,
+    t.description AS trait_description,
     cl.name AS class,
     r.name AS race,
     jsonb_object_agg(s.type, csg.growth_rate) AS stats
@@ -71,6 +72,7 @@ GROUP BY
     c.name,
     c.icon,
     t.name,
+    t.description,
     cl.name,
     r.name;
 -- name: GetTrait :one

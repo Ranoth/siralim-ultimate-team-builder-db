@@ -260,6 +260,7 @@ SELECT
     c.name,
     c.icon AS icon,
     t.name AS trait,
+    t.description AS trait_description,
     cl.name AS class,
     r.name AS race,
     jsonb_object_agg(s.type, csg.growth_rate) AS stats
@@ -280,18 +281,20 @@ GROUP BY
     c.name,
     c.icon,
     t.name,
+    t.description,
     cl.name,
     r.name
 `
 
 type GetCreatureRow struct {
-	ID    int32           `json:"id"`
-	Name  string          `json:"name"`
-	Icon  []byte          `json:"icon"`
-	Trait pgtype.Text     `json:"trait"`
-	Class string          `json:"class"`
-	Race  string          `json:"race"`
-	Stats json.RawMessage `json:"stats"`
+	ID               int32           `json:"id"`
+	Name             string          `json:"name"`
+	Icon             []byte          `json:"icon"`
+	Trait            pgtype.Text     `json:"trait"`
+	TraitDescription pgtype.Text     `json:"trait_description"`
+	Class            string          `json:"class"`
+	Race             string          `json:"race"`
+	Stats            json.RawMessage `json:"stats"`
 }
 
 func (q *Queries) GetCreature(ctx context.Context, id int32) (GetCreatureRow, error) {
@@ -302,6 +305,7 @@ func (q *Queries) GetCreature(ctx context.Context, id int32) (GetCreatureRow, er
 		&i.Name,
 		&i.Icon,
 		&i.Trait,
+		&i.TraitDescription,
 		&i.Class,
 		&i.Race,
 		&i.Stats,
