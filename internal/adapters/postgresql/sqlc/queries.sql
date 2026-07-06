@@ -51,11 +51,14 @@ SELECT c.id,
     c.icon,
     t.name as trait,
     cl.name as class,
-    r.name as race
+    r.name as race,
+    csg.stat_id,
+    csg.growth_rate
 FROM creatures c
     LEFT JOIN traits t ON c.trait_id = t.id
     LEFT JOIN classes cl ON c.class_id = cl.id
     LEFT JOIN races r ON c.race_id = r.id
+    RIGHT JOIN creature_stat_growth csg ON c.id = csg.creature_id
 WHERE c.id = $1;
 -- name: GetTrait :one
 SELECT *
@@ -124,6 +127,10 @@ SELECT id,
     stat_id
 FROM material_stats
 WHERE material_id = $1;
+-- name: GetStatGrowthsByCreatureId :many
+SELECT *
+FROM creature_stat_growth
+WHERE creature_id = $1;
 -- name: GetTraitsByCreatureName :many
 SELECT t.*
 FROM traits t
@@ -240,10 +247,6 @@ SELECT r.id,
 FROM relics r
     LEFT JOIN stats s ON r.stat_id = s.id
 WHERE r.name ILIKE '%' || $1 || '%';
--- name: CreateRelic :one
-INSERT INTO relics (id, name, icon, bonuses, stat_id)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id;
 -- Batch insert queries using COPY protocol for efficient seeding
 -- name: BatchInsertClasses :copyfrom
 INSERT INTO classes (id, name, icon)

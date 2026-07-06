@@ -19,6 +19,7 @@ import (
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/specializations"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/spellproperties"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/spells"
+	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/statgrowths"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/stats"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/traits"
 	"github.com/go-chi/chi/v5"
@@ -59,6 +60,12 @@ func (app *application) mount(ctx context.Context) http.Handler {
 			path: "/creatures",
 			register: func(r chi.Router, q repo.Querier) {
 				creatures.RegisterRoutes(r, creatures.NewService(q))
+			},
+		},
+		{
+			path: "/stat-growths",
+			register: func(r chi.Router, q repo.Querier) {
+				statgrowths.RegisterRoutes(r, statgrowths.NewService(q))
 			},
 		},
 		{
