@@ -30,7 +30,7 @@ FROM spells;
 -- name: GetMaterials :many
 SELECT m.id,
     m.name,
-    m.icon,
+    '/icons/materials/'|| m.id::text AS icon,
     m.type,
     ms.id as stat_id,
     ms.stat_id
