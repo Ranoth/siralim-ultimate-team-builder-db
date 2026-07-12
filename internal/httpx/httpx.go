@@ -115,6 +115,7 @@ func HandleGetIconRawBytesByIdInPath(serviceFunc func(context.Context, int32) ([
 			WriteErrorMessage(w, http.StatusInternalServerError, fmt.Sprintf("Error getting %s: %v", resourceName, err))
 			return
 		}
+
 		w.Header().Set("Content-Type", "image/png")
 		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 		_, _ = w.Write(result)
