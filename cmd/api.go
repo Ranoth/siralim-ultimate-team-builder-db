@@ -11,6 +11,7 @@ import (
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/artifacts"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/classes"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/creatures"
+	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/geticons"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/health"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/materials"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/perks"
@@ -60,6 +61,12 @@ func (app *application) mount(ctx context.Context) http.Handler {
 			path: "/creatures",
 			register: func(r chi.Router, q repo.Querier) {
 				creatures.RegisterRoutes(r, creatures.NewService(q))
+			},
+		},
+		{
+			path: "/icons",
+			register: func(r chi.Router, q repo.Querier) {
+				geticons.RegisterRoutes(r, geticons.NewService(q))
 			},
 		},
 		{

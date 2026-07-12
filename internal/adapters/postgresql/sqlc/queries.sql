@@ -1,7 +1,7 @@
 -- name: GetCreatures :many
 SELECT c.id,
     c.name,
-    c.icon,
+    '/icons/creatures/'|| c.id::text AS icon,
     t.name as trait,
     cl.name as class,
     r.name as race
@@ -49,7 +49,7 @@ FROM stats;
 SELECT
     c.id,
     c.name,
-    c.icon AS icon,
+    '/icons/creatures/'|| c.id::text AS icon,
     t.name AS trait,
     t.description AS trait_description,
     cl.name AS class,
@@ -75,6 +75,10 @@ GROUP BY
     t.description,
     cl.name,
     r.name;
+-- name: GetCreatureIconById :one
+SELECT icon
+FROM creatures
+WHERE id = $1;
 -- name: GetTrait :one
 SELECT *
 FROM traits
@@ -102,13 +106,17 @@ WHERE id = $1;
 -- name: GetMaterial :one
 SELECT m.id,
     m.name,
-    m.icon,
+    '/icons/materials/'|| m.id::text AS icon,
     m.type,
     ms.id as stat_id,
     ms.stat_id
 FROM materials m
     LEFT JOIN material_stats ms ON m.id = ms.material_id
 WHERE m.id = $1;
+-- name: GetMaterialIconById :one
+SELECT icon
+FROM materials
+WHERE id = $1;
 -- name: MaterialExists :one
 SELECT EXISTS(
         SELECT 1
@@ -183,7 +191,7 @@ WHERE name ILIKE '%' || $1 || '%';
 -- name: GetMaterialsByName :many
 SELECT m.id,
     m.name,
-    m.icon,
+    '/icons/materials/'|| m.id::text AS icon,
     m.type,
     ms.id as stat_id,
     ms.stat_id
@@ -241,7 +249,7 @@ WHERE c.name ILIKE '%' || $1 || '%';
 -- name: GetRelics :many
 SELECT r.id,
     r.name,
-    r.icon,
+    '/icons/relics/'|| r.id::text AS icon,
     r.bonuses,
     s.id as stat_id,
     s.type as stat_type
@@ -250,7 +258,7 @@ FROM relics r
 -- name: GetRelic :one
 SELECT r.id,
     r.name,
-    r.icon,
+    '/icons/relics/'|| r.id::text AS icon,
     r.bonuses,
     s.id as stat_id,
     s.type as stat_type
@@ -260,13 +268,17 @@ WHERE r.id = $1;
 -- name: GetRelicsByName :many
 SELECT r.id,
     r.name,
-    r.icon,
+    '/icons/relics/'|| r.id::text AS icon,
     r.bonuses,
     s.id as stat_id,
     s.type as stat_type
 FROM relics r
     LEFT JOIN stats s ON r.stat_id = s.id
 WHERE r.name ILIKE '%' || $1 || '%';
+-- name: GetRelicIconById :one
+SELECT icon
+FROM relics
+WHERE id = $1;
 -- Batch insert queries using COPY protocol for efficient seeding
 -- name: BatchInsertClasses :copyfrom
 INSERT INTO classes (id, name, icon)

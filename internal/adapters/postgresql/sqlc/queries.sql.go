@@ -258,7 +258,7 @@ const getCreature = `-- name: GetCreature :one
 SELECT
     c.id,
     c.name,
-    c.icon AS icon,
+    '/icons/creatures/'|| c.id::text AS icon,
     t.name AS trait,
     t.description AS trait_description,
     cl.name AS class,
@@ -289,7 +289,7 @@ GROUP BY
 type GetCreatureRow struct {
 	ID               int32           `json:"id"`
 	Name             string          `json:"name"`
-	Icon             []byte          `json:"icon"`
+	Icon             interface{}     `json:"icon"`
 	Trait            pgtype.Text     `json:"trait"`
 	TraitDescription pgtype.Text     `json:"trait_description"`
 	Class            string          `json:"class"`
@@ -313,10 +313,23 @@ func (q *Queries) GetCreature(ctx context.Context, id int32) (GetCreatureRow, er
 	return i, err
 }
 
+const getCreatureIconById = `-- name: GetCreatureIconById :one
+SELECT icon
+FROM creatures
+WHERE id = $1
+`
+
+func (q *Queries) GetCreatureIconById(ctx context.Context, id int32) ([]byte, error) {
+	row := q.db.QueryRow(ctx, getCreatureIconById, id)
+	var icon []byte
+	err := row.Scan(&icon)
+	return icon, err
+}
+
 const getCreatures = `-- name: GetCreatures :many
 SELECT c.id,
     c.name,
-    c.icon,
+    '/icons/creatures/'|| c.id::text AS icon,
     t.name as trait,
     cl.name as class,
     r.name as race
@@ -329,7 +342,7 @@ FROM creatures c
 type GetCreaturesRow struct {
 	ID    int32       `json:"id"`
 	Name  string      `json:"name"`
-	Icon  []byte      `json:"icon"`
+	Icon  interface{} `json:"icon"`
 	Trait pgtype.Text `json:"trait"`
 	Class pgtype.Text `json:"class"`
 	Race  pgtype.Text `json:"race"`
@@ -500,7 +513,7 @@ func (q *Queries) GetCreaturesByTraitName(ctx context.Context, dollar_1 pgtype.T
 const getMaterial = `-- name: GetMaterial :one
 SELECT m.id,
     m.name,
-    m.icon,
+    '/icons/materials/'|| m.id::text AS icon,
     m.type,
     ms.id as stat_id,
     ms.stat_id
@@ -512,7 +525,7 @@ WHERE m.id = $1
 type GetMaterialRow struct {
 	ID       int32        `json:"id"`
 	Name     string       `json:"name"`
-	Icon     []byte       `json:"icon"`
+	Icon     interface{}  `json:"icon"`
 	Type     MaterialType `json:"type"`
 	StatID   pgtype.Int4  `json:"stat_id"`
 	StatID_2 pgtype.Int4  `json:"stat_id_2"`
@@ -530,6 +543,19 @@ func (q *Queries) GetMaterial(ctx context.Context, id int32) (GetMaterialRow, er
 		&i.StatID_2,
 	)
 	return i, err
+}
+
+const getMaterialIconById = `-- name: GetMaterialIconById :one
+SELECT icon
+FROM materials
+WHERE id = $1
+`
+
+func (q *Queries) GetMaterialIconById(ctx context.Context, id int32) ([]byte, error) {
+	row := q.db.QueryRow(ctx, getMaterialIconById, id)
+	var icon []byte
+	err := row.Scan(&icon)
+	return icon, err
 }
 
 const getMaterialStats = `-- name: GetMaterialStats :many
@@ -616,7 +642,7 @@ func (q *Queries) GetMaterials(ctx context.Context) ([]GetMaterialsRow, error) {
 const getMaterialsByName = `-- name: GetMaterialsByName :many
 SELECT m.id,
     m.name,
-    m.icon,
+    '/icons/materials/'|| m.id::text AS icon,
     m.type,
     ms.id as stat_id,
     ms.stat_id
@@ -628,7 +654,7 @@ WHERE m.name ILIKE '%' || $1 || '%'
 type GetMaterialsByNameRow struct {
 	ID       int32        `json:"id"`
 	Name     string       `json:"name"`
-	Icon     []byte       `json:"icon"`
+	Icon     interface{}  `json:"icon"`
 	Type     MaterialType `json:"type"`
 	StatID   pgtype.Int4  `json:"stat_id"`
 	StatID_2 pgtype.Int4  `json:"stat_id_2"`
@@ -893,7 +919,7 @@ func (q *Queries) GetRacesByTraitName(ctx context.Context, dollar_1 pgtype.Text)
 const getRelic = `-- name: GetRelic :one
 SELECT r.id,
     r.name,
-    r.icon,
+    '/icons/relics/'|| r.id::text AS icon,
     r.bonuses,
     s.id as stat_id,
     s.type as stat_type
@@ -905,7 +931,7 @@ WHERE r.id = $1
 type GetRelicRow struct {
 	ID       int32        `json:"id"`
 	Name     string       `json:"name"`
-	Icon     []byte       `json:"icon"`
+	Icon     interface{}  `json:"icon"`
 	Bonuses  []string     `json:"bonuses"`
 	StatID   pgtype.Int4  `json:"stat_id"`
 	StatType NullStatType `json:"stat_type"`
@@ -925,10 +951,23 @@ func (q *Queries) GetRelic(ctx context.Context, id int32) (GetRelicRow, error) {
 	return i, err
 }
 
+const getRelicIconById = `-- name: GetRelicIconById :one
+SELECT icon
+FROM relics
+WHERE id = $1
+`
+
+func (q *Queries) GetRelicIconById(ctx context.Context, id int32) ([]byte, error) {
+	row := q.db.QueryRow(ctx, getRelicIconById, id)
+	var icon []byte
+	err := row.Scan(&icon)
+	return icon, err
+}
+
 const getRelics = `-- name: GetRelics :many
 SELECT r.id,
     r.name,
-    r.icon,
+    '/icons/relics/'|| r.id::text AS icon,
     r.bonuses,
     s.id as stat_id,
     s.type as stat_type
@@ -939,7 +978,7 @@ FROM relics r
 type GetRelicsRow struct {
 	ID       int32        `json:"id"`
 	Name     string       `json:"name"`
-	Icon     []byte       `json:"icon"`
+	Icon     interface{}  `json:"icon"`
 	Bonuses  []string     `json:"bonuses"`
 	StatID   pgtype.Int4  `json:"stat_id"`
 	StatType NullStatType `json:"stat_type"`
@@ -975,7 +1014,7 @@ func (q *Queries) GetRelics(ctx context.Context) ([]GetRelicsRow, error) {
 const getRelicsByName = `-- name: GetRelicsByName :many
 SELECT r.id,
     r.name,
-    r.icon,
+    '/icons/relics/'|| r.id::text AS icon,
     r.bonuses,
     s.id as stat_id,
     s.type as stat_type
@@ -987,7 +1026,7 @@ WHERE r.name ILIKE '%' || $1 || '%'
 type GetRelicsByNameRow struct {
 	ID       int32        `json:"id"`
 	Name     string       `json:"name"`
-	Icon     []byte       `json:"icon"`
+	Icon     interface{}  `json:"icon"`
 	Bonuses  []string     `json:"bonuses"`
 	StatID   pgtype.Int4  `json:"stat_id"`
 	StatType NullStatType `json:"stat_type"`
