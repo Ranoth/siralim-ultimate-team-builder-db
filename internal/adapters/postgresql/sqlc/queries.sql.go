@@ -595,7 +595,7 @@ func (q *Queries) GetMaterialStats(ctx context.Context, materialID int32) ([]Get
 const getMaterials = `-- name: GetMaterials :many
 SELECT m.id,
     m.name,
-    m.icon,
+    '/icons/materials/'|| m.id::text AS icon,
     m.type,
     ms.id as stat_id,
     ms.stat_id
@@ -606,7 +606,7 @@ FROM materials m
 type GetMaterialsRow struct {
 	ID       int32        `json:"id"`
 	Name     string       `json:"name"`
-	Icon     []byte       `json:"icon"`
+	Icon     interface{}  `json:"icon"`
 	Type     MaterialType `json:"type"`
 	StatID   pgtype.Int4  `json:"stat_id"`
 	StatID_2 pgtype.Int4  `json:"stat_id_2"`

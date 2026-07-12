@@ -15,13 +15,13 @@ func NewHandler(service Service) *handler {
 }
 
 func (h *handler) GetCreatureIconById(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleGetByIDInPath[[]byte](h.service.GetCreatureIconById, "creature")(w, r)
+	httpx.HandleGetIconRawBytesByIdInPath(h.service.GetCreatureIconById, "creature")(w, r)
 }
 
 func (h *handler) GetMaterialIconById(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleGetByIDInPath[[]byte](h.service.GetMaterialIconById, "material")(w, r)
+	httpx.HandleGetIconRawBytesByIdInPath(h.service.GetMaterialIconById, "material")(w, r)
 }
 
 func (h *handler) GetRelicIconById(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleGetByIDInPath[[]byte](h.service.GetRelicIconById, "relic")(w, r)
+	httpx.HandleGetIconRawBytesByIdInPath(h.service.GetRelicIconById, "relic")(w, r)
 }
