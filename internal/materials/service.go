@@ -8,9 +8,9 @@ import (
 )
 
 type Service interface {
-	GetMaterials(ctx context.Context) ([]repo.GetMaterialsRow, error)
-	GetMaterial(ctx context.Context, id int32) (repo.GetMaterialRow, error)
-	GetMaterialsByName(ctx context.Context, name string) ([]repo.GetMaterialsByNameRow, error)
+	GetMaterials(ctx context.Context) ([]repo.MaterialsView, error)
+	GetMaterial(ctx context.Context, id int32) (repo.MaterialsView, error)
+	GetMaterialsByName(ctx context.Context, name string) ([]repo.MaterialsView, error)
 }
 
 type service struct {
@@ -21,14 +21,14 @@ func NewService(repo repo.Querier) *service {
 	return &service{repo: repo}
 }
 
-func (s *service) GetMaterials(ctx context.Context) ([]repo.GetMaterialsRow, error) {
+func (s *service) GetMaterials(ctx context.Context) ([]repo.MaterialsView, error) {
 	return s.repo.GetMaterials(ctx)
 }
 
-func (s *service) GetMaterial(ctx context.Context, id int32) (repo.GetMaterialRow, error) {
+func (s *service) GetMaterial(ctx context.Context, id int32) (repo.MaterialsView, error) {
 	return s.repo.GetMaterial(ctx, id)
 }
 
-func (s *service) GetMaterialsByName(ctx context.Context, name string) ([]repo.GetMaterialsByNameRow, error) {
+func (s *service) GetMaterialsByName(ctx context.Context, name string) ([]repo.MaterialsView, error) {
 	return s.repo.GetMaterialsByName(ctx, pgtype.Text{String: name, Valid: true})
 }

@@ -8,12 +8,12 @@ import (
 )
 
 type Service interface {
-	GetRaces(ctx context.Context) ([]repo.Race, error)
-	GetRace(ctx context.Context, id int32) (repo.Race, error)
-	GetRacesByName(ctx context.Context, name string) ([]repo.Race, error)
-	GetRacesByTraitName(ctx context.Context, traitName string) ([]repo.Race, error)
-	GetRacesByClassName(ctx context.Context, className string) ([]repo.Race, error)
-	GetRacesByCreatureName(ctx context.Context, creatureName string) ([]repo.Race, error)
+	GetRaces(ctx context.Context) ([]repo.RacesView, error)
+	GetRace(ctx context.Context, id int32) (repo.RacesView, error)
+	GetRacesByName(ctx context.Context, name string) ([]repo.RacesView, error)
+	GetRacesByTraitName(ctx context.Context, traitName string) ([]repo.RacesView, error)
+	GetRacesByClassName(ctx context.Context, className string) ([]repo.RacesView, error)
+	GetRacesByCreatureName(ctx context.Context, creatureName string) ([]repo.RacesView, error)
 }
 
 type service struct {
@@ -24,26 +24,26 @@ func NewService(repo repo.Querier) *service {
 	return &service{repo: repo}
 }
 
-func (s *service) GetRaces(ctx context.Context) ([]repo.Race, error) {
+func (s *service) GetRaces(ctx context.Context) ([]repo.RacesView, error) {
 	return s.repo.GetRaces(ctx)
 }
 
-func (s *service) GetRace(ctx context.Context, id int32) (repo.Race, error) {
+func (s *service) GetRace(ctx context.Context, id int32) (repo.RacesView, error) {
 	return s.repo.GetRace(ctx, id)
 }
 
-func (s *service) GetRacesByName(ctx context.Context, name string) ([]repo.Race, error) {
+func (s *service) GetRacesByName(ctx context.Context, name string) ([]repo.RacesView, error) {
 	return s.repo.GetRacesByName(ctx, pgtype.Text{String: name, Valid: true})
 }
 
-func (s *service) GetRacesByTraitName(ctx context.Context, traitName string) ([]repo.Race, error) {
+func (s *service) GetRacesByTraitName(ctx context.Context, traitName string) ([]repo.RacesView, error) {
 	return s.repo.GetRacesByTraitName(ctx, pgtype.Text{String: traitName, Valid: true})
 }
 
-func (s *service) GetRacesByClassName(ctx context.Context, className string) ([]repo.Race, error) {
+func (s *service) GetRacesByClassName(ctx context.Context, className string) ([]repo.RacesView, error) {
 	return s.repo.GetRacesByClassName(ctx, pgtype.Text{String: className, Valid: true})
 }
 
-func (s *service) GetRacesByCreatureName(ctx context.Context, creatureName string) ([]repo.Race, error) {
+func (s *service) GetRacesByCreatureName(ctx context.Context, creatureName string) ([]repo.RacesView, error) {
 	return s.repo.GetRacesByCreatureName(ctx, pgtype.Text{String: creatureName, Valid: true})
 }

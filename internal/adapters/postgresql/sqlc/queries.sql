@@ -1,14 +1,6 @@
 -- name: GetCreatures :many
-SELECT c.id,
-    c.name,
-    '/icons/creatures/'|| c.id::text AS icon,
-    t.name as trait,
-    cl.name as class,
-    r.name as race
-FROM creatures c
-    LEFT JOIN traits t ON c.trait_id = t.id
-    LEFT JOIN classes cl ON c.class_id = cl.id
-    LEFT JOIN races r ON c.race_id = r.id;
+SELECT *
+FROM creatures_view;
 -- name: GetTraits :many
 SELECT *
 FROM traits;
@@ -17,7 +9,7 @@ SELECT *
 FROM classes;
 -- name: GetRaces :many
 SELECT *
-FROM races;
+FROM races_view;
 -- name: GetSpecializations :many
 SELECT *
 FROM specializations;
@@ -28,14 +20,8 @@ FROM perks;
 SELECT *
 FROM spells;
 -- name: GetMaterials :many
-SELECT m.id,
-    m.name,
-    '/icons/materials/'|| m.id::text AS icon,
-    m.type,
-    ms.id as stat_id,
-    ms.stat_id
-FROM materials m
-    LEFT JOIN material_stats ms ON m.id = ms.material_id;
+SELECT *
+FROM materials_view;
 -- name: GetSpellProperties :many
 SELECT *
 FROM spell_properties;
@@ -46,35 +32,9 @@ FROM artifacts;
 SELECT *
 FROM stats;
 -- name: GetCreature :one
-SELECT
-    c.id,
-    c.name,
-    '/icons/creatures/'|| c.id::text AS icon,
-    t.name AS trait,
-    t.description AS trait_description,
-    cl.name AS class,
-    r.name AS race,
-    jsonb_object_agg(s.type, csg.growth_rate) AS stats
-FROM creatures c
-JOIN classes cl
-    ON c.class_id = cl.id
-JOIN races r
-    ON c.race_id = r.id
-LEFT JOIN traits t
-    ON c.trait_id = t.id
-JOIN creature_stat_growth csg
-    ON c.id = csg.creature_id
-JOIN stats s
-    ON csg.stat_id = s.id
-WHERE c.id = $1
-GROUP BY
-    c.id,
-    c.name,
-    c.icon,
-    t.name,
-    t.description,
-    cl.name,
-    r.name;
+SELECT *
+FROM creatures_view
+WHERE id = $1;
 -- name: GetCreatureIconById :one
 SELECT icon
 FROM creatures
@@ -89,7 +49,7 @@ FROM classes
 WHERE id = $1;
 -- name: GetRace :one
 SELECT *
-FROM races
+FROM races_view
 WHERE id = $1;
 -- name: GetSpecialization :one
 SELECT *
@@ -104,15 +64,9 @@ SELECT *
 FROM spells
 WHERE id = $1;
 -- name: GetMaterial :one
-SELECT m.id,
-    m.name,
-    '/icons/materials/'|| m.id::text AS icon,
-    m.type,
-    ms.id as stat_id,
-    ms.stat_id
-FROM materials m
-    LEFT JOIN material_stats ms ON m.id = ms.material_id
-WHERE m.id = $1;
+SELECT *
+FROM materials_view
+WHERE id = $1;
 -- name: GetMaterialIconById :one
 SELECT icon
 FROM materials
@@ -144,21 +98,6 @@ WHERE id = $1;
 -- name: GetStatsCount :one
 SELECT COUNT(*)
 FROM stats;
--- name: GetMaterialStats :many
-SELECT id,
-    material_id,
-    stat_id
-FROM material_stats
-WHERE material_id = $1;
--- name: GetStatGrowthsByCreatureId :many
-SELECT csg.id,
-    c.name as creature_name,
-    s.type as stat_type,
-    csg.growth_rate
-FROM creature_stat_growth csg
-    JOIN stats s ON csg.stat_id = s.id
-    JOIN creatures c ON csg.creature_id = c.id
-WHERE csg.creature_id = $1;
 -- name: GetTraitsByCreatureName :many
 SELECT t.*
 FROM traits t
@@ -174,7 +113,7 @@ FROM classes
 WHERE name ILIKE '%' || $1 || '%';
 -- name: GetRacesByName :many
 SELECT *
-FROM races
+FROM races_view
 WHERE name ILIKE '%' || $1 || '%';
 -- name: GetSpecializationsByName :many
 SELECT *
@@ -189,15 +128,9 @@ SELECT *
 FROM spells
 WHERE name ILIKE '%' || $1 || '%';
 -- name: GetMaterialsByName :many
-SELECT m.id,
-    m.name,
-    '/icons/materials/'|| m.id::text AS icon,
-    m.type,
-    ms.id as stat_id,
-    ms.stat_id
-FROM materials m
-    LEFT JOIN material_stats ms ON m.id = ms.material_id
-WHERE m.name ILIKE '%' || $1 || '%';
+SELECT *
+FROM materials_view
+WHERE name ILIKE '%' || $1 || '%';
 -- name: GetSpellPropertiesByName :many
 SELECT *
 FROM spell_properties
@@ -211,70 +144,49 @@ SELECT *
 FROM stats
 WHERE type::text ILIKE '%' || $1 || '%';
 -- name: GetCreaturesByTraitName :many
-SELECT c.*
-FROM creatures c
-    JOIN traits t ON c.trait_id = t.id
-WHERE t.name ILIKE '%' || $1 || '%';
+SELECT *
+FROM creatures_view
+WHERE trait ILIKE '%' || $1 || '%';
 -- name: GetCreaturesByClassName :many
-SELECT c.*
-FROM creatures c
-    JOIN classes cl ON c.class_id = cl.id
-WHERE cl.name ILIKE '%' || $1 || '%';
+SELECT *
+FROM creatures_view
+WHERE class ILIKE '%' || $1 || '%';
 -- name: GetCreaturesByRaceName :many
-SELECT c.*
-FROM creatures c
-    JOIN races r ON c.race_id = r.id
-WHERE r.name ILIKE '%' || $1 || '%';
+SELECT *
+FROM creatures_view
+WHERE race ILIKE '%' || $1 || $1 || '%';
 -- name: GetCreaturesByName :many
 SELECT *
-FROM creatures
+FROM creatures_view
 WHERE name ILIKE '%' || $1 || '%';
 -- name: GetRacesByTraitName :many
 SELECT r.*
-FROM races r
+FROM races_view r
     JOIN creatures c ON r.id = c.race_id
     JOIN traits t ON c.trait_id = t.id
 WHERE t.name ILIKE '%' || $1 || '%';
 -- name: GetRacesByClassName :many
 SELECT r.*
-FROM races r
+FROM races_view r
     JOIN creatures c ON r.id = c.race
     JOIN classes cl ON c.class_id = cl.id
 WHERE cl.name ILIKE '%' || $1 || '%';
 -- name: GetRacesByCreatureName :many
 SELECT r.*
-FROM races r
+FROM races_view r
     JOIN creatures c ON r.id = c.race_id
 WHERE c.name ILIKE '%' || $1 || '%';
 -- name: GetRelics :many
-SELECT r.id,
-    r.name,
-    '/icons/relics/'|| r.id::text AS icon,
-    r.bonuses,
-    s.id as stat_id,
-    s.type as stat_type
-FROM relics r
-    LEFT JOIN stats s ON r.stat_id = s.id;
+SELECT *
+FROM relics_view;
 -- name: GetRelic :one
-SELECT r.id,
-    r.name,
-    '/icons/relics/'|| r.id::text AS icon,
-    r.bonuses,
-    s.id as stat_id,
-    s.type as stat_type
-FROM relics r
-    LEFT JOIN stats s ON r.stat_id = s.id
-WHERE r.id = $1;
+SELECT *
+FROM relics_view
+WHERE id = $1;
 -- name: GetRelicsByName :many
-SELECT r.id,
-    r.name,
-    '/icons/relics/'|| r.id::text AS icon,
-    r.bonuses,
-    s.id as stat_id,
-    s.type as stat_type
-FROM relics r
-    LEFT JOIN stats s ON r.stat_id = s.id
-WHERE r.name ILIKE '%' || $1 || '%';
+SELECT *
+FROM relics_view
+WHERE name ILIKE '%' || $1 || '%';
 -- name: GetRelicIconById :one
 SELECT icon
 FROM relics
