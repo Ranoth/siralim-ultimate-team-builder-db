@@ -25,3 +25,11 @@ func (h *handler) GetMaterialIconById(w http.ResponseWriter, r *http.Request) {
 func (h *handler) GetRelicIconById(w http.ResponseWriter, r *http.Request) {
 	httpx.HandleGetIconRawBytesByIdInPath(h.service.GetRelicIconById, "relic")(w, r)
 }
+
+func (h *handler) GetRaceIconById(w http.ResponseWriter, r *http.Request) {
+	httpx.HandleGetIconRawBytesByIdInPath(h.service.GetRaceIconById, "race")(w, r)
+}
+
+func (h *handler) GetClassIconById(w http.ResponseWriter, r *http.Request) {
+	httpx.HandleGetIconRawBytesByIdInPath(h.service.GetClassIconById, "class")(w, r)
+}

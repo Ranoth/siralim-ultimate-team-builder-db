@@ -191,31 +191,44 @@ func (q *Queries) GetArtifactsByName(ctx context.Context, dollar_1 pgtype.Text) 
 
 const getClass = `-- name: GetClass :one
 SELECT id, name, icon
-FROM classes
+FROM classes_view
 WHERE id = $1
 `
 
-func (q *Queries) GetClass(ctx context.Context, id int32) (Class, error) {
+func (q *Queries) GetClass(ctx context.Context, id int32) (ClassesView, error) {
 	row := q.db.QueryRow(ctx, getClass, id)
-	var i Class
+	var i ClassesView
 	err := row.Scan(&i.ID, &i.Name, &i.Icon)
 	return i, err
 }
 
-const getClasses = `-- name: GetClasses :many
-SELECT id, name, icon
+const getClassIconById = `-- name: GetClassIconById :one
+SELECT icon
 FROM classes
+WHERE id = $1
 `
 
-func (q *Queries) GetClasses(ctx context.Context) ([]Class, error) {
+func (q *Queries) GetClassIconById(ctx context.Context, id int32) ([]byte, error) {
+	row := q.db.QueryRow(ctx, getClassIconById, id)
+	var icon []byte
+	err := row.Scan(&icon)
+	return icon, err
+}
+
+const getClasses = `-- name: GetClasses :many
+SELECT id, name, icon
+FROM classes_view
+`
+
+func (q *Queries) GetClasses(ctx context.Context) ([]ClassesView, error) {
 	rows, err := q.db.Query(ctx, getClasses)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Class
+	var items []ClassesView
 	for rows.Next() {
-		var i Class
+		var i ClassesView
 		if err := rows.Scan(&i.ID, &i.Name, &i.Icon); err != nil {
 			return nil, err
 		}
@@ -229,19 +242,19 @@ func (q *Queries) GetClasses(ctx context.Context) ([]Class, error) {
 
 const getClassesByName = `-- name: GetClassesByName :many
 SELECT id, name, icon
-FROM classes
+FROM classes_view
 WHERE name ILIKE '%' || $1 || '%'
 `
 
-func (q *Queries) GetClassesByName(ctx context.Context, dollar_1 pgtype.Text) ([]Class, error) {
+func (q *Queries) GetClassesByName(ctx context.Context, dollar_1 pgtype.Text) ([]ClassesView, error) {
 	rows, err := q.db.Query(ctx, getClassesByName, dollar_1)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Class
+	var items []ClassesView
 	for rows.Next() {
-		var i Class
+		var i ClassesView
 		if err := rows.Scan(&i.ID, &i.Name, &i.Icon); err != nil {
 			return nil, err
 		}
@@ -653,6 +666,19 @@ func (q *Queries) GetRace(ctx context.Context, id int32) (RacesView, error) {
 	var i RacesView
 	err := row.Scan(&i.ID, &i.Name, &i.Icon)
 	return i, err
+}
+
+const getRaceIconById = `-- name: GetRaceIconById :one
+SELECT icon
+FROM races
+WHERE id = $1
+`
+
+func (q *Queries) GetRaceIconById(ctx context.Context, id int32) ([]byte, error) {
+	row := q.db.QueryRow(ctx, getRaceIconById, id)
+	var icon []byte
+	err := row.Scan(&icon)
+	return icon, err
 }
 
 const getRaces = `-- name: GetRaces :many

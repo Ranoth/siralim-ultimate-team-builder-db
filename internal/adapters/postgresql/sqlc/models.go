@@ -113,6 +113,12 @@ type Class struct {
 	Icon []byte `json:"icon"`
 }
 
+type ClassesView struct {
+	ID   int32       `json:"id"`
+	Name string      `json:"name"`
+	Icon interface{} `json:"icon"`
+}
+
 type Creature struct {
 	ID      int32       `json:"id"`
 	Name    string      `json:"name"`

@@ -6,7 +6,7 @@ SELECT *
 FROM traits;
 -- name: GetClasses :many
 SELECT *
-FROM classes;
+FROM classes_view;
 -- name: GetRaces :many
 SELECT *
 FROM races_view;
@@ -45,7 +45,7 @@ FROM traits
 WHERE id = $1;
 -- name: GetClass :one
 SELECT *
-FROM classes
+FROM classes_view
 WHERE id = $1;
 -- name: GetRace :one
 SELECT *
@@ -109,7 +109,7 @@ FROM traits
 WHERE name ILIKE '%' || $1 || '%';
 -- name: GetClassesByName :many
 SELECT *
-FROM classes
+FROM classes_view
 WHERE name ILIKE '%' || $1 || '%';
 -- name: GetRacesByName :many
 SELECT *
@@ -190,6 +190,14 @@ WHERE name ILIKE '%' || $1 || '%';
 -- name: GetRelicIconById :one
 SELECT icon
 FROM relics
+WHERE id = $1;
+-- name: GetRaceIconById :one
+SELECT icon
+FROM races
+WHERE id = $1;
+-- name: GetClassIconById :one
+SELECT icon
+FROM classes
 WHERE id = $1;
 -- Batch insert queries using COPY protocol for efficient seeding
 -- name: BatchInsertClasses :copyfrom

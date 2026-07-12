@@ -151,6 +151,11 @@ SELECT id,
     name,
     '/icons/races/' || id::text AS icon
 FROM races;
+CREATE VIEW classes_view AS
+SELECT id,
+    name,
+    '/icons/classes/' || id::text AS icon
+FROM classes;
 -- +goose Down
 DROP TABLE IF EXISTS relics CASCADE;
 DROP TABLE IF EXISTS materials CASCADE;
@@ -172,3 +177,4 @@ DROP VIEW IF EXISTS creatures_view CASCADE;
 DROP VIEW IF EXISTS materials_view CASCADE;
 DROP VIEW IF EXISTS relics_view CASCADE;
 DROP VIEW IF EXISTS races_view CASCADE;
+DROP VIEW IF EXISTS classes_view CASCADE;

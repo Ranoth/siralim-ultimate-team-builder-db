@@ -10,6 +10,8 @@ type Service interface {
 	GetCreatureIconById(ctx context.Context, id int32) ([]byte, error)
 	GetMaterialIconById(ctx context.Context, id int32) ([]byte, error)
 	GetRelicIconById(ctx context.Context, id int32) ([]byte, error)
+	GetRaceIconById(ctx context.Context, id int32) ([]byte, error)
+	GetClassIconById(ctx context.Context, id int32) ([]byte, error)
 }
 
 type service struct {
@@ -30,4 +32,12 @@ func (s *service) GetMaterialIconById(ctx context.Context, id int32) ([]byte, er
 
 func (s *service) GetRelicIconById(ctx context.Context, id int32) ([]byte, error) {
 	return s.repo.GetRelicIconById(ctx, id)
+}
+
+func (s *service) GetRaceIconById(ctx context.Context, id int32) ([]byte, error) {
+	return s.repo.GetRaceIconById(ctx, id)
+}
+
+func (s *service) GetClassIconById(ctx context.Context, id int32) ([]byte, error) {
+	return s.repo.GetClassIconById(ctx, id)
 }
