@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.4.0](https://github.com/Ranoth/siralim-ultimate-team-builder-db/compare/v1.3.0...v1.4.0) (2026-07-27)
+
+
+### Features
+
+* Add creatures stat growths junction table seeding ([00f0ab9](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/00f0ab94fba3f98629f63ac3fa48b65838220adb))
+* Creatures API now returns path to endpoint for icons instead of base64 encoded icons. ([b25315b](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/b25315b0871b5984efd1da98f1508e22003ef50c))
+* GetCreatures also returns corresponding growth stats ([b473f67](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/b473f67ff8f124c6457356206625c69b5774e44b))
+
+
+### Bug Fixes
+
+* Add creatures stat growths to DB ([a1fc690](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/a1fc69014838ec5c985e6ab59362d3ada844bef9))
+* Add Healthcheck to dockerfile ([e8b3103](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/e8b31035234546d91f9a1985f27d7606208ac342))
+* Add missing icons APIs ([3897826](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/38978262a9573a69d22f642bea6f3337a3b37bf4))
+* Add stat growth API routes ([d7b2178](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/d7b21785e42e981e7f84eea3a635b6c806e20882))
+* Add trait derscritpion to creatures join ([ddf241d](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/ddf241db4c3e58982450be9e51348c3360eb59eb))
+* Allow for reconnection to DB if connection is lost ([e941550](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/e9415502faff7024f37fbba2aaba91a1a51c71ae))
+* Cull API post and delete requests because they will not be needed ([4550c0d](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/4550c0d063c394fa52a58b5354db0b2375321ad6))
+* re add healthcheck APK to image ([c753e69](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/c753e69a8a8960c82a216ad4d6958b2473b6b8ad))
+* Remove healthcheck from dockerfile ([02c017e](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/02c017e0dd37fa749e4f12076d0208e246eff945))
+* Return raw bytes with content type image/png at icons endpoint ([6a134cc](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/6a134cca01a65286d60040e2dc970a21eb83f80a))
+* Work with views instead of duplicating joins in queries ([ab84ad2](https://github.com/Ranoth/siralim-ultimate-team-builder-db/commit/ab84ad286b148df5505f1aca025f5da48ba8921f))
+
 ## [1.3.0](https://github.com/Ranoth/siralim-ultimate-team-builder-db/compare/v1.2.2...v1.3.0) (2026-07-01)
 
 
