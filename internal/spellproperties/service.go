@@ -11,8 +11,6 @@ type Service interface {
 	GetSpellProperties(ctx context.Context) ([]repo.SpellProperty, error)
 	GetSpellProperty(ctx context.Context, id int32) (repo.SpellProperty, error)
 	GetSpellPropertiesByName(ctx context.Context, name string) ([]repo.SpellProperty, error)
-	CreateSpellProperty(ctx context.Context, params repo.CreateSpellPropertyParams) (repo.SpellProperty, error)
-	DeleteSpellProperty(ctx context.Context, id int32) error
 }
 
 type service struct {
@@ -33,16 +31,4 @@ func (s *service) GetSpellProperty(ctx context.Context, id int32) (repo.SpellPro
 
 func (s *service) GetSpellPropertiesByName(ctx context.Context, name string) ([]repo.SpellProperty, error) {
 	return s.repo.GetSpellPropertiesByName(ctx, pgtype.Text{String: name, Valid: true})
-}
-
-func (s *service) CreateSpellProperty(ctx context.Context, params repo.CreateSpellPropertyParams) (repo.SpellProperty, error) {
-	id, err := s.repo.CreateSpellProperty(ctx, params)
-	if err != nil {
-		return repo.SpellProperty{}, err
-	}
-	return s.repo.GetSpellProperty(ctx, id)
-}
-
-func (s *service) DeleteSpellProperty(ctx context.Context, id int32) error {
-	return s.repo.DeleteSpellProperty(ctx, id)
 }

@@ -8,6 +8,4 @@ func RegisterRoutes(r chi.Router, service Service) {
 	r.Get("/", h.GetRelics)
 	r.Get("/id", h.GetRelic)
 	r.Get("/name", h.GetRelicsByName)
-	r.Post("/create", h.CreateRelic)
-	r.Delete("/delete", h.DeleteRelic)
 }

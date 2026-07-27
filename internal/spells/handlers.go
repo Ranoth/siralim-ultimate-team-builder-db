@@ -26,11 +26,3 @@ func (h *handler) GetSpell(w http.ResponseWriter, r *http.Request) {
 func (h *handler) GetSpellsByName(w http.ResponseWriter, r *http.Request) {
 	httpx.HandleGetByName[repo.Spell](h.service.GetSpellsByName, "spells")(w, r)
 }
-
-func (h *handler) CreateSpell(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleCreate[repo.CreateSpellParams, repo.Spell](h.service.CreateSpell, "spell")(w, r)
-}
-
-func (h *handler) DeleteSpell(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleDelete[repo.Spell](h.service.DeleteSpell, "spell")(w, r)
-}

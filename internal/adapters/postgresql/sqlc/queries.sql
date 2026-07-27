@@ -1,15 +1,15 @@
 -- name: GetCreatures :many
 SELECT *
-FROM creatures;
+FROM creatures_view;
 -- name: GetTraits :many
 SELECT *
 FROM traits;
 -- name: GetClasses :many
 SELECT *
-FROM classes;
+FROM classes_view;
 -- name: GetRaces :many
 SELECT *
-FROM races;
+FROM races_view;
 -- name: GetSpecializations :many
 SELECT *
 FROM specializations;
@@ -20,14 +20,8 @@ FROM perks;
 SELECT *
 FROM spells;
 -- name: GetMaterials :many
-SELECT m.id,
-    m.name,
-    m.icon,
-    m.type,
-    ms.id as stat_id,
-    ms.stat_id
-FROM materials m
-    LEFT JOIN material_stats ms ON m.id = ms.material_id;
+SELECT *
+FROM materials_view;
 -- name: GetSpellProperties :many
 SELECT *
 FROM spell_properties;
@@ -39,6 +33,10 @@ SELECT *
 FROM stats;
 -- name: GetCreature :one
 SELECT *
+FROM creatures_view
+WHERE id = $1;
+-- name: GetCreatureIconById :one
+SELECT icon
 FROM creatures
 WHERE id = $1;
 -- name: GetTrait :one
@@ -47,11 +45,11 @@ FROM traits
 WHERE id = $1;
 -- name: GetClass :one
 SELECT *
-FROM classes
+FROM classes_view
 WHERE id = $1;
 -- name: GetRace :one
 SELECT *
-FROM races
+FROM races_view
 WHERE id = $1;
 -- name: GetSpecialization :one
 SELECT *
@@ -66,15 +64,13 @@ SELECT *
 FROM spells
 WHERE id = $1;
 -- name: GetMaterial :one
-SELECT m.id,
-    m.name,
-    m.icon,
-    m.type,
-    ms.id as stat_id,
-    ms.stat_id
-FROM materials m
-    LEFT JOIN material_stats ms ON m.id = ms.material_id
-WHERE m.id = $1;
+SELECT *
+FROM materials_view
+WHERE id = $1;
+-- name: GetMaterialIconById :one
+SELECT icon
+FROM materials
+WHERE id = $1;
 -- name: MaterialExists :one
 SELECT EXISTS(
         SELECT 1
@@ -99,107 +95,9 @@ WHERE id = $1;
 SELECT *
 FROM stats
 WHERE id = $1;
--- name: CreateCreature :one
-INSERT INTO creatures (id, name, icon, trait_id, class_id, race_id)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id;
--- name: CreateTrait :one
-INSERT INTO traits (id, name, description, material_id)
-VALUES ($1, $2, $3, $4)
-RETURNING id;
--- name: CreateClass :one
-INSERT INTO classes (id, name, icon)
-VALUES ($1, $2, $3)
-RETURNING id;
--- name: CreateRace :one
-INSERT INTO races (id, name, icon)
-VALUES ($1, $2, $3)
-RETURNING id;
--- name: CreateSpecialization :one
-INSERT INTO specializations (id, name, description)
-VALUES ($1, $2, $3)
-RETURNING id;
--- name: CreatePerk :one
-INSERT INTO perks (id, name, description, icon, specialization_id)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id;
--- name: CreateSpell :one
-INSERT INTO spells (id, name, description, charges, class_id)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id;
--- name: CreateMaterial :one
-INSERT INTO materials (id, name, icon, type)
-VALUES ($1, $2, $3, $4)
-RETURNING id,
-    name,
-    icon,
-    type;
--- name: CreateSpellProperty :one
-INSERT INTO spell_properties (id, name, material_id)
-VALUES ($1, $2, $3)
-RETURNING id;
--- name: CreateArtifact :one
-INSERT INTO artifacts (id, name, icon, stat_id)
-VALUES ($1, $2, $3, $4)
-RETURNING id;
--- name: CreateStat :one
-INSERT INTO stats (id, type)
-VALUES ($1, $2)
-RETURNING id;
 -- name: GetStatsCount :one
 SELECT COUNT(*)
 FROM stats;
--- name: DeleteCreature :exec
-DELETE FROM creatures
-WHERE id = $1;
--- name: DeleteTrait :exec
-DELETE FROM traits
-WHERE id = $1;
--- name: DeleteClass :exec
-DELETE FROM classes
-WHERE id = $1;
--- name: DeleteRace :exec
-DELETE FROM races
-WHERE id = $1;
--- name: DeleteSpecialization :exec
-DELETE FROM specializations
-WHERE id = $1;
--- name: DeletePerk :exec
-DELETE FROM perks
-WHERE id = $1;
--- name: DeleteSpell :exec
-DELETE FROM spells
-WHERE id = $1;
--- name: DeleteMaterial :exec
-DELETE FROM materials
-WHERE id = $1;
--- name: GetMaterialStats :many
-SELECT id,
-    material_id,
-    stat_id
-FROM material_stats
-WHERE material_id = $1;
--- name: CreateMaterialStat :one
-INSERT INTO material_stats (material_id, stat_id, stat_id2, id)
-VALUES ($1, $2, $3, $4)
-RETURNING id;
--- name: UpdateMaterialStat :exec
-UPDATE material_stats
-SET id = $3
-WHERE material_id = $1
-    AND stat_id = $2;
--- name: DeleteMaterialStat :exec
-DELETE FROM material_stats
-WHERE id = $1;
--- name: DeleteSpellProperty :exec
-DELETE FROM spell_properties
-WHERE id = $1;
--- name: DeleteArtifact :exec
-DELETE FROM artifacts
-WHERE id = $1;
--- name: DeleteStat :exec
-DELETE FROM stats
-WHERE id = $1;
 -- name: GetTraitsByCreatureName :many
 SELECT t.*
 FROM traits t
@@ -211,11 +109,11 @@ FROM traits
 WHERE name ILIKE '%' || $1 || '%';
 -- name: GetClassesByName :many
 SELECT *
-FROM classes
+FROM classes_view
 WHERE name ILIKE '%' || $1 || '%';
 -- name: GetRacesByName :many
 SELECT *
-FROM races
+FROM races_view
 WHERE name ILIKE '%' || $1 || '%';
 -- name: GetSpecializationsByName :many
 SELECT *
@@ -230,15 +128,9 @@ SELECT *
 FROM spells
 WHERE name ILIKE '%' || $1 || '%';
 -- name: GetMaterialsByName :many
-SELECT m.id,
-    m.name,
-    m.icon,
-    m.type,
-    ms.id as stat_id,
-    ms.stat_id
-FROM materials m
-    LEFT JOIN material_stats ms ON m.id = ms.material_id
-WHERE m.name ILIKE '%' || $1 || '%';
+SELECT *
+FROM materials_view
+WHERE name ILIKE '%' || $1 || '%';
 -- name: GetSpellPropertiesByName :many
 SELECT *
 FROM spell_properties
@@ -252,126 +144,101 @@ SELECT *
 FROM stats
 WHERE type::text ILIKE '%' || $1 || '%';
 -- name: GetCreaturesByTraitName :many
-SELECT c.*
-FROM creatures c
-    JOIN traits t ON c.trait_id = t.id
-WHERE t.name ILIKE '%' || $1 || '%';
+SELECT *
+FROM creatures_view
+WHERE trait ILIKE '%' || $1 || '%';
 -- name: GetCreaturesByClassName :many
-SELECT c.*
-FROM creatures c
-    JOIN classes cl ON c.class_id = cl.id
-WHERE cl.name ILIKE '%' || $1 || '%';
+SELECT *
+FROM creatures_view
+WHERE class ILIKE '%' || $1 || '%';
 -- name: GetCreaturesByRaceName :many
-SELECT c.*
-FROM creatures c
-    JOIN races r ON c.race_id = r.id
-WHERE r.name ILIKE '%' || $1 || '%';
+SELECT *
+FROM creatures_view
+WHERE race ILIKE '%' || $1 || $1 || '%';
 -- name: GetCreaturesByName :many
 SELECT *
-FROM creatures
+FROM creatures_view
 WHERE name ILIKE '%' || $1 || '%';
 -- name: GetRacesByTraitName :many
 SELECT r.*
-FROM races r
+FROM races_view r
     JOIN creatures c ON r.id = c.race_id
     JOIN traits t ON c.trait_id = t.id
 WHERE t.name ILIKE '%' || $1 || '%';
 -- name: GetRacesByClassName :many
 SELECT r.*
-FROM races r
+FROM races_view r
     JOIN creatures c ON r.id = c.race
     JOIN classes cl ON c.class_id = cl.id
 WHERE cl.name ILIKE '%' || $1 || '%';
 -- name: GetRacesByCreatureName :many
 SELECT r.*
-FROM races r
+FROM races_view r
     JOIN creatures c ON r.id = c.race_id
 WHERE c.name ILIKE '%' || $1 || '%';
 -- name: GetRelics :many
-SELECT r.id,
-    r.name,
-    r.icon,
-    r.bonuses,
-    s.id as stat_id,
-    s.type as stat_type
-FROM relics r
-    LEFT JOIN stats s ON r.stat_id = s.id;
+SELECT *
+FROM relics_view;
 -- name: GetRelic :one
-SELECT r.id,
-    r.name,
-    r.icon,
-    r.bonuses,
-    s.id as stat_id,
-    s.type as stat_type
-FROM relics r
-    LEFT JOIN stats s ON r.stat_id = s.id
-WHERE r.id = $1;
+SELECT *
+FROM relics_view
+WHERE id = $1;
 -- name: GetRelicsByName :many
-SELECT r.id,
-    r.name,
-    r.icon,
-    r.bonuses,
-    s.id as stat_id,
-    s.type as stat_type
-FROM relics r
-    LEFT JOIN stats s ON r.stat_id = s.id
-WHERE r.name ILIKE '%' || $1 || '%';
--- name: CreateRelic :one
-INSERT INTO relics (id, name, icon, bonuses, stat_id)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id;
--- name: DeleteRelic :exec
-DELETE FROM relics
+SELECT *
+FROM relics_view
+WHERE name ILIKE '%' || $1 || '%';
+-- name: GetRelicIconById :one
+SELECT icon
+FROM relics
+WHERE id = $1;
+-- name: GetRaceIconById :one
+SELECT icon
+FROM races
+WHERE id = $1;
+-- name: GetClassIconById :one
+SELECT icon
+FROM classes
 WHERE id = $1;
 -- Batch insert queries using COPY protocol for efficient seeding
 -- name: BatchInsertClasses :copyfrom
 INSERT INTO classes (id, name, icon)
 VALUES ($1, $2, $3);
-
 -- name: BatchInsertStats :copyfrom
 INSERT INTO stats (id, type, icon)
 VALUES ($1, $2, $3);
-
 -- name: BatchInsertRaces :copyfrom
 INSERT INTO races (id, name, icon)
 VALUES ($1, $2, $3);
-
 -- name: BatchInsertSpecializations :copyfrom
 INSERT INTO specializations (id, name, description, icon)
 VALUES ($1, $2, $3, $4);
-
 -- name: BatchInsertMaterials :copyfrom
 INSERT INTO materials (id, name, icon, type)
 VALUES ($1, $2, $3, $4);
-
 -- name: BatchInsertTraits :copyfrom
 INSERT INTO traits (id, name, description, material_id)
 VALUES ($1, $2, $3, $4);
-
 -- name: BatchInsertPerks :copyfrom
 INSERT INTO perks (id, name, description, icon, specialization_id)
 VALUES ($1, $2, $3, $4, $5);
-
 -- name: BatchInsertSpells :copyfrom
 INSERT INTO spells (id, name, description, charges, class_id)
 VALUES ($1, $2, $3, $4, $5);
-
 -- name: BatchInsertSpellProperties :copyfrom
 INSERT INTO spell_properties (id, name, material_id)
 VALUES ($1, $2, $3);
-
 -- name: BatchInsertArtifacts :copyfrom
 INSERT INTO artifacts (id, name, icon, stat_id)
 VALUES ($1, $2, $3, $4);
-
 -- name: BatchInsertCreatures :copyfrom
 INSERT INTO creatures (id, name, icon, trait_id, class_id, race_id)
 VALUES ($1, $2, $3, $4, $5, $6);
-
 -- name: BatchInsertRelics :copyfrom
 INSERT INTO relics (id, name, icon, bonuses, stat_id)
 VALUES ($1, $2, $3, $4, $5);
-
 -- name: BatchInsertMaterialStats :copyfrom
 INSERT INTO material_stats (id, material_id, stat_id, stat_id2)
+VALUES ($1, $2, $3, $4);
+-- name: BatchInsertCreatureStatGrowth :copyfrom
+INSERT INTO creature_stat_growth (id, creature_id, stat_id, growth_rate)
 VALUES ($1, $2, $3, $4);

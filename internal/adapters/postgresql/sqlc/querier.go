@@ -14,6 +14,7 @@ type Querier interface {
 	BatchInsertArtifacts(ctx context.Context, arg []BatchInsertArtifactsParams) (int64, error)
 	// Batch insert queries using COPY protocol for efficient seeding
 	BatchInsertClasses(ctx context.Context, arg []BatchInsertClassesParams) (int64, error)
+	BatchInsertCreatureStatGrowth(ctx context.Context, arg []BatchInsertCreatureStatGrowthParams) (int64, error)
 	BatchInsertCreatures(ctx context.Context, arg []BatchInsertCreaturesParams) (int64, error)
 	BatchInsertMaterialStats(ctx context.Context, arg []BatchInsertMaterialStatsParams) (int64, error)
 	BatchInsertMaterials(ctx context.Context, arg []BatchInsertMaterialsParams) (int64, error)
@@ -25,60 +26,38 @@ type Querier interface {
 	BatchInsertSpells(ctx context.Context, arg []BatchInsertSpellsParams) (int64, error)
 	BatchInsertStats(ctx context.Context, arg []BatchInsertStatsParams) (int64, error)
 	BatchInsertTraits(ctx context.Context, arg []BatchInsertTraitsParams) (int64, error)
-	CreateArtifact(ctx context.Context, arg CreateArtifactParams) (int32, error)
-	CreateClass(ctx context.Context, arg CreateClassParams) (int32, error)
-	CreateCreature(ctx context.Context, arg CreateCreatureParams) (int32, error)
-	CreateMaterial(ctx context.Context, arg CreateMaterialParams) (Material, error)
-	CreateMaterialStat(ctx context.Context, arg CreateMaterialStatParams) (int32, error)
-	CreatePerk(ctx context.Context, arg CreatePerkParams) (int32, error)
-	CreateRace(ctx context.Context, arg CreateRaceParams) (int32, error)
-	CreateRelic(ctx context.Context, arg CreateRelicParams) (int32, error)
-	CreateSpecialization(ctx context.Context, arg CreateSpecializationParams) (int32, error)
-	CreateSpell(ctx context.Context, arg CreateSpellParams) (int32, error)
-	CreateSpellProperty(ctx context.Context, arg CreateSpellPropertyParams) (int32, error)
-	CreateStat(ctx context.Context, arg CreateStatParams) (int32, error)
-	CreateTrait(ctx context.Context, arg CreateTraitParams) (int32, error)
-	DeleteArtifact(ctx context.Context, id int32) error
-	DeleteClass(ctx context.Context, id int32) error
-	DeleteCreature(ctx context.Context, id int32) error
-	DeleteMaterial(ctx context.Context, id int32) error
-	DeleteMaterialStat(ctx context.Context, id int32) error
-	DeletePerk(ctx context.Context, id int32) error
-	DeleteRace(ctx context.Context, id int32) error
-	DeleteRelic(ctx context.Context, id int32) error
-	DeleteSpecialization(ctx context.Context, id int32) error
-	DeleteSpell(ctx context.Context, id int32) error
-	DeleteSpellProperty(ctx context.Context, id int32) error
-	DeleteStat(ctx context.Context, id int32) error
-	DeleteTrait(ctx context.Context, id int32) error
 	GetArtifact(ctx context.Context, id int32) (Artifact, error)
 	GetArtifacts(ctx context.Context) ([]Artifact, error)
 	GetArtifactsByName(ctx context.Context, dollar_1 pgtype.Text) ([]Artifact, error)
-	GetClass(ctx context.Context, id int32) (Class, error)
-	GetClasses(ctx context.Context) ([]Class, error)
-	GetClassesByName(ctx context.Context, dollar_1 pgtype.Text) ([]Class, error)
-	GetCreature(ctx context.Context, id int32) (Creature, error)
-	GetCreatures(ctx context.Context) ([]Creature, error)
-	GetCreaturesByClassName(ctx context.Context, dollar_1 pgtype.Text) ([]Creature, error)
-	GetCreaturesByName(ctx context.Context, dollar_1 pgtype.Text) ([]Creature, error)
-	GetCreaturesByRaceName(ctx context.Context, dollar_1 pgtype.Text) ([]Creature, error)
-	GetCreaturesByTraitName(ctx context.Context, dollar_1 pgtype.Text) ([]Creature, error)
-	GetMaterial(ctx context.Context, id int32) (GetMaterialRow, error)
-	GetMaterialStats(ctx context.Context, materialID int32) ([]GetMaterialStatsRow, error)
-	GetMaterials(ctx context.Context) ([]GetMaterialsRow, error)
-	GetMaterialsByName(ctx context.Context, dollar_1 pgtype.Text) ([]GetMaterialsByNameRow, error)
+	GetClass(ctx context.Context, id int32) (ClassesView, error)
+	GetClassIconById(ctx context.Context, id int32) ([]byte, error)
+	GetClasses(ctx context.Context) ([]ClassesView, error)
+	GetClassesByName(ctx context.Context, dollar_1 pgtype.Text) ([]ClassesView, error)
+	GetCreature(ctx context.Context, id int32) (CreaturesView, error)
+	GetCreatureIconById(ctx context.Context, id int32) ([]byte, error)
+	GetCreatures(ctx context.Context) ([]CreaturesView, error)
+	GetCreaturesByClassName(ctx context.Context, dollar_1 pgtype.Text) ([]CreaturesView, error)
+	GetCreaturesByName(ctx context.Context, dollar_1 pgtype.Text) ([]CreaturesView, error)
+	GetCreaturesByRaceName(ctx context.Context, dollar_1 pgtype.Text) ([]CreaturesView, error)
+	GetCreaturesByTraitName(ctx context.Context, dollar_1 pgtype.Text) ([]CreaturesView, error)
+	GetMaterial(ctx context.Context, id int32) (MaterialsView, error)
+	GetMaterialIconById(ctx context.Context, id int32) ([]byte, error)
+	GetMaterials(ctx context.Context) ([]MaterialsView, error)
+	GetMaterialsByName(ctx context.Context, dollar_1 pgtype.Text) ([]MaterialsView, error)
 	GetPerk(ctx context.Context, id int32) (Perk, error)
 	GetPerks(ctx context.Context) ([]Perk, error)
 	GetPerksByName(ctx context.Context, dollar_1 pgtype.Text) ([]Perk, error)
-	GetRace(ctx context.Context, id int32) (Race, error)
-	GetRaces(ctx context.Context) ([]Race, error)
-	GetRacesByClassName(ctx context.Context, dollar_1 pgtype.Text) ([]Race, error)
-	GetRacesByCreatureName(ctx context.Context, dollar_1 pgtype.Text) ([]Race, error)
-	GetRacesByName(ctx context.Context, dollar_1 pgtype.Text) ([]Race, error)
-	GetRacesByTraitName(ctx context.Context, dollar_1 pgtype.Text) ([]Race, error)
-	GetRelic(ctx context.Context, id int32) (GetRelicRow, error)
-	GetRelics(ctx context.Context) ([]GetRelicsRow, error)
-	GetRelicsByName(ctx context.Context, dollar_1 pgtype.Text) ([]GetRelicsByNameRow, error)
+	GetRace(ctx context.Context, id int32) (RacesView, error)
+	GetRaceIconById(ctx context.Context, id int32) ([]byte, error)
+	GetRaces(ctx context.Context) ([]RacesView, error)
+	GetRacesByClassName(ctx context.Context, dollar_1 pgtype.Text) ([]RacesView, error)
+	GetRacesByCreatureName(ctx context.Context, dollar_1 pgtype.Text) ([]RacesView, error)
+	GetRacesByName(ctx context.Context, dollar_1 pgtype.Text) ([]RacesView, error)
+	GetRacesByTraitName(ctx context.Context, dollar_1 pgtype.Text) ([]RacesView, error)
+	GetRelic(ctx context.Context, id int32) (RelicsView, error)
+	GetRelicIconById(ctx context.Context, id int32) ([]byte, error)
+	GetRelics(ctx context.Context) ([]RelicsView, error)
+	GetRelicsByName(ctx context.Context, dollar_1 pgtype.Text) ([]RelicsView, error)
 	GetSpecialization(ctx context.Context, id int32) (Specialization, error)
 	GetSpecializations(ctx context.Context) ([]Specialization, error)
 	GetSpecializationsByName(ctx context.Context, dollar_1 pgtype.Text) ([]Specialization, error)
@@ -98,7 +77,6 @@ type Querier interface {
 	GetTraitsByName(ctx context.Context, dollar_1 pgtype.Text) ([]Trait, error)
 	MaterialExists(ctx context.Context, id int32) (bool, error)
 	TraitExists(ctx context.Context, id int32) (bool, error)
-	UpdateMaterialStat(ctx context.Context, arg UpdateMaterialStatParams) error
 }
 
 var _ Querier = (*Queries)(nil)

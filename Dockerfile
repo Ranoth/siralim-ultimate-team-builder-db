@@ -16,7 +16,7 @@ WORKDIR /app
 ENV GOOSE_DRIVER=postgres
 ENV GOOSE_MIGRATION_DIR=/app/migrations
 
-RUN addgroup -S go && adduser -S -G go go
+RUN addgroup -S go && adduser -S -G go go && apk add --no-cache curl
 
 COPY --from=build --chown=root:root /app/sutbdb ./
 COPY --from=build --chown=root:root /app/internal/adapters/postgresql/migrations ./migrations
@@ -25,7 +25,6 @@ COPY --chown=root:root entrypoint.sh ./scripts/entrypoint.sh
 
 RUN chmod 0555 ./sutbdb ./scripts/entrypoint.sh /usr/local/bin/goose \
     && chmod -R a-w ./migrations
-
 USER go
 
 ENTRYPOINT ["sh", "./scripts/entrypoint.sh"]

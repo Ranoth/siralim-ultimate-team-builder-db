@@ -71,6 +71,57 @@ func HandleGetByID[T any](serviceFunc func(context.Context, int32) (T, error), r
 	}
 }
 
+func HandleGetByIDInPath[T any](serviceFunc func(context.Context, int32) (T, error), resourceName string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idStr := r.PathValue("id")
+		if idStr == "" {
+			WriteErrorMessage(w, http.StatusBadRequest, "Missing 'id' parameter")
+			return
+		}
+
+		var id int32
+		_, err := fmt.Sscanf(idStr, "%d", &id)
+		if err != nil {
+			WriteErrorMessage(w, http.StatusBadRequest, "Invalid 'id' parameter")
+			return
+		}
+
+		result, err := serviceFunc(r.Context(), id)
+		if err != nil {
+			WriteErrorMessage(w, http.StatusInternalServerError, fmt.Sprintf("Error getting %s: %v", resourceName, err))
+			return
+		}
+		WriteJSON(w, http.StatusOK, result)
+	}
+}
+
+func HandleGetIconRawBytesByIdInPath(serviceFunc func(context.Context, int32) ([]byte, error), resourceName string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idStr := r.PathValue("id")
+		if idStr == "" {
+			WriteErrorMessage(w, http.StatusBadRequest, "Missing 'id' parameter")
+			return
+		}
+
+		var id int32
+		_, err := fmt.Sscanf(idStr, "%d", &id)
+		if err != nil {
+			WriteErrorMessage(w, http.StatusBadRequest, "Invalid 'id' parameter")
+			return
+		}
+
+		result, err := serviceFunc(r.Context(), id)
+		if err != nil {
+			WriteErrorMessage(w, http.StatusInternalServerError, fmt.Sprintf("Error getting %s: %v", resourceName, err))
+			return
+		}
+
+		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		_, _ = w.Write(result)
+	}
+}
+
 func HandleGetByName[T any](serviceFunc func(context.Context, string) ([]T, error), resourceName string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		type request struct {

@@ -26,11 +26,3 @@ func (h *handler) GetArtifact(w http.ResponseWriter, r *http.Request) {
 func (h *handler) GetArtifactsByName(w http.ResponseWriter, r *http.Request) {
 	httpx.HandleGetByName[repo.Artifact](h.service.GetArtifactsByName, "artifacts")(w, r)
 }
-
-func (h *handler) CreateArtifact(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleCreate[repo.CreateArtifactParams, repo.Artifact](h.service.CreateArtifact, "artifact")(w, r)
-}
-
-func (h *handler) DeleteArtifact(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleDelete[repo.Artifact](h.service.DeleteArtifact, "artifact")(w, r)
-}

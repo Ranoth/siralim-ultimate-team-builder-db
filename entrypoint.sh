@@ -6,6 +6,7 @@ set -e
 GOOSE_DRIVER="${GOOSE_DRIVER}"
 GOOSE_DBSTRING="${GOOSE_DBSTRING}"
 GOOSE_MIGRATION_DIR="${GOOSE_MIGRATION_DIR}"
+DB_DROP_CREATE_SEED="${DB_DROP_CREATE_SEED:-false}"
 
 # Validate required environment variables
 if [ -z "$GOOSE_DBSTRING" ]; then
@@ -20,6 +21,12 @@ echo "Migration directory: $GOOSE_MIGRATION_DIR"
 # Run goose migrations using environment variables
 export GOOSE_DRIVER
 export GOOSE_DBSTRING
+
+if [ "$DB_DROP_CREATE_SEED" = "true" ]; then
+	echo "Dropping DB to force re-seeding"
+    cd /app && /usr/local/bin/goose -dir "$GOOSE_MIGRATION_DIR" down || echo "Warning: goose down failed, continuing..."
+fi
+
 cd /app && /usr/local/bin/goose -dir "$GOOSE_MIGRATION_DIR" up
 
 if [ $? -ne 0 ]; then

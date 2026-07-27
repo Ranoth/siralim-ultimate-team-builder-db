@@ -6,6 +6,7 @@ package repo
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -112,6 +113,12 @@ type Class struct {
 	Icon []byte `json:"icon"`
 }
 
+type ClassesView struct {
+	ID   int32       `json:"id"`
+	Name string      `json:"name"`
+	Icon interface{} `json:"icon"`
+}
+
 type Creature struct {
 	ID      int32       `json:"id"`
 	Name    string      `json:"name"`
@@ -119,6 +126,24 @@ type Creature struct {
 	TraitID pgtype.Int4 `json:"trait_id"`
 	ClassID int32       `json:"class_id"`
 	RaceID  int32       `json:"race_id"`
+}
+
+type CreatureStatGrowth struct {
+	ID         int32 `json:"id"`
+	CreatureID int32 `json:"creature_id"`
+	StatID     int32 `json:"stat_id"`
+	GrowthRate int32 `json:"growth_rate"`
+}
+
+type CreaturesView struct {
+	ID               int32           `json:"id"`
+	Name             string          `json:"name"`
+	Icon             interface{}     `json:"icon"`
+	Trait            pgtype.Text     `json:"trait"`
+	TraitDescription pgtype.Text     `json:"trait_description"`
+	Class            string          `json:"class"`
+	Race             string          `json:"race"`
+	Stats            json.RawMessage `json:"stats"`
 }
 
 type Material struct {
@@ -135,6 +160,15 @@ type MaterialStat struct {
 	StatId2    pgtype.Int4 `json:"stat_id2"`
 }
 
+type MaterialsView struct {
+	ID      int32        `json:"id"`
+	Name    string       `json:"name"`
+	Icon    interface{}  `json:"icon"`
+	Type    MaterialType `json:"type"`
+	StatId1 pgtype.Int4  `json:"stat_id1"`
+	StatId2 pgtype.Int4  `json:"stat_id2"`
+}
+
 type Perk struct {
 	ID               int32  `json:"id"`
 	Name             string `json:"name"`
@@ -149,12 +183,27 @@ type Race struct {
 	Icon []byte `json:"icon"`
 }
 
+type RacesView struct {
+	ID   int32       `json:"id"`
+	Name string      `json:"name"`
+	Icon interface{} `json:"icon"`
+}
+
 type Relic struct {
 	ID      int32    `json:"id"`
 	Name    string   `json:"name"`
 	Icon    []byte   `json:"icon"`
 	Bonuses []string `json:"bonuses"`
 	StatID  int32    `json:"stat_id"`
+}
+
+type RelicsView struct {
+	ID       int32        `json:"id"`
+	Name     string       `json:"name"`
+	Icon     interface{}  `json:"icon"`
+	Bonuses  []string     `json:"bonuses"`
+	StatID   pgtype.Int4  `json:"stat_id"`
+	StatType NullStatType `json:"stat_type"`
 }
 
 type Specialization struct {

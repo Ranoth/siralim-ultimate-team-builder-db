@@ -8,7 +8,8 @@ type config struct {
 	jsonSources                 map[string]jsonMeta
 	staticTables                map[string][]map[string]interface{}
 	correlatedFieldNamesMetaMap map[string][]fieldMapping
-	junctionTableSpecs          map[string]junctionTableSpec
+	arrayJunctionTableSpecs     map[string]arrayJunctionTableSpec
+	objectJunctionTableSpecs    map[string]objectJunctionTableSpec
 }
 
 const gameDataRootPath = "/app/gameData/"
@@ -18,17 +19,18 @@ func newSeederConfig() *config {
 		logger:           slog.Default(),
 		gameDataRootPath: gameDataRootPath,
 		jsonSources: map[string]jsonMeta{
-			"artifacts":       {filePath: gameDataRootPath + "artifacts.json", name: "artifacts", isDerived: false},
-			"races":           {filePath: gameDataRootPath + "races.json", name: "races", isDerived: false},
-			"specializations": {filePath: gameDataRootPath + "specializations.json", name: "specializations", isDerived: false},
-			"materials":       {filePath: gameDataRootPath + "materials.json", name: "materials", isDerived: false},
-			"traits":          {filePath: gameDataRootPath + "traits.json", name: "traits", isDerived: false},
-			"creatures":       {filePath: gameDataRootPath + "creatures.json", name: "creatures", isDerived: false},
-			"perks":           {filePath: gameDataRootPath + "perks.json", name: "perks", isDerived: false},
-			"spells":          {filePath: gameDataRootPath + "spells.json", name: "spells", isDerived: false},
-			"spellProperties": {filePath: gameDataRootPath + "spellProperties.json", name: "spellProperties", isDerived: false},
-			"relics":          {filePath: gameDataRootPath + "gods.json", name: "relics", isDerived: false},
-			"material_stats":  {name: "material_stats", isDerived: true},
+			"artifacts":            {filePath: gameDataRootPath + "artifacts.json", name: "artifacts", isDerived: false},
+			"races":                {filePath: gameDataRootPath + "races.json", name: "races", isDerived: false},
+			"specializations":      {filePath: gameDataRootPath + "specializations.json", name: "specializations", isDerived: false},
+			"materials":            {filePath: gameDataRootPath + "materials.json", name: "materials", isDerived: false},
+			"traits":               {filePath: gameDataRootPath + "traits.json", name: "traits", isDerived: false},
+			"creatures":            {filePath: gameDataRootPath + "creatures.json", name: "creatures", isDerived: false},
+			"perks":                {filePath: gameDataRootPath + "perks.json", name: "perks", isDerived: false},
+			"spells":               {filePath: gameDataRootPath + "spells.json", name: "spells", isDerived: false},
+			"spellProperties":      {filePath: gameDataRootPath + "spellProperties.json", name: "spellProperties", isDerived: false},
+			"relics":               {filePath: gameDataRootPath + "gods.json", name: "relics", isDerived: false},
+			"material_stats":       {name: "material_stats", isDerived: true},
+			"creature_stat_growth": {name: "creature_stat_growth", isDerived: true},
 		},
 		staticTables: map[string][]map[string]interface{}{
 			"classes": {
@@ -112,6 +114,7 @@ func newSeederConfig() *config {
 				{dbField: "name", jsonField: "name"},
 				{dbField: "description", jsonField: "description"},
 				{dbField: "icon", jsonField: "battleSprite"},
+				{dbField: "", jsonField: "statGrowth"},
 				{dbField: "race_id", jsonField: "race", findIdFromSource: "races"},
 				{dbField: "class_id", jsonField: "class", findIdFromSource: "classes"},
 				{dbField: "trait_id", jsonField: "trait", findIdFromSource: "traits"},
@@ -124,16 +127,29 @@ func newSeederConfig() *config {
 				{dbField: "stat_id", jsonField: "relicStat", findIdFromSource: "stats"},
 			},
 		},
-		junctionTableSpecs: map[string]junctionTableSpec{
+		arrayJunctionTableSpecs: map[string]arrayJunctionTableSpec{
 			"material_stats": {
 				name:           "material_stats",
 				sourceName:     "materials",
 				dataField:      "stats",
 				parentKeyField: "id",
-				mappings: []junctionFieldMapping{
+				mappings: []arrayJunctionFieldMapping{
 					{junctionField: "material_id", sourceField: "id", arrayIndex: -1},
 					{junctionField: "stat_id", sourceField: "stats", arrayIndex: 0, findIdFromSource: "stats"},
 					{junctionField: "stat_id2", sourceField: "stats", arrayIndex: 1, findIdFromSource: "stats"},
+				},
+			},
+		},
+		objectJunctionTableSpecs: map[string]objectJunctionTableSpec{
+			"creature_stat_growth": {
+				name:           "creature_stat_growth",
+				sourceName:     "creatures",
+				dataField:      "statGrowth",
+				parentKeyField: "id",
+				mappings: []objectJunctionFieldMapping{
+					{junctionField: "creature_id", sourceKind: "parent", sourceField: "id", findIdFromSource: "creatures"},
+					{junctionField: "stat_id", sourceKind: "objectKey", sourceField: "statGrowth", findIdFromSource: "stats"},
+					{junctionField: "growth_rate", sourceKind: "objectValue", sourceField: "statGrowth", findIdFromSource: ""},
 				},
 			},
 		},
@@ -153,17 +169,31 @@ type fieldMapping struct {
 	findIdFromSource string
 }
 
-type junctionTableSpec struct {
+type arrayJunctionTableSpec struct {
 	name           string
 	sourceName     string
 	dataField      string
 	parentKeyField string // The field in the source item that contains the parent ID (e.g., "id" for materials)
-	mappings       []junctionFieldMapping
+	mappings       []arrayJunctionFieldMapping
+}
+type objectJunctionTableSpec struct {
+	name           string
+	sourceName     string
+	dataField      string
+	parentKeyField string // The field in the source item that contains the parent ID (e.g., "id" for materials)
+	mappings       []objectJunctionFieldMapping
 }
 
-type junctionFieldMapping struct {
+type arrayJunctionFieldMapping struct {
 	junctionField    string
 	sourceField      string
 	arrayIndex       int // -1 if not an array element, 0 for first, 1 for second, etc.
+	findIdFromSource string
+}
+
+type objectJunctionFieldMapping struct {
+	junctionField    string
+	sourceKind       string // (parent / objectKey / objectValue)
+	sourceField      string
 	findIdFromSource string
 }

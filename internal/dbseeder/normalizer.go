@@ -1,6 +1,7 @@
 package dbseeder
 
 import (
+	"errors"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -57,6 +58,40 @@ func (t *normalizer) iconToBytes(iconPathValue interface{}) ([]byte, bool) {
 
 	t.logger.Warn("Skipping icon conversion", "reason", "unsupported or empty iconPath type", "type", iconPathValue)
 	return nil, false
+}
+
+func (t *normalizer) buildNameToIDIndex(sourceName string) map[interface{}]interface{} {
+	index := make(map[interface{}]interface{})
+	source, ok := t.config.jsonSources[sourceName]
+	if !ok {
+		return index
+	}
+
+	for _, item := range source.items {
+		nameValue, hasName := item["name"]
+		idValue, hasID := item["id"]
+		if hasName && hasID {
+			index[nameValue] = idValue
+		}
+	}
+
+	return index
+}
+
+func (t *normalizer) buildFieldValueSet(sourceName string, fieldName string) map[interface{}]struct{} {
+	set := make(map[interface{}]struct{})
+	source, ok := t.config.jsonSources[sourceName]
+	if !ok {
+		return set
+	}
+
+	for _, item := range source.items {
+		if value, exists := item[fieldName]; exists {
+			set[value] = struct{}{}
+		}
+	}
+
+	return set
 }
 
 func (t *normalizer) replaceLocalValueWithForeignValue(valueNameOne string, valueNameTwo string) {
@@ -123,17 +158,6 @@ func (t *normalizer) replaceLocalValueWithForeignValue(valueNameOne string, valu
 func (t *normalizer) removeInvalidDirectForeignKeyIDs() {
 	sources := t.config.jsonSources
 
-	refIDs := make(map[string]map[interface{}]struct{})
-	for sourceName, sourceData := range sources {
-		ids := make(map[interface{}]struct{}, len(sourceData.items))
-		for _, item := range sourceData.items {
-			if idValue, ok := item["id"]; ok {
-				ids[idValue] = struct{}{}
-			}
-		}
-		refIDs[sourceName] = ids
-	}
-
 	validators := []struct {
 		sourceName string
 		fieldName  string
@@ -145,7 +169,8 @@ func (t *normalizer) removeInvalidDirectForeignKeyIDs() {
 
 	for _, validator := range validators {
 		sourceData, sourceOK := sources[validator.sourceName]
-		validIDs, refOK := refIDs[validator.refSource]
+		validIDs := t.buildFieldValueSet(validator.refSource, "id")
+		_, refOK := sources[validator.refSource]
 		if !sourceOK || !refOK || len(validIDs) == 0 {
 			continue
 		}
@@ -287,10 +312,10 @@ func (t *normalizer) convertArrayDescriptionsToStrings() {
 	}
 }
 
-func (t *normalizer) seedJunctionTables() {
+func (t *normalizer) seedArraysToJunctionTables() error {
 	sources := t.config.jsonSources
 
-	for junctionName, spec := range t.config.junctionTableSpecs {
+	for junctionName, spec := range t.config.arrayJunctionTableSpecs {
 		sourceData := sources[spec.sourceName]
 		junctionItems := make([]map[string]interface{}, 0)
 		nextID := 0
@@ -301,16 +326,9 @@ func (t *normalizer) seedJunctionTables() {
 				continue
 			}
 
-			refSourceData := sources[mapping.findIdFromSource]
-			refIndex := make(map[interface{}]interface{}, len(refSourceData.items))
-			for _, item := range refSourceData.items {
-				if nameValue, ok := item["name"]; ok {
-					if idValue, ok := item["id"]; ok {
-						refIndex[nameValue] = idValue
-					}
-				}
+			if _, exists := referenceIndexes[mapping.findIdFromSource]; !exists {
+				referenceIndexes[mapping.findIdFromSource] = t.buildNameToIDIndex(mapping.findIdFromSource)
 			}
-			referenceIndexes[mapping.findIdFromSource] = refIndex
 		}
 
 		for _, sourceItem := range sourceData.items {
@@ -371,8 +389,115 @@ func (t *normalizer) seedJunctionTables() {
 			items: junctionItems,
 		}
 
+		if len(junctionItems) == 0 {
+			return errors.New("no records found for junction table: " + junctionName)
+		}
+
 		t.logger.Info("Seeded junction table", "name", junctionName, "records", len(junctionItems))
 	}
+
+	return nil
+}
+
+func (t *normalizer) seedObjectsToJunctionTables() error {
+	sources := t.config.jsonSources
+
+	for junctionName, spec := range t.config.objectJunctionTableSpecs {
+		sourceData, ok := sources[spec.sourceName]
+		if !ok {
+			return errors.New("source not found for junction table: " + junctionName)
+		}
+
+		referenceIndexes := make(map[string]map[interface{}]interface{})
+		for _, mapping := range spec.mappings {
+			if mapping.findIdFromSource == "" {
+				continue
+			}
+			if _, exists := referenceIndexes[mapping.findIdFromSource]; !exists {
+				referenceIndexes[mapping.findIdFromSource] = t.buildNameToIDIndex(mapping.findIdFromSource)
+			}
+		}
+
+		junctionItems := make([]map[string]interface{}, 0)
+		nextID := 0
+
+		for _, sourceItem := range sourceData.items {
+			objectRaw, exists := sourceItem[spec.dataField]
+			if !exists || objectRaw == nil {
+				continue
+			}
+
+			objectMap, ok := objectRaw.(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			for objectKey, objectValue := range objectMap {
+				record := map[string]interface{}{
+					"id": nextID,
+				}
+				nextID++
+
+				for _, mapping := range spec.mappings {
+					switch mapping.sourceKind {
+					case "parent":
+						parentValue, hasParent := sourceItem[mapping.sourceField]
+						if !hasParent || parentValue == nil {
+							continue
+						}
+						record[mapping.junctionField] = parentValue
+
+					case "objectKey":
+						value := interface{}(objectKey)
+
+						if mapping.findIdFromSource != "" {
+							refIndex := referenceIndexes[mapping.findIdFromSource]
+							if refID, ok := refIndex[value]; ok {
+								value = refID
+							} else {
+								value = nil
+							}
+						}
+
+						if value != nil {
+							record[mapping.junctionField] = value
+						}
+
+					case "objectValue":
+						value := objectValue
+
+						record[mapping.junctionField] = value
+					}
+				}
+
+				complete := true
+				for _, mapping := range spec.mappings {
+					if _, ok := record[mapping.junctionField]; !ok {
+						complete = false
+						break
+					}
+				}
+				if !complete {
+					continue
+				}
+
+				junctionItems = append(junctionItems, record)
+			}
+		}
+
+		sources[junctionName] = jsonMeta{
+			name:  junctionName,
+			items: junctionItems,
+		}
+
+		if len(junctionItems) == 0 {
+			return errors.New("no records found for junction table: " + junctionName)
+		}
+
+		t.logger.Info("Seeded junction table", "name", junctionName, "records", len(junctionItems))
+	}
+
+	return nil
 }
 
 func (t *normalizer) removeNullAndEmptyFields() {
@@ -415,7 +540,12 @@ func (t *normalizer) normalize() error {
 	// ORDER MATTERS HERE
 	// Each step depends on the data being in a certain state
 	t.replaceLocalValueWithForeignValue("name", "id")
-	t.seedJunctionTables()
+	if err := t.seedArraysToJunctionTables(); err != nil {
+		return err
+	}
+	if err := t.seedObjectsToJunctionTables(); err != nil {
+		return err
+	}
 	t.removeInvalidDirectForeignKeyIDs()
 	t.renameFieldsToDbNames()
 	t.convertArrayDescriptionsToStrings()
@@ -423,15 +553,4 @@ func (t *normalizer) normalize() error {
 	t.removeNullAndEmptyFields()
 
 	return nil
-
-	// Uncomment for debugging purposes to inspect the normalized data
-	// for sourceName, jsonMeta := range t.config.jsonSources {
-	// 	if len(jsonMeta.items) > 0 {
-	// 		if (sourceName == "traits") && len(jsonMeta.items) > 1 {
-	// 			t.logger.Info("Sample after normalization",
-	// 				"source", sourceName,
-	// 				"item", jsonMeta.items[675])
-	// 		}
-	// 	}
-	// }
 }

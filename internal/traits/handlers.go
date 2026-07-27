@@ -26,11 +26,3 @@ func (h *handler) GetTrait(w http.ResponseWriter, r *http.Request) {
 func (h *handler) GetTraitsByName(w http.ResponseWriter, r *http.Request) {
 	httpx.HandleGetByName[repo.Trait](h.service.GetTraitsByName, "traits")(w, r)
 }
-
-func (h *handler) CreateTrait(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleCreate[repo.CreateTraitParams, repo.Trait](h.service.CreateTrait, "trait")(w, r)
-}
-
-func (h *handler) DeleteTrait(w http.ResponseWriter, r *http.Request) {
-	httpx.HandleDelete[repo.Trait](h.service.DeleteTrait, "trait")(w, r)
-}

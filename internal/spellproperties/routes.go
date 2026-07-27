@@ -8,6 +8,4 @@ func RegisterRoutes(r chi.Router, service Service) {
 	r.Get("/", h.GetSpellProperties)
 	r.Get("/id", h.GetSpellProperty)
 	r.Get("/name", h.GetSpellPropertiesByName)
-	r.Post("/create", h.CreateSpellProperty)
-	r.Delete("/delete", h.DeleteSpellProperty)
 }

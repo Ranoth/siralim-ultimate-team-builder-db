@@ -11,6 +11,8 @@ import (
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/artifacts"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/classes"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/creatures"
+	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/geticons"
+	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/health"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/materials"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/perks"
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/races"
@@ -22,10 +24,10 @@ import (
 	"github.com/Ranoth/siralim-ultimate-team-builder-db/internal/traits"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func (app *application) mount() http.Handler {
+func (app *application) mount(ctx context.Context) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -41,6 +43,12 @@ func (app *application) mount() http.Handler {
 
 	querier := repo.New(app.db)
 
+	healthSvc := health.NewService(app.db)
+	healthSvc.StartMonitor(ctx, 10*time.Second)
+	r.Route("/health", func(r chi.Router) {
+		health.RegisterRoutes(r, healthSvc)
+	})
+
 	routes := []route{
 		{
 			path: "/traits",
@@ -52,6 +60,12 @@ func (app *application) mount() http.Handler {
 			path: "/creatures",
 			register: func(r chi.Router, q repo.Querier) {
 				creatures.RegisterRoutes(r, creatures.NewService(q))
+			},
+		},
+		{
+			path: "/icons",
+			register: func(r chi.Router, q repo.Querier) {
+				geticons.RegisterRoutes(r, geticons.NewService(q))
 			},
 		},
 		{
@@ -147,16 +161,14 @@ func (app *application) shutdown(ctx context.Context) error {
 	}
 
 	slog.Info("Closing database connection...")
-	if err := app.db.Close(ctx); err != nil {
-		return err
-	}
+	app.db.Close()
 
 	return nil
 }
 
 type application struct {
 	config config
-	db     *pgx.Conn
+	db     *pgxpool.Pool
 	srv    *http.Server
 }
 
